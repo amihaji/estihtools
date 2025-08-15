@@ -689,9 +689,9 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL = "https://script.google.com/macros/s/AKfycbz-UxdwX14ukex9se1VZPy7jMU7xg5IuhGZHqr9L1VoVQlJ6R3PdEHLuPYHhdAv-ZP-Tg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyiVE1luSpCPGoYg_-iMVudJRgNVnEsRocnYHxtMz_lgW0abi4AmP6EzhYJB81iGdkowA/exec";
 
-async function callAPI(action, params = {}, method = "GET") {
+async function BACKUP_callAPI(action, params = {}, method = "GET") {
     if (method === "GET") {
         const url = new URL(API_URL);
         url.searchParams.append("action", action);
@@ -709,6 +709,24 @@ async function callAPI(action, params = {}, method = "GET") {
         return res.json();
     }
 }
+
+function callAPI(action, params = {}, method = "GET") {
+    if (method === "GET") {
+        const url = new URL(API_URL);
+        url.searchParams.append("action", action);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        return fetch(url).then(res => res.json());
+    } else {
+        const url = new URL(API_URL);
+        url.searchParams.append("action", action);
+        return fetch(url, {
+            method: "POST",
+            contentType: "application/json",
+            body: JSON.stringify(params)
+        }).then(res => res.json());
+    }
+}
+
 
 // *********************************************
 // Fungsi untuk Pengaturan awal, saat form aktif
@@ -1007,14 +1025,16 @@ document.addEventListener("input", function(e) {
         const vpPerUnit = (parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0) / 
                           (parseInt(e.target.defaultValue || e.target.value, 10) || 1);
 
+        // Update tampilan kolom VP & Harga
         row.cells[6].textContent = formatCurrency(vpPerUnit * qty);
         row.cells[7].textContent = formatCurrency(hargaAfterDiskon * qty);
         e.target.defaultValue = qty;
 
+        // Update total keseluruhan
         updateTotals();
 
-        // Kirim update ke Sheet
-        callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "POST")
+        // Kirim update ke Sheet via GET (hindari CORS)
+        callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "GET")
             .then(() => console.log(`Jumlah item ${noStok} diupdate jadi ${qty} di Sheet`))
             .catch(err => console.error("Gagal update jumlah di Sheet:", err));
     }
