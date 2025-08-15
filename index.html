@@ -662,6 +662,31 @@ button:hover {
 </style>  
 
 <script>
+// *******************************
+// URL Web App Google Apps Script 
+// *******************************
+const API_URL = "https://script.google.com/macros/s/AKfycbziWRG0ISNamnhuR4QjPgPip1EHzpzXbWh4m3yNEHQK2ZMX8lAZvEjCIeHVMIda6HZy0g/exec";
+
+// Fungsi umum untuk memanggil API GET/POST
+async function callAPI(action, params = {}, method = "GET") {
+    if (method === "GET") {
+        const url = new URL(API_URL);
+        url.searchParams.append("action", action);
+        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+        const res = await fetch(url);
+        return res.json();
+    } else if (method === "POST") {
+        const url = new URL(API_URL);
+        url.searchParams.append("action", action);
+        const res = await fetch(url, {
+            method: "POST",
+            contentType: "application/json",
+            body: JSON.stringify(params)
+        });
+        return res.json();
+    }
+}
+
 // *********************************************
 // Fungsi untuk Pengaturan awal, saat form aktif
 // *********************************************
@@ -714,58 +739,49 @@ function enableFields() {
 // **********************************************
 function loadOptions() {
     // Load Pilihan Diskon
-    google.script.run
-        .withSuccessHandler(function(mDiscounts) {
-            const discountSelect     = document.getElementById('discount');
-            discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
-            mDiscounts.forEach(discount => {
-                const option       = document.createElement('option');
-                option.value       = discount.Diskon;
-                option.textContent = discount.Level;
-                discountSelect.appendChild(option);
-            });
-        })
-        .withFailureHandler(error => {
-            console.error("Gagal memuat diskon:", error);
-            alert("Error: Gagal memuat data diskon. Cek konsol untuk detail.");
-        })
-        .getDiscounts();
+    callAPI("getDiscounts").then(mDiscounts => {
+        const discountSelect     = document.getElementById('discount');
+        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+        mDiscounts.forEach(discount => {
+            const option       = document.createElement('option');
+            option.value       = discount.Diskon;
+            option.textContent = discount.Level;
+            discountSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat diskon:", err);
+        alert("Error memuat diskon");
+    });
 
     // Load Pilihan Produk
-    google.script.run
-        .withSuccessHandler(function(mProducts) {
-            const productSelect     = document.getElementById('product');
-            productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-            mProducts.forEach(product => {
-                const option       = document.createElement('option');
-                option.value       = product.NoStok;
-                option.textContent = product.NamaProduk;
-                productSelect.appendChild(option);
-            });
-        })
-        .withFailureHandler(error => {
-            console.error("Gagal memuat produk:", error);
-            alert("Error: Gagal memuat data produk. Cek konsol untuk detail.");
-        })
-        .getProducts();
+    callAPI("getProducts").then(mProducts => {
+        const productSelect     = document.getElementById('product');
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        mProducts.forEach(product => {
+            const option       = document.createElement('option');
+            option.value       = product.NoStok;
+            option.textContent = product.NamaProduk;
+            productSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat produk:", err);
+        alert("Error memuat produk");
+    });
 
     // Load Jenis Pengiriman
-    google.script.run
-        .withSuccessHandler(function(mShippingOptions) {
-            const shippingSelect     = document.getElementById('shipping');
-            shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
-            mShippingOptions.forEach(shipping => {
-                const option       = document.createElement('option');
-                option.value       = shipping.Biaya;
-                option.textContent = shipping.JenisPengiriman;
-                shippingSelect.appendChild(option);
-            });
-        })
-        .withFailureHandler(error => {
-            console.error("Gagal memuat pengiriman:", error);
-            alert("Error: Gagal memuat data pengiriman. Cek konsol untuk detail.");
-        })
-        .getShippingOptions();
+    callAPI("getShippingOptions").then(mShippingOptions => {
+        const shippingSelect     = document.getElementById('shipping');
+        shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+        mShippingOptions.forEach(shipping => {
+            const option       = document.createElement('option');
+            option.value       = shipping.Biaya;
+            option.textContent = shipping.JenisPengiriman;
+            shippingSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat pengiriman:", err);
+        alert("Error memuat pengiriman");
+    });
 }
 
 // **********************************************************
@@ -801,104 +817,77 @@ function addItem() {
         showMessage("Harap isi semua field yang diwajibkan dengan benar!", true);
         return;
     }
+   callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+    // isi sama persis seperti sebelumnya
+    const mTableBody = document.querySelector("#orderTable tbody");
+    const mDiscount  = mDiscountSelect.value;
 
-    google.script.run.withSuccessHandler(function(mProductData) {
-        const mTableBody = document.querySelector("#orderTable tbody");
-        //const mIsLainnya = mProductData.Kategori === "Lainnya";
-        const mDiscount  = mDiscountSelect.value;
+    let mPriceAfterDiscount;
+    switch (mDiscount) {
+        case "0%": mPriceAfterDiscount = mProductData.HargaEceran; break;
+        case "25%": mPriceAfterDiscount = mProductData.Member25; break;
+        case "35%": mPriceAfterDiscount = mProductData.SC35; break;
+        case "42%": mPriceAfterDiscount = mProductData.SB42; break;
+        case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
+        default: mPriceAfterDiscount = mProductData.HargaEceran;
+    }
 
-        // Hitung harga setelah diskon
-        let mPriceAfterDiscount;
-        switch (mDiscount) {
-            case "0%": 
-                mPriceAfterDiscount = mProductData.HargaEceran;
-                break;
-            case "25%": 
-                mPriceAfterDiscount = mProductData.Member25; 
-                break;
-            case "35%": 
-                mPriceAfterDiscount = mProductData.SC35; 
-                break;
-            case "42%": 
-                mPriceAfterDiscount = mProductData.SB42; 
-                break;
-            case "50%": 
-                mPriceAfterDiscount = mProductData.SPV50; 
-                break;
-            default: 
-                mPriceAfterDiscount = mProductData.HargaEceran;
+    const mHarga = mPriceAfterDiscount * mQuantity;
+    const mTotVP = mProductData.VP * mQuantity;
+
+    const mNewRow = `
+        <tr>
+            <td>${mTableBody.rows.length + 1}</td>
+            <td>${mProductSelect.value}</td>
+            <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
+            <td>${formatCurrency(mProductData.HargaEceran)}</td>
+            <td>${formatCurrency(mPriceAfterDiscount)}</td>
+            <td>${mQuantity}</td>
+            <td>${formatCurrency(mTotVP)}</td>
+            <td>${formatCurrency(mHarga)}</td>
+            <td class="tooltip">
+                <span class="delete-icon" onclick="deleteItem(this)">
+                     <i class="fas fa-times"></i>
+                </span>     
+                <span class="tooltiptext">Hapus</span>   
+            </td>
+        </tr>
+    `;
+    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
+    document.getElementById("kirimButton").disabled = false;
+    updateTotals();
+
+    const mOrderData = {
+        mDate: document.getElementById("date").value,
+        mInvoice: document.getElementById("invoice").value,
+        mDistributorName: mDistributorName.value,
+        mDistributorPhone: mDistributorPhone.value,
+        mConsumerName: document.getElementById("consumerName").value,
+        mConsumerPhone: document.getElementById("consumerPhone").value,
+        mConsumerEmail: document.getElementById("consumerEmail").value,
+        mDiskon: selectedDiscountLabel,
+        mByKirim: parseFloat(mShippingSelect.value),
+        mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
+        mItem: {
+            mNoStok: mProductSelect.value,
+            mKategori: mProductData.Kategori,
+            mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
+            mVp: mProductData.VP,
+            mHargaEceran: mProductData.HargaEceran,
+            mSetelahDiskon: mPriceAfterDiscount,
+            mJumlah: mQuantity,
+            mTotVP: mTotVP,
+            mHarga: mHarga
         }
+    };
 
-        // Hitung total harga dan Tot VP
-        const mHarga = mPriceAfterDiscount * mQuantity;    // Menghitung Harga = Diskon x Jumlah
-        const mTotVP = mProductData.VP * mQuantity;        // Menghitung Total VP = VP x Jumlah 
-
-        // Tambahkan atau simpan data item ke tabel
-        const mNewRow = `
-            <tr>
-                <td>${mTableBody.rows.length + 1}</td>
-                <td>${mProductSelect.value}</td>
-                <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-                <td>${formatCurrency(mProductData.HargaEceran)}</td>
-                <td>${formatCurrency(mPriceAfterDiscount)}</td>
-                <td>${mQuantity}</td>
-                <td>${formatCurrency(mTotVP)}</td>
-                <td>${formatCurrency(mHarga)}</td>
-                <!-- Tooltip "Hapus" --->
-                <td class="tooltip">
-                    <span class="delete-icon" onclick="deleteItem(this)">
-                         <i class="fas fa-times"></i>   <!-- Ikon silang dari FontAwesome -->
-                    </span>     
-                    <span class="tooltiptext">Hapus</span>   
-                </td>
-            </tr>
-        `;
-        
-        mTableBody.insertAdjacentHTML("beforeend", mNewRow);
-
-        // Update judul kolom "Diskon" dengan "Label Diskon" sesuai pilihan, contoh: tampil "Diskon 42%"
-        document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-
-        // Aktifkan tombol "KIRIM"
-        document.getElementById("kirimButton").disabled = false;
-
-        // Update perhitungan totals
-        updateTotals();
-
-        // Simpan data ke Google Sheets
-        const mOrderData = {
-            mDate:             document.getElementById("date").value,
-            mInvoice:          document.getElementById("invoice").value,
-            mDistributorName:  mDistributorName.value,
-            mDistributorPhone: mDistributorPhone.value,
-            mConsumerName:     document.getElementById("consumerName").value,
-            mConsumerPhone:    document.getElementById("consumerPhone").value,
-            mConsumerEmail:    document.getElementById("consumerEmail").value,
-            mDiskon:           selectedDiscountLabel,                          // Simpan label diskon sesuai pilihan
-            mByKirim:          parseFloat(mShippingSelect.value),
-            mPajak:            parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
-            mItem: {
-                mNoStok:        mProductSelect.value,
-                mKategori:      mProductData.Kategori,
-                mNamaProduk:    mProductSelect.options[mProductSelect.selectedIndex].text,
-                mVp:            mProductData.VP,
-                mHargaEceran:   mProductData.HargaEceran,
-                mSetelahDiskon: mPriceAfterDiscount,
-                mJumlah:        mQuantity,
-                mTotVP:         mTotVP,
-                mHarga:         mHarga
-            }
-        };
-
-        google.script.run.saveItem(mOrderData);
-
-        // Disable semua field kecuali Nama Produk dan Jumlah
-        disableFields();
-
-        showMessage("Item berhasil ditambahkan!", false);
-    }).withFailureHandler(function(error) {
+    callAPI("saveItem", mOrderData, "POST");
+    disableFields();
+    showMessage("Item berhasil ditambahkan!", false);
+    }).catch(error => {
         showMessage("Error: " + error.message, true);
-    }).getProductDetails(mProductSelect.value);
+    });
 }
 
 // ***************************************
@@ -988,16 +977,13 @@ function submitForm() {
     };
 
     // Kirim data ke Google Script
-    google.script.run
-        .withSuccessHandler(function(response) {
-            showMessage("Hasil telah terkirim ke WA dan email yang terisi", false);
-            resetForm();
-        })
-        .withFailureHandler(function(error) {
-            showMessage("Error: " + error.message, true);
-            resetForm();
-        })
-        .sendEmail(mOrderData);
+    callAPI("sendEmail", mOrderData, "POST").then(response => {
+        showMessage("Hasil telah terkirim ke WA dan email yang terisi", false);
+        resetForm();
+    }).catch(error => {
+        showMessage("Error: " + error.message, true);
+        resetForm();
+    });
 }
 
 // ****************************
