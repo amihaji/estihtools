@@ -336,7 +336,7 @@ button:hover {
 #orderTable th, #orderTable td {
     padding: 10px;
     border: 1px solid #ddd;
-    //word-wrap: break-word;       /* Memastikan teks tidak meluber */
+    /* word-wrap: break-word;       /* Memastikan teks tidak meluber */
 }
 
 /* Pengaturan kolom field tabel */
@@ -425,12 +425,12 @@ button:hover {
 
 #orderTable td:nth-child(9) {     /* Kolom Tong sampah */
     text-align: center;
-    //border: 1px solid #ddd;     /* Tambahkan border untuk seluruh tabel */
+    /* border: 1px solid #ddd;     /* Tambahkan border untuk seluruh tabel */
 }
 
 /* Sorotan Baris */
 #orderTable tbody tr:hover {
-    // background-color: #f0f2f5;  /* warna abu-abu muda */ 
+    /* background-color: #f0f2f5;  /* warna abu-abu muda */ 
     background-color: #c3ccd5;     /* warna abu-abu muda */
     color: black;
 }
@@ -448,7 +448,7 @@ button:hover {
 
 /* Icon "X" dari FontAwesome */
 .fa-times {
-    // color: #666;                /* Warna abu-abu tua */
+    /* color: #666;                /* Warna abu-abu tua */
     color: white;                  /* Warna putih untuk menyamarkan tampilan */
     font-size: 20px;               /* Ukuran ikon */
     cursor: pointer;               /* Ubah kursor menjadi pointer saat dihover */
@@ -519,17 +519,14 @@ button:hover {
     font-weight: bold;
     font-size: 14px;
 }
-
 .footer a {
     color: white;
     text-decoration: none;
 }
-
 .footer a:hover {
-    //text-decoration: underline;
+    /* text-decoration: underline; */
     color: red;
 }
-
 
 /* ------------------------------------------------------------*/
 /* Modal Styles : Pengaturan pada Form Ketentuan dan Kebijakan */
@@ -545,7 +542,6 @@ button:hover {
     overflow: auto;
     background-color: rgba(0, 0, 0, 0.5);
 }
-
 .modal-content {
     background-color: #fff;
     margin: 10% auto;
@@ -556,7 +552,6 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-
 .close {
     color: #aaa;
     float: right;
@@ -564,7 +559,6 @@ button:hover {
     font-weight: bold;
     cursor: pointer;
 }
-
 .close:hover {
     color: #000;
 }
@@ -579,14 +573,10 @@ button:hover {
     cursor: pointer;
     font-weight: bold;
 }
-
 #setujuButton:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
-/* ---------------------------------------------------------- */
-/* Batas akhir Modal Styles pada Form Ketentuan dan Kebijakan */
-/* ---------------------------------------------------------- */
 
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
@@ -602,24 +592,12 @@ button:hover {
         margin: 10px auto;
         box-sizing: border-box;
     }
-
     /* Header */
-    .header img {
-        width: 100%;
-        height: auto;
-    }
+    .header img { width: 100%; height: auto; }
 
     /* Formulir */
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    label {
-        font-size: 14px;
-    }
-
+    form  { display: flex; flex-direction: column; gap: 10px;  }
+    label { font-size: 14px;}
     input, select, button {
         font-size: 14px;
         padding: 8px;
@@ -632,7 +610,6 @@ button:hover {
         flex-direction: column;  /* Tombol vertikal di handphone */
         gap: 5px;                /* Jarak antar tombol diperkecil */
     }
-
     .button-group button {
         width: 100%;
         margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
@@ -644,12 +621,10 @@ button:hover {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch; /* Smooth scroll di mobile */
     }
-
     #orderTable {
         min-width: 100%;        /* Tabel menyesuaikan lebar layar */
         font-size: 12px;
     }
-
     #orderTable th,
     #orderTable td {
         padding: 6px;           /* Padding diperkecil */
@@ -659,7 +634,6 @@ button:hover {
     #orderSummary {
         margin-top: 20px;
     }
-
     #summaryDetails {
         font-size: 12px;
         margin: 3px 50;          /* Jarak antar baris diperkecil */
@@ -675,47 +649,22 @@ button:hover {
     }
 
     /* Modal Ketentuan dan Kebijakan */
-    .modal-content {
-        width: 90%;
-        margin: 10% auto;
-        padding: 15px;
-    }
-
-    .modal-content h2 {
-        font-size: 18px;
-    }
-
-    .modal-content p {
-        font-size: 14px;
-    }
-
+    .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
+    .modal-content h2 { font-size: 18px; }
+    .modal-content p { font-size: 14px; }
     /* Pesan Error dan Sukses */
-    #message {
-        font-size: 12px;
-    }
-
+    #message { font-size: 12px;}
     /* Input dan Select yang Disabled */
-    input:disabled, select:disabled {
-        cursor: not-allowed;
-    }
-
+    input:disabled, select:disabled { cursor: not-allowed; }
     /* Input dan Select yang Enabled */
-    input:enabled, select:enabled {
-        cursor: pointer;
-    }
+    input:enabled, select:enabled { cursor: pointer; }
 }
-/* ----------------------------------------------*/
-/* Batas Akhir Responsive Design untuk Handphone */
-/* ----------------------------------------------*/
 </style>  
 
-
 <script>
-// ---------------
-// Awal Script  
-// ---------------
-
-// *** Fungsi untuk Pengaturan awal, saat form aktif
+// *********************************************
+// Fungsi untuk Pengaturan awal, saat form aktif
+// *********************************************
 document.addEventListener('DOMContentLoaded', function() {
     // Generate No. Simulasi (invoice)
     const mDateField    = document.getElementById('date'); 
@@ -734,7 +683,9 @@ document.addEventListener('DOMContentLoaded', function() {
     loadOptions();
 });
 
-// *** Fungsi untuk DISABLE field-field
+// ********************************
+// Fungsi untuk DISABLE field-field
+// ********************************
 function disableFields() {
     const fieldsToDisable = [
         'distributorName', 'distributorPhone', 'consumerName', 'consumerPhone', 'consumerEmail', 'discount', 'shipping'];
@@ -745,7 +696,9 @@ function disableFields() {
     });
 }
 
-// *** Fungsi untuk ENABLE field-field
+// ********************************
+// Fungsi untuk ENABLE field-field
+// ********************************
 function enableFields() {
     const fieldsToEnable = [
         'distributorName', 'distributorPhone', 'consumerName', 'consumerPhone', 'consumerEmail', 'discount', 'shipping'];
@@ -756,7 +709,9 @@ function enableFields() {
     });
 }
 
-// *** Fungsi untuk memanggil pilihan dropdown field
+// **********************************************
+// Fungsi untuk memanggil pilihan dropdown field
+// **********************************************
 function loadOptions() {
     // Load Pilihan Diskon
     google.script.run
@@ -813,7 +768,9 @@ function loadOptions() {
         .getShippingOptions();
 }
 
-// *** Fungsi untuk menjalankan tombol "TAMBAH" dan menyimpan data inputan
+// **********************************************************
+// Fungsi untuk menjalankan tombol "TAMBAH" dan simpand data
+// **********************************************************
 function addItem() {
     const mDistributorName  = document.getElementById("distributorName");
     const mDistributorPhone = document.getElementById("distributorPhone");
@@ -944,7 +901,9 @@ function addItem() {
     }).getProductDetails(mProductSelect.value);
 }
 
-// *** Fungsi untuk menjalankan tombol "RESET"
+// ***************************************
+// Fungsi untuk menjalankan tombol "RESET"
+// ***************************************
 function resetForm() {
     console.log("Tombol Reset diklik");
 
@@ -984,7 +943,9 @@ function resetForm() {
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
 }
 
-// *** Fungsi untuk menjalankan tombol "KIRIM" via WA dan Email
+// *********************************************
+// Fungsi untuk tombol "KIRIM" via WA dan Email
+// *********************************************
 function submitForm() {
     const mDistributorPhone = document.getElementById('distributorPhone').value.trim();
 
@@ -1039,7 +1000,9 @@ function submitForm() {
         .sendEmail(mOrderData);
 }
 
+// ****************************
 // Fungsi untuk menghapus item
+// ****************************
 function deleteItem(icon) {
     const row     = icon.closest('tr');
     const noStok  = row.cells[1].textContent.trim();          // Ambil No Stok dan hilangkan spasi
@@ -1064,7 +1027,9 @@ function deleteItem(icon) {
         .deleteItemFromSheet(noStok); // Panggil fungsi di Google Apps Script
 }
 
-// *** Fungsi untuk memperbarui nomor item setelah penghapusan
+// ********************************************************
+// Fungsi untuk memperbarui nomor item setelah penghapusan
+// ********************************************************
 function updateItemNumbers() {
     const rows    = document.querySelectorAll('#orderTable tbody tr');
     const invoice = document.getElementById('invoice').value; // Ambil No Simulasi (Invoice) dari form
@@ -1079,7 +1044,9 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
+// ***************************************************************
 // *** Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
+// ***************************************************************
 document.querySelectorAll('#orderTable tbody tr').forEach(row => {
     row.addEventListener('mouseenter', () => {
         row.querySelector('.delete-icon').style.display = 'inline';
@@ -1089,7 +1056,9 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
     });
 });
 
-// *** Fungsi Untuk mengupdate totals
+// *******************************
+// Fungsi Untuk mengupdate totals
+// *******************************
 function updateTotals() {
     const mRows = document.querySelectorAll('#orderTable tbody tr');
     let mTotalJumlah = 0;
@@ -1118,7 +1087,9 @@ function updateTotals() {
     document.getElementById('totalPrice').textContent   = formatCurrency(mGrandTotal);
 }
 
-// *** Fungsi untuk menformat currency
+// ********************************
+// Fungsi untuk menformat currency
+// ********************************
 function formatCurrency(amount) {
     if (isNaN(amount)) return "0,00";                   // Handle NaN
     // return `Rp ${new Intl.NumberFormat('id-ID', {    // Digunakan jika mau menampilkan "Rp"
@@ -1128,7 +1099,9 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-// *** Fungsi untuk memformat tanggal ke format Indonesia (DD/MM/YYYY)
+// ******************************************************
+// Fungsi untuk memformat tanggal Indonesia (DD/MM/YYYY)
+// ******************************************************
 function formatDate(dateString) {
     const mDate  = new Date(dateString);
     const mDay   = String(mDate.getDate()).padStart(2, '0');
@@ -1137,7 +1110,9 @@ function formatDate(dateString) {
     return `${mDay}/${mMonth}/${mYear}`;
 }
 
-// *** Fungsi validasi penulisan email
+// *********************************
+// Fungsi validasi penulisan email
+// *********************************
 function validateEmail() {
     const emailField = document.getElementById('consumerEmail');
     const emailValue = emailField.value.trim();
@@ -1152,7 +1127,9 @@ function validateEmail() {
     }
 }
 
-// *** fungsi menampilkan pesan error dan sukses
+// *****************************************
+// fungsi menampilkan pesan error dan sukses
+// *****************************************
 function showMessage(message, isError) {
     const messageElement         = document.getElementById('message');
     messageElement.textContent   = message;
@@ -1165,7 +1142,9 @@ function showMessage(message, isError) {
     }, 2000);
 }
 
-// *** Fungsi untuk menampilkan modal Ketentuan dan Kebijakan
+// ************************************
+// Fungsi untuk Ketentuan dan Kebijakan
+// ************************************
 function showKetentuanModal() {
     const modal = document.getElementById('ketentuanModal');
           modal.style.display = 'block';
@@ -1198,36 +1177,40 @@ function showKetentuanModal() {
           document.getElementById('ketentuanContent').innerHTML = ketentuanContent;
 }
 
-// *** Fungsi untuk menyembunyikan modal Ketentuan dan Kebijakan
+// *************************************************
+// Fungsi untuk sembunyikan Ketentuan dan Kebijakan
+// *************************************************
 function hideKetentuanModal() {
     const modal = document.getElementById('ketentuanModal');
     modal.style.display = 'none';
 }
 
-// *** Event listener untuk tombol close Ketentuan dan Kebijakan
+// **********************************************************
+// Event listener untuk tombol close Ketentuan dan Kebijakan
+// **********************************************************
     document.querySelector('.close').addEventListener('click', hideKetentuanModal);
-
-// *** Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
+    // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
     document.getElementById('setujuButton').addEventListener('click', function() {
     hideKetentuanModal();
     //alert('Anda telah menyetujui ketentuan dan kebijakan');
     showMessage("Anda telah menyetujui ketentuan dan kebijakan", false);
 });
 
-// *** Event listener untuk checkbox Ketentuan dan Kebijakan
+// *****************************************************
+// Event listener untuk checkbox Ketentuan dan Kebijakan
+// *****************************************************
     document.getElementById('agreeCheckbox').addEventListener('change', function() {
     const setujuButton = document.getElementById('setujuButton');
     setujuButton.disabled = !this.checked;
 });
 
-// *** Event listener untuk link Ketentuan dan Kebijakan
+// *************************************************
+// Event listener untuk link Ketentuan dan Kebijakan
+// *************************************************
     document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
     event.preventDefault(); // Mencegah navigasi ke halaman lain
     showKetentuanModal();
 });      
-// ---------------
-// Akhir Script  
-// --------------- 
 </script>
 </body>
 </html>
