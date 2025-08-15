@@ -665,9 +665,9 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-// ===== Konfigurasi API =====
-const API_URL = "https://script.google.com/macros/s/AKfycbxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec"; // Ganti dengan URL Web App Anda
+const API_URL = "https://script.google.com/macros/s/AKfycby5zRUYConFuwd97x8mmO2MG6pqGouP9BLrBT2Qti5dgGFvjQqczWt1MhwYuxkx3eIjRA/exec";
 
+// Fungsi umum untuk memanggil API GET/POST
 async function callAPI(action, params = {}, method = "GET") {
     if (method === "GET") {
         const url = new URL(API_URL);
@@ -675,7 +675,7 @@ async function callAPI(action, params = {}, method = "GET") {
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
         const res = await fetch(url);
         return res.json();
-    } else {
+    } else if (method === "POST") {
         const url = new URL(API_URL);
         url.searchParams.append("action", action);
         const res = await fetch(url, {
@@ -784,7 +784,9 @@ function loadOptions() {
     });
 }
 
-// ===== Fungsi Add Item =====
+// **********************************************************
+// Fungsi untuk menjalankan tombol "TAMBAH" dan simpand data
+// **********************************************************
 function addItem() {
     const mDiscountSelect = document.getElementById('discount');
     const mProductSelect  = document.getElementById('product');
@@ -797,6 +799,7 @@ function addItem() {
         return;
     }
 
+    // Ambil detail produk dari API
     callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
         const mTableBody = document.querySelector("#orderTable tbody");
         const mDiscount = mDiscountSelect.value;
@@ -833,14 +836,16 @@ function addItem() {
             </tr>
         `;
         mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+
         document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
         document.getElementById("kirimButton").disabled = false;
 
+        // Kirim ke Google Sheet via API
         const mOrderData = {
             mDate: document.getElementById("date").value,
             mInvoice: document.getElementById("invoice").value,
-            mDistributorName: mDistributorName.value,
-            mDistributorPhone: mDistributorPhone.value,
+            mDistributorName: document.getElementById("distributorName").value,
+            mDistributorPhone: document.getElementById("distributorPhone").value,
             mConsumerName: document.getElementById("consumerName").value,
             mConsumerPhone: document.getElementById("consumerPhone").value,
             mConsumerEmail: document.getElementById("consumerEmail").value,
@@ -859,9 +864,12 @@ function addItem() {
                 mHarga: mHarga
             }
         };
+
         callAPI("saveItem", mOrderData, "POST");
+
         disableFields();
         showMessage("Item berhasil ditambahkan!", false);
+
     }).catch(error => {
         showMessage("Error: " + error.message, true);
     });
@@ -909,6 +917,82 @@ function resetForm() {
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
 }
 
+// *********************************************
+// Fungsi untuk tombol "KIRIM" via WA dan Email
+// *********************************************
+function submitForm() {
+    const mDistributorPhone = document.getElementById('distributorPhone').value.trim();
+
+    // Validasi No HP Distributor (wajib diisi)
+    if (!mDistributorPhone) {
+        showMessage("Isi No HP Distributor (wajib)!", true);
+        enableFields();
+        return;
+    }
+
+    // Ambil nilai diskon dari dropdown : "label Diskon" untuk file invoice pada tabel kolom "Diskon"
+    const mDiskon = document.getElementById('discount').options[document.getElementById('discount').selectedIndex].text;
+
+    // Data yang akan dikirim
+    const mOrderData = {
+        mDate:             document.getElementById('date').value,
+        mInvoice:          document.getElementById('invoice').value,
+        mDistributorName:  document.getElementById('distributorName').value,
+        mDistributorPhone: mDistributorPhone,
+        mConsumerName:     document.getElementById('consumerName').value,
+        mConsumerPhone:    document.getElementById('consumerPhone').value,
+        mConsumerEmail:    document.getElementById('consumerEmail').value,
+        mDiskon:           mDiskon,                                          // Pastikan "Label Diskon" 
+        mTotalJumlah:      parseFloat(document.getElementById('totalJumlah').textContent),
+        mTotalVP:          parseFloat(document.getElementById('totalVP').textContent.replace(/\./g, '').replace(',', '.')),
+        mTotalHarga:       parseFloat(document.getElementById('totalHarga').textContent.replace(/\./g, '').replace(',', '.')),
+        mByKirim:          parseFloat(document.getElementById('shippingCost').textContent.replace(/\./g, '').replace(',', '.')),
+        mPajak:            parseFloat(document.getElementById('tax').textContent.replace(/\./g, '').replace(',', '.')),
+        mTotalPrice:       parseFloat(document.getElementById('totalPrice').textContent.replace(/\./g, '').replace(',', '.')),
+
+        mItems: Array.from(document.querySelectorAll('#orderTable tbody tr')).map(row => ({
+            mNoStok:        row.cells[1].textContent,
+            mNamaProduk:    row.cells[2].textContent,
+            mHargaEceran:   parseFloat(row.cells[3].textContent.replace(/\./g, '').replace(',', '.')),
+            mSetelahDiskon: parseFloat(row.cells[4].textContent.replace(/\./g, '').replace(',', '.')),
+            mJumlah:        parseFloat(row.cells[5].textContent),
+            mTotVP:         parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')),
+            mHarga:         parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.'))
+        }))
+    };
+
+    // Kirim data ke Google Script
+    callAPI("sendEmail", mOrderData, "POST").then(response => {
+        showMessage("Hasil telah terkirim ke WA dan email yang terisi", false);
+        resetForm();
+    }).catch(error => {
+        showMessage("Error: " + error.message, true);
+        resetForm();
+    });
+}
+
+// ****************************
+// Fungsi untuk menghapus item
+// ****************************
+function deleteItem(icon) {
+    const row     = icon.closest('tr');
+    const noStok  = row.cells[1].textContent.trim();          // Ambil No Stok dan hilangkan spasi
+    const invoice = document.getElementById('invoice').value; // Ambil No Simulasi (Invoice) dari form
+    
+    // Hapus baris dari tabel di HTML
+    row.remove();
+
+    // Hapus item di Google Sheet lewat API
+    callAPI("deleteItemFromSheet", { noStok: noStok }, "POST").then(() => {
+        console.log(`Item ${noStok} berhasil dihapus di sheet`);
+        updateItemNumbers(); // Nomor ulang item
+        // updateTotals();   // Tidak perlu lagi, observer otomatis panggil
+    }).catch(error => {
+        console.error("Gagal menghapus item:", error);
+        alert("Gagal menghapus item di Google Sheet");
+    });
+}
+
 // ********************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
 // ********************************************************
@@ -926,7 +1010,21 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-// ===== Fungsi Update Total =====
+// ***************************************************************
+// *** Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
+// ***************************************************************
+document.querySelectorAll('#orderTable tbody tr').forEach(row => {
+    row.addEventListener('mouseenter', () => {
+        row.querySelector('.delete-icon').style.display = 'inline';
+    });
+    row.addEventListener('mouseleave', () => {
+        row.querySelector('.delete-icon').style.display = 'none';
+    });
+});
+
+// *******************************
+// Fungsi Untuk mengupdate totals
+// *******************************
 function updateTotals() {
     const mRows = document.querySelectorAll('#orderTable tbody tr');
     let mTotalJumlah = 0;
@@ -934,6 +1032,7 @@ function updateTotals() {
     let mTotalHarga = 0;
 
     mRows.forEach(row => {
+        // Ambil jumlah dari input jika ada
         const qtyCell = row.cells[5];
         let jumlah = 0;
         if (qtyCell.querySelector("input")) {
@@ -941,8 +1040,9 @@ function updateTotals() {
         } else {
             jumlah = parseFloat(qtyCell.textContent) || 0;
         }
-        const totVP = parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0;
-        const harga = parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.')) || 0;
+
+        const totVP = parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0; // Kolom Tot VP 
+        const harga = parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.')) || 0; // Kolom Harga 
 
         mTotalJumlah += jumlah;
         mTotalVP += totVP;
@@ -962,7 +1062,7 @@ function updateTotals() {
     document.getElementById('totalPrice').textContent   = formatCurrency(mGrandTotal);
 }
 
-// ===== Observer untuk update otomatis saat baris berubah =====
+// Observer untuk memantau perubahan pada tabel pesanan
 document.addEventListener("DOMContentLoaded", function () {
     const targetNode = document.querySelector("#orderTable tbody");
     if (targetNode) {
@@ -973,7 +1073,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// ===== Event listener edit jumlah =====
+// Event listener untuk perubahan jumlah barang di tabel
 document.addEventListener("input", function(e) {
     if (e.target && e.target.classList.contains("qty-input")) {
         const row = e.target.closest("tr");
@@ -981,86 +1081,26 @@ document.addEventListener("input", function(e) {
         const noStok = row.cells[1].textContent.trim();
 
         const hargaAfterDiskon = parseFloat(row.cells[4].textContent.replace(/\./g, '').replace(',', '.')) || 0;
-        const vpPerUnit = (parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0) / 
-                          (parseInt(e.target.defaultValue || e.target.value, 10) || 1);
+        const vpPerUnit = parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) / 
+                          parseInt(e.target.defaultValue || e.target.value, 10) || 0;
 
         row.cells[6].textContent = formatCurrency(vpPerUnit * qty);
         row.cells[7].textContent = formatCurrency(hargaAfterDiskon * qty);
+
         e.target.defaultValue = qty;
 
+        // Update total
         updateTotals();
 
-        // Kirim update ke Sheet
+        // Kirim update jumlah ke Sheet
         callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "POST")
-            .then(() => console.log(`Jumlah item ${noStok} diupdate jadi ${qty} di Sheet`))
-            .catch(err => console.error("Gagal update jumlah di Sheet:", err));
+            .then(() => {
+                console.log(`Jumlah item ${noStok} diupdate jadi ${qty} di Sheet`);
+            })
+            .catch(err => {
+                console.error("Gagal update jumlah di Sheet:", err);
+            });
     }
-});
-
-// ===== Fungsi Delete Item =====
-function deleteItem(icon) {
-    const row     = icon.closest('tr');
-    const noStok  = row.cells[1].textContent.trim();
-    row.remove();
-
-    callAPI("deleteItemFromSheet", { noStok: noStok }, "POST")
-        .then(() => {
-            console.log(`Item ${noStok} berhasil dihapus di sheet`);
-            updateItemNumbers();
-        })
-        .catch(error => {
-            console.error("Gagal menghapus item:", error);
-            alert("Gagal menghapus item di Google Sheet");
-        });
-}
-
-// ===== Fungsi Kirim =====
-function submitForm() {
-    const kirimBtn = document.getElementById("kirimButton");
-    const spinner  = document.getElementById("spinner");
-    kirimBtn.disabled = true;
-    spinner.style.display = "inline-block";
-
-    const rows = document.querySelectorAll("#orderTable tbody tr");
-    const updatePromises = [];
-    rows.forEach(row => {
-        const noStok = row.cells[1].textContent.trim();
-        const qtyInput = row.cells[5].querySelector("input");
-        if (qtyInput) {
-            const qty = parseInt(qtyInput.value, 10) || 0;
-            updatePromises.push(callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "POST"));
-        }
-    });
-
-    Promise.all(updatePromises)
-        .then(() => {
-            const mOrderData = { /* isi data order untuk email */ };
-            return callAPI("sendEmail", mOrderData, "POST");
-        })
-        .then(() => {
-            showMessage("Hasil telah terkirim ke WA dan email", false);
-            resetForm();
-        })
-        .catch(err => {
-            console.error("Error saat kirim:", err);
-            showMessage("Gagal mengirim data", true);
-        })
-        .finally(() => {
-            kirimBtn.disabled = false;
-            spinner.style.display = "none";
-        });
-}
-
-// ***************************************************************
-// *** Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
-// ***************************************************************
-document.querySelectorAll('#orderTable tbody tr').forEach(row => {
-    row.addEventListener('mouseenter', () => {
-        row.querySelector('.delete-icon').style.display = 'inline';
-    });
-    row.addEventListener('mouseleave', () => {
-        row.querySelector('.delete-icon').style.display = 'none';
-    });
 });
 
 
