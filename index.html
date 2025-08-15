@@ -875,110 +875,6 @@ function addItem() {
     });
 }
 
-function BACKUP_addItem() {
-    const mDistributorName  = document.getElementById("distributorName");
-    const mDistributorPhone = document.getElementById("distributorPhone");
-    const mProductSelect    = document.getElementById("product");
-    const mQuantity         = parseInt(document.getElementById("quantity").value, 10);
-    const mShippingSelect   = document.getElementById("shipping");
-    const mDiscountSelect   = document.getElementById("discount");
-    const mConsumerEmail    = document.getElementById("consumerEmail").value.trim(); 
-
-    // Validasi email (jika diisi)
-    if (mConsumerEmail) {
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailPattern.test(mConsumerEmail)) {
-            showMessage("Format penulisan email, perbaiki! (misalnya: test@example.com)", true);
-            return; // Hentikan proses jika format email salah
-        }
-    }
-    // Ambil label diskon dari dropdown
-    const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
-
-    // Validasi inputan 
-    if (!mDistributorName.value ||
-        !mDistributorPhone.value ||
-        !mProductSelect.value ||
-        isNaN(mQuantity) ||
-        !mDiscountSelect.value ||
-        !mShippingSelect.value) {
-        showMessage("Harap isi semua field yang diwajibkan dengan benar!", true);
-        return;
-    }
-   callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
-    // isi sama persis seperti sebelumnya
-    const mTableBody = document.querySelector("#orderTable tbody");
-    const mDiscount  = mDiscountSelect.value;
-
-    let mPriceAfterDiscount;
-    switch (mDiscount) {
-        case "0%": mPriceAfterDiscount = mProductData.HargaEceran; break;
-        case "25%": mPriceAfterDiscount = mProductData.Member25; break;
-        case "35%": mPriceAfterDiscount = mProductData.SC35; break;
-        case "42%": mPriceAfterDiscount = mProductData.SB42; break;
-        case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-        default: mPriceAfterDiscount = mProductData.HargaEceran;
-    }
-
-    const mHarga = mPriceAfterDiscount * mQuantity;
-    const mTotVP = mProductData.VP * mQuantity;
-
-    const mNewRow = `
-        <tr>
-            <td>${mTableBody.rows.length + 1}</td>
-            <td>${mProductSelect.value}</td>
-            <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-            <td>${formatCurrency(mProductData.HargaEceran)}</td>
-            <td>${formatCurrency(mPriceAfterDiscount)}</td>
-            <!-- <td>${mQuantity}</td> -->
-            <td><input type="number" value="${mQuantity}" min="1" max="99" class="qty-input" style="width:50px"></td>
-            <td>${formatCurrency(mTotVP)}</td>
-            <td>${formatCurrency(mHarga)}</td>
-            <td class="tooltip">
-                <span class="delete-icon" onclick="deleteItem(this)">
-                     <i class="fas fa-times"></i>
-                </span>     
-                <span class="tooltiptext">Hapus</span>   
-            </td>
-        </tr>
-    `;
-    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
-    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-    document.getElementById("kirimButton").disabled = false;
-    updateTotals();
-
-    const mOrderData = {
-        mDate: document.getElementById("date").value,
-        mInvoice: document.getElementById("invoice").value,
-        mDistributorName: mDistributorName.value,
-        mDistributorPhone: mDistributorPhone.value,
-        mConsumerName: document.getElementById("consumerName").value,
-        mConsumerPhone: document.getElementById("consumerPhone").value,
-        mConsumerEmail: document.getElementById("consumerEmail").value,
-        mDiskon: selectedDiscountLabel,
-        mByKirim: parseFloat(mShippingSelect.value),
-        mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
-        mItem: {
-            mNoStok: mProductSelect.value,
-            mKategori: mProductData.Kategori,
-            mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
-            mVp: mProductData.VP,
-            mHargaEceran: mProductData.HargaEceran,
-            mSetelahDiskon: mPriceAfterDiscount,
-            mJumlah: mQuantity,
-            mTotVP: mTotVP,
-            mHarga: mHarga
-        }
-    };
-
-    callAPI("saveItem", mOrderData, "POST");
-    disableFields();
-    showMessage("Item berhasil ditambahkan!", false);
-    }).catch(error => {
-        showMessage("Error: " + error.message, true);
-    });
-}
-
 // ***************************************
 // Fungsi untuk menjalankan tombol "RESET"
 // ***************************************
@@ -1202,7 +1098,6 @@ document.addEventListener("input", function(e) {
         updateTotals();
     }
 });
-
 
 // ********************************
 // Fungsi untuk menformat currency
