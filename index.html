@@ -420,6 +420,29 @@ button:hover {
     cursor: not-allowed;
 }
 
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3; /* Warna background */
+    border-top: 3px solid #3498db; /* Warna garis atas */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#kirimButton[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
 /* ----------------------------------*/
@@ -588,7 +611,8 @@ button:hover {
                 <button type="button" onclick="resetForm()">RESET</button>
                 <!-- Non aktifkan tombol "KIRIM" sebelum menekan tombol "TAMBAH" -->
                 <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM</button>
-                <!-- <button type="button" onclick="submitForm()">KIRIM</button> -->
+                <div id="spinner" class="spinner" style="display:none;"></div>
+               <!-- <button type="button" onclick="submitForm()">KIRIM</button> -->
             </div>
         </form>
         <div id="orderSummary">
@@ -665,7 +689,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL = "https://script.google.com/macros/s/AKfycbymOxDPNRon18N-uoyUrCR7H3t-zk8A_1s2FQX3xyEkn-ggZ_z9n8vcJjZ4A9xM7-_uNg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbz-UxdwX14ukex9se1VZPy7jMU7xg5IuhGZHqr9L1VoVQlJ6R3PdEHLuPYHhdAv-ZP-Tg/exec";
 
 async function callAPI(action, params = {}, method = "GET") {
     if (method === "GET") {
