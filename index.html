@@ -842,7 +842,8 @@ function addItem() {
             <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
             <td>${formatCurrency(mProductData.HargaEceran)}</td>
             <td>${formatCurrency(mPriceAfterDiscount)}</td>
-            <td>${mQuantity}</td>
+            <!-- <td>${mQuantity}</td> -->
+            <td><input type="number" value="${mQuantity}" min="1" max="99" class="qty-input" style="width:60px"></td>
             <td>${formatCurrency(mTotVP)}</td>
             <td>${formatCurrency(mHarga)}</td>
             <td class="tooltip">
@@ -1038,34 +1039,6 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
 });
 
 
-function BACKUP_updateTotals() {
-    const mRows = document.querySelectorAll('#orderTable tbody tr');
-    let mTotalJumlah = 0;
-    let mTotalVP = 0;
-    let mTotalHarga = 0;
-
-    mRows.forEach(row => {
-        mTotalJumlah += parseFloat(row.cells[5].textContent);                                      // Kolom Jumlah
-        mTotalVP +=     parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')); // Kolom Tot VP
-        mTotalHarga +=  parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.')); // Kolom Harga
-    });
-
-    // Update tampilan total
-    document.getElementById('totalJumlah').textContent = mTotalJumlah;
-    document.getElementById('totalVP').textContent     = formatCurrency(mTotalVP);
-    document.getElementById('totalHarga').textContent  = formatCurrency(mTotalHarga);
-
-    // Hitung Grand Total 
-    const mShippingCost = parseFloat(document.getElementById('shipping').value);
-    // const mTax       = mTotalHarga * 0.11;    // Untuk hitung Pajak 11%
-    const mTax          = mTotalHarga * 0;       // Untuk hitung Pajak 0%
-    const mGrandTotal   = mTotalHarga + mShippingCost + mTax;
-
-    document.getElementById('shippingCost').textContent = formatCurrency(mShippingCost);
-    document.getElementById('tax').textContent          = formatCurrency(mTax);
-    document.getElementById('totalPrice').textContent   = formatCurrency(mGrandTotal);
-}
-
 // *******************************
 // Fungsi Untuk mengupdate totals
 // *******************************
@@ -1076,9 +1049,13 @@ function updateTotals() {
     let mTotalHarga = 0;
 
     mRows.forEach(row => {
-        mTotalJumlah += parseFloat(row.cells[5].textContent) || 0;                                      // Kolom Jumlah
-        mTotalVP += parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0;     // Kolom Tot VP 
-        mTotalHarga += parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.')) || 0;  // Kolom Harga 
+        const jumlah = parseFloat(row.cells[5].textContent) || 0;                                     // Kolom Jumlah
+        const totVP = parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0; // Kolom Tot VP 
+        const harga = parseFloat(row.cells[7].textContent.replace(/\./g, '').replace(',', '.')) || 0; // Kolom Harga  
+
+        mTotalJumlah += jumlah;
+        mTotalVP += totVP;
+        mTotalHarga += harga;
     });
 
     document.getElementById('totalJumlah').textContent = mTotalJumlah;
@@ -1087,7 +1064,7 @@ function updateTotals() {
 
     const mShippingCost = parseFloat(document.getElementById('shipping').value) || 0;
     // const mTax       = mTotalHarga * 0.11;    // Untuk hitung Pajak 11%
-    const mTax          = mTotalHarga * 0;       // Pajak 0%
+    const mTax          = mTotalHarga * 0; // Pajak 0%
     const mGrandTotal   = mTotalHarga + mShippingCost + mTax;
 
     document.getElementById('shippingCost').textContent = formatCurrency(mShippingCost);
@@ -1095,15 +1072,16 @@ function updateTotals() {
     document.getElementById('totalPrice').textContent   = formatCurrency(mGrandTotal);
 }
 
-// Observer untuk memantau perubahan tabel
+// Observer untuk memantau perubahan pada tabel pesanan
 document.addEventListener("DOMContentLoaded", function () {
     const targetNode = document.querySelector("#orderTable tbody");
-    const observer = new MutationObserver(() => {
-        updateTotals();
-    });
-    observer.observe(targetNode, { childList: true, subtree: false });
+    if (targetNode) {
+        const observer = new MutationObserver(() => {
+            updateTotals();
+        });
+        observer.observe(targetNode, { childList: true });
+    }
 });
-
 
 // ********************************
 // Fungsi untuk menformat currency
