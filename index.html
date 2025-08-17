@@ -689,7 +689,8 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL = "https://script.google.com/macros/s/AKfycbzENFHanBqsfornWfNneKiUVg8h3qhf3-q09mfb2JAyuwweaEXScVe_c2Br9zU74SiDdg/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbwICPai1LzZGVHFX2ljVBkgxfPstMe0Z23VuEZMgGyLGZ4pHPRGCa4fse3i--RR0R_S_A/exec";
+let isEditMode = false;
 
 function callAPI(action, params = {}, method = "GET") {
     if (method === "GET") {
@@ -803,6 +804,18 @@ function loadOptions() {
         console.error("Gagal memuat pengiriman:", err);
         alert("Error memuat pengiriman");
     });
+}
+
+
+// ======================
+// HANDLE TOMBOL TAMBAH/UPDATE
+// ======================
+function handleAction() {
+    if (isEditMode) {
+        updateEditedRows();
+    } else {
+        addNewRow(); // fungsi tambah row lama yang sudah ada
+    }
 }
 
 // ===== Fungsi Add Item =====
@@ -947,6 +960,41 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
+// ======================
+// UPDATE JUMLAH KE SHEET
+// ======================
+async function updateEditedRows() {
+    try {
+        const rows = document.querySelectorAll("#orderTable tbody tr");
+        for (let row of rows) {
+            const noStok = row.cells[1]?.textContent.trim();
+            const qtyInput = row.cells[4]?.querySelector("input");
+            if (noStok && qtyInput) {
+                const qty = parseInt(qtyInput.value, 10) || 0;
+                const payloadUpdate = JSON.stringify({
+                    action: "updateItemQuantity",
+                    noStok: noStok,
+                    jumlah: qty
+                });
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadUpdate
+                });
+            }
+        }
+        alert("Perubahan jumlah berhasil diupdate ke Sheet.");
+        isEditMode = false;
+        document.getElementById("btnAction").textContent = "Tambah";
+    } catch (err) {
+        console.error("Gagal update:", err);
+        alert("Terjadi kesalahan saat update ke Sheet.");
+    }
+}
+
+
 // ===== Fungsi Update Total =====
 function updateTotals() {
     const mRows = document.querySelectorAll('#orderTable tbody tr');
@@ -994,29 +1042,25 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// ===== Event listener edit jumlah =====
+
+// ======================
+// HANDLE INPUT JUMLAH
+// ======================
 document.addEventListener("input", function(e) {
     if (e.target && e.target.classList.contains("qty-input")) {
         const row = e.target.closest("tr");
         const qty = parseInt(e.target.value, 10) || 0;
-        const noStok = row.cells[1].textContent.trim();
 
-        const hargaAfterDiskon = parseFloat(row.cells[4].textContent.replace(/\./g, '').replace(',', '.')) || 0;
-        const vpPerUnit = (parseFloat(row.cells[6].textContent.replace(/\./g, '').replace(',', '.')) || 0) / 
-                          (parseInt(e.target.defaultValue || e.target.value, 10) || 1);
+        // update subtotal & VP di tabel
+        const harga = parseFloat(row.cells[3].textContent.replace(/\./g, '').replace(',', '.')) || 0;
+        const vpPerUnit = parseFloat(row.cells[5].getAttribute("data-vp") || "0");
 
-        // Update tampilan kolom VP & Harga
-        row.cells[6].textContent = formatCurrency(vpPerUnit * qty);
-        row.cells[7].textContent = formatCurrency(hargaAfterDiskon * qty);
-        e.target.defaultValue = qty;
+        row.cells[5].textContent = formatCurrency(vpPerUnit * qty);
+        row.cells[6].textContent = formatCurrency(harga * qty);
 
-        // Update total keseluruhan
-        updateTotals();
-
-        // Kirim update ke Sheet via GET (hindari CORS)
-        callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "GET")
-            .then(() => console.log(`Jumlah item ${noStok} diupdate jadi ${qty} di Sheet`))
-            .catch(err => console.error("Gagal update jumlah di Sheet:", err));
+        // ubah tombol jadi Update
+        isEditMode = true;
+        document.getElementById("btnAction").textContent = "UPDATE";
     }
 });
 
@@ -1037,78 +1081,9 @@ function deleteItem(icon) {
         });
 }
 
-// ===== Fungsi Kirim =====
-async function submitForm() {
-    const kirimBtn = document.getElementById("kirimButton");
-    const spinner  = document.getElementById("spinner");
-    kirimBtn.disabled = true;
-    spinner.style.display = "inline-block";
-
-    try {
-        // 1. Pastikan edit jumlah terakhir tersimpan ke Sheet
-        const rows = document.querySelectorAll("#orderTable tbody tr");
-        for (let row of rows) {
-            const noStok = row.cells[1]?.textContent.trim(); // asumsi kolom ke-2 = No Stok
-            const qtyInput = row.cells[4]?.querySelector("input"); // asumsi kolom ke-5 = Jumlah
-            if (noStok && qtyInput) {
-                const qty = parseInt(qtyInput.value, 10) || 0;
-
-                const payloadUpdate = JSON.stringify({
-                    action: "updateItemQuantity",
-                    noStok: noStok,
-                    jumlah: qty
-                });
-
-                // kirim update jumlah ke Sheet via no-cors fetch
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: payloadUpdate
-                });
-            }
-        }
-
-        // 2. Kumpulkan semua data order dari tabel & form
-        const orderData = collectOrderData();
-
-        // 3. Format ke mOrderData (sesuai fungsi sendEmail di code.gs)
-        const mOrderData = {
-            mDate: new Date().toLocaleDateString("id-ID"),
-            mInvoice: "INV-" + Date.now(),
-            mDistributorName: document.getElementById("nama").value.trim(),
-            mDistributorPhone: document.getElementById("noWa").value.trim(),
-            mConsumerName: document.getElementById("nama").value.trim(),
-            mConsumerPhone: document.getElementById("noWa").value.trim(),
-            mConsumerEmail: document.getElementById("email").value.trim(),
-            mTotalPrice: orderData.total.harga,
-            mItems: orderData.items
-        };
-
-        const payloadKirim = JSON.stringify({
-            action: "sendEmail",
-            mOrderData: mOrderData
-        });
-
-        // 4. Kirim ke Apps Script (no-cors)
-        await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: payloadKirim
-        });
-
-        alert("Data berhasil dikirim dan tersimpan di Sheet + Email/WA terkirim.");
-        resetForm?.(); // panggil resetForm jika ada
-    } catch (err) {
-        console.error("Gagal kirim:", err);
-        alert("Terjadi kesalahan saat mengirim data");
-    } finally {
-        kirimBtn.disabled = false;
-        spinner.style.display = "none";
-    }
-}
-
+// ======================
+// KUMPULKAN DATA ORDER
+// ======================
 function collectOrderData() {
     const rows = document.querySelectorAll("#orderTable tbody tr");
     const items = [];
@@ -1132,7 +1107,7 @@ function collectOrderData() {
         });
     });
 
-    // Total di baris tfoot
+    // total dari tfoot
     const totalRow = document.querySelector("#orderTable tfoot tr");
     let totalJumlah = "", totalVp = "", totalHarga = "";
     if (totalRow) {
@@ -1149,6 +1124,56 @@ function collectOrderData() {
             harga: totalHarga
         }
     };
+}
+
+// ======================
+// SUBMIT FORM (KIRIM)
+// ======================
+async function submitForm() {
+    const kirimBtn = document.getElementById("kirimButton");
+    const spinner  = document.getElementById("spinner");
+    kirimBtn.disabled = true;
+    spinner.style.display = "inline-block";
+
+    try {
+        // 1. Ambil data order
+        const orderData = collectOrderData();
+
+        // 2. Format ke mOrderData
+        const mOrderData = {
+            mDate: new Date().toLocaleDateString("id-ID"),
+            mInvoice: "INV-" + Date.now(),
+            mDistributorName: document.getElementById("nama")?.value.trim() || "",
+            mDistributorPhone: document.getElementById("noWa")?.value.trim() || "",
+            mConsumerName: document.getElementById("nama")?.value.trim() || "",
+            mConsumerPhone: document.getElementById("noWa")?.value.trim() || "",
+            mConsumerEmail: document.getElementById("email")?.value.trim() || "",
+            mTotalPrice: orderData.total.harga,
+            mItems: orderData.items
+        };
+
+        // 3. Kirim ke Apps Script
+        const payloadKirim = JSON.stringify({
+            action: "sendEmail",
+            mOrderData: mOrderData
+        });
+
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payloadKirim
+        });
+
+        alert("Data berhasil dikirim (PDF + Email/WA).");
+        resetForm();
+    } catch (err) {
+        console.error("Gagal kirim:", err);
+        alert("Terjadi kesalahan saat mengirim data");
+    } finally {
+        kirimBtn.disabled = false;
+        spinner.style.display = "none";
+    }
 }
 
 // ***************************************************************
