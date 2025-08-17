@@ -689,26 +689,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL = "https://script.google.com/macros/s/AKfycbyiVE1luSpCPGoYg_-iMVudJRgNVnEsRocnYHxtMz_lgW0abi4AmP6EzhYJB81iGdkowA/exec";
-
-async function BACKUP_callAPI(action, params = {}, method = "GET") {
-    if (method === "GET") {
-        const url = new URL(API_URL);
-        url.searchParams.append("action", action);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        const res = await fetch(url);
-        return res.json();
-    } else {
-        const url = new URL(API_URL);
-        url.searchParams.append("action", action);
-        const res = await fetch(url, {
-            method: "POST",
-            contentType: "application/json",
-            body: JSON.stringify(params)
-        });
-        return res.json();
-    }
-}
+const API_URL = "https://script.google.com/macros/s/AKfycbzENFHanBqsfornWfNneKiUVg8h3qhf3-q09mfb2JAyuwweaEXScVe_c2Br9zU74SiDdg/exec";
 
 function callAPI(action, params = {}, method = "GET") {
     if (method === "GET") {
@@ -726,7 +707,6 @@ function callAPI(action, params = {}, method = "GET") {
         }).then(res => res.json());
     }
 }
-
 
 // *********************************************
 // Fungsi untuk Pengaturan awal, saat form aktif
@@ -1058,40 +1038,116 @@ function deleteItem(icon) {
 }
 
 // ===== Fungsi Kirim =====
-function submitForm() {
+async function submitForm() {
     const kirimBtn = document.getElementById("kirimButton");
     const spinner  = document.getElementById("spinner");
     kirimBtn.disabled = true;
     spinner.style.display = "inline-block";
 
-    const rows = document.querySelectorAll("#orderTable tbody tr");
-    const updatePromises = [];
-    rows.forEach(row => {
-        const noStok = row.cells[1].textContent.trim();
-        const qtyInput = row.cells[5].querySelector("input");
-        if (qtyInput) {
-            const qty = parseInt(qtyInput.value, 10) || 0;
-            updatePromises.push(callAPI("updateItemQuantity", { noStok: noStok, jumlah: qty }, "POST"));
+    try {
+        // 1. Pastikan edit jumlah tersimpan ke Sheet
+        const rows = document.querySelectorAll("#orderTable tbody tr");
+        for (let row of rows) {
+            const noStok = row.cells[1].textContent.trim();
+            const qtyInput = row.cells[5].querySelector("input");
+            if (qtyInput) {
+                const qty = parseInt(qtyInput.value, 10) || 0;
+
+                const payloadUpdate = JSON.stringify({
+                    action: "updateItemQuantity",
+                    noStok: noStok,
+                    jumlah: qty
+                });
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadUpdate
+                });
+            }
         }
+
+        // 2. Kumpulkan data untuk mOrderData
+        const orderData = collectOrderData(); 
+
+        // Format ke mOrderData sesuai code.gs
+        const mOrderData = {
+            mDate: new Date().toLocaleDateString("id-ID"),
+            mInvoice: "INV-" + Date.now(), // atau pakai generator invoice Anda
+            mDistributorName: document.getElementById("nama").value.trim(),
+            mDistributorPhone: document.getElementById("noWa").value.trim(),
+            mConsumerName: document.getElementById("nama").value.trim(),
+            mConsumerPhone: document.getElementById("noWa").value.trim(),
+            mConsumerEmail: document.getElementById("email").value.trim(),
+            mTotalPrice: orderData.total.harga,
+            mItems: orderData.items // jika emailTemplate perlu detail item
+        };
+
+        // 3. Kirim ke Apps Script (no-cors)
+        const payloadKirim = JSON.stringify({
+            action: "sendEmail",
+            mOrderData: mOrderData
+        });
+
+        await fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payloadKirim
+        });
+
+        alert("Hasil simulasi berhasil dikirim (tersimpan ke sheet & terkirim email/WA).");
+        resetForm(); // jika Anda punya resetForm
+    } catch (err) {
+        console.error("Gagal kirim:", err);
+        alert("Terjadi kesalahan saat mengirim data");
+    } finally {
+        kirimBtn.disabled = false;
+        spinner.style.display = "none";
+    }
+}
+
+function collectOrderData() {
+    const rows = document.querySelectorAll("#orderTable tbody tr");
+    const items = [];
+
+    rows.forEach(row => {
+        const noStok   = row.cells[1].textContent.trim();
+        const namaItem = row.cells[2].textContent.trim();
+        const harga    = row.cells[4].textContent.trim();
+        const qtyInput = row.cells[5].querySelector("input");
+        const qty      = qtyInput ? parseInt(qtyInput.value, 10) || 0 : 0;
+        const totVp    = row.cells[6].textContent.trim();
+        const subtotal = row.cells[7].textContent.trim();
+
+        items.push({
+            noStok: noStok,
+            nama: namaItem,
+            harga: harga,
+            jumlah: qty,
+            vp: totVp,
+            subtotal: subtotal
+        });
     });
 
-    Promise.all(updatePromises)
-        .then(() => {
-            const mOrderData = { /* isi data order untuk email */ };
-            return callAPI("sendEmail", mOrderData, "POST");
-        })
-        .then(() => {
-            showMessage("Hasil telah terkirim ke WA dan email", false);
-            resetForm();
-        })
-        .catch(err => {
-            console.error("Error saat kirim:", err);
-            showMessage("Gagal mengirim data", true);
-        })
-        .finally(() => {
-            kirimBtn.disabled = false;
-            spinner.style.display = "none";
-        });
+    // Total
+    const totalRow = document.querySelector("#orderTable tfoot tr");
+    let totalJumlah = "", totalVp = "", totalHarga = "";
+    if (totalRow) {
+        totalJumlah = totalRow.cells[2].textContent.trim();
+        totalVp     = totalRow.cells[6].textContent.trim();
+        totalHarga  = totalRow.cells[7].textContent.trim();
+    }
+
+    return {
+        items: items,
+        total: {
+            jumlah: totalJumlah,
+            vp: totalVp,
+            harga: totalHarga
+        }
+    };
 }
 
 // ***************************************************************
