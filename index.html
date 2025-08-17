@@ -690,7 +690,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbw3fe0Gh4BQjdyahglS9FW2aKpQG8LYcCeemkb3nl5LE-_v1INSsg6Hd157b_bvNM92_g/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbwV0Wa3eR2kkKecy2-9j47iWOy2LsxpBFQUhX77hS9ZZJs1vA_IWycmgnnCdEJ5AgJ9Mg/exec";
 let isEditMode = false;
 
 function callAPI(action, params = {}, method = "GET") {
@@ -700,12 +700,11 @@ function callAPI(action, params = {}, method = "GET") {
         Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
         return fetch(url).then(res => res.json());
     } else {
-        const url = new URL(API_URL);
-        url.searchParams.append("action", action);
-        return fetch(url, {
+        // POST → kirim JSON dengan header benar
+        return fetch(API_URL, {
             method: "POST",
-            contentType: "application/json",
-            body: JSON.stringify(params)
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action, ...params })
         }).then(res => res.json());
     }
 }
