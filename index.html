@@ -615,6 +615,7 @@ button:hover {
                <!-- <button type="button" onclick="submitForm()">KIRIM</button> -->
             </div>
         </form>
+
         <div id="orderSummary">
         <h2>Ringkasan Pesanan</h2>
         <div class="table-wrapper">
@@ -689,7 +690,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbwICPai1LzZGVHFX2ljVBkgxfPstMe0Z23VuEZMgGyLGZ4pHPRGCa4fse3i--RR0R_S_A/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbyGniBD-S0VL9nlQWnFgNMu10mtQ1dPUb4ThnqvotQR5uRd8ExJEzhjhLBcyt1Zl_2OUA/exec";
 let isEditMode = false;
 
 function callAPI(action, params = {}, method = "GET") {
@@ -806,20 +807,14 @@ function loadOptions() {
     });
 }
 
-
-// ======================
-// HANDLE TOMBOL TAMBAH/UPDATE
-// ======================
-function handleAction() {
-    if (isEditMode) {
-        updateEditedRows();
-    } else {
-        addNewRow(); // fungsi tambah row lama yang sudah ada
-    }
-}
-
 // ===== Fungsi Add Item =====
 function addItem() {
+    if (isEditMode) {
+        // Kalau sedang edit jumlah → update ke Sheet
+        updateEditedRows();
+        return;
+    }
+
     const mDiscountSelect = document.getElementById('discount');
     const mProductSelect  = document.getElementById('product');
     const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
@@ -960,40 +955,6 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-// ======================
-// UPDATE JUMLAH KE SHEET
-// ======================
-async function updateEditedRows() {
-    try {
-        const rows = document.querySelectorAll("#orderTable tbody tr");
-        for (let row of rows) {
-            const noStok = row.cells[1]?.textContent.trim();
-            const qtyInput = row.cells[4]?.querySelector("input");
-            if (noStok && qtyInput) {
-                const qty = parseInt(qtyInput.value, 10) || 0;
-                const payloadUpdate = JSON.stringify({
-                    action: "updateItemQuantity",
-                    noStok: noStok,
-                    jumlah: qty
-                });
-
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: payloadUpdate
-                });
-            }
-        }
-        alert("Perubahan jumlah berhasil diupdate ke Sheet.");
-        isEditMode = false;
-        document.getElementById("btnAction").textContent = "Tambah";
-    } catch (err) {
-        console.error("Gagal update:", err);
-        alert("Terjadi kesalahan saat update ke Sheet.");
-    }
-}
-
 
 // ===== Fungsi Update Total =====
 function updateTotals() {
@@ -1042,7 +1003,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
 // ======================
 // HANDLE INPUT JUMLAH
 // ======================
@@ -1051,16 +1011,25 @@ document.addEventListener("input", function(e) {
         const row = e.target.closest("tr");
         const qty = parseInt(e.target.value, 10) || 0;
 
-        // update subtotal & VP di tabel
-        const harga = parseFloat(row.cells[3].textContent.replace(/\./g, '').replace(',', '.')) || 0;
-        const vpPerUnit = parseFloat(row.cells[5].getAttribute("data-vp") || "0");
+        // Harga setelah diskon (kolom 4)
+        const hargaAfterDiskonCell = row.cells[4];
+        const hargaAfterDiskon = hargaAfterDiskonCell
+            ? parseFloat(hargaAfterDiskonCell.textContent.replace(/\./g, '').replace(',', '.')) || 0
+            : 0;
 
-        row.cells[5].textContent = formatCurrency(vpPerUnit * qty);
-        row.cells[6].textContent = formatCurrency(harga * qty);
+        // VP per unit (kolom 2 → menyesuaikan struktur Anda)
+        const vpCell = row.cells[2];
+        const vpPerUnit = vpCell
+            ? parseFloat(vpCell.textContent.replace(/\./g, '').replace(',', '.')) || 0
+            : 0;
 
-        // ubah tombol jadi Update
+        // Update Tot VP (kolom 6) dan Subtotal (kolom 7)
+        if (row.cells[6]) row.cells[6].textContent = formatCurrency(vpPerUnit * qty);
+        if (row.cells[7]) row.cells[7].textContent = formatCurrency(hargaAfterDiskon * qty);
+
+        // Ubah tombol TAMBAH → UPDATE
         isEditMode = true;
-        document.getElementById("btnAction").textContent = "UPDATE";
+        document.querySelector("button[onclick='addItem()']").textContent = "UPDATE";
     }
 });
 
@@ -1081,6 +1050,41 @@ function deleteItem(icon) {
         });
 }
 
+
+// ======================
+// UPDATE JUMLAH KE SHEET
+// ======================
+async function updateEditedRows() {
+    try {
+        const rows = document.querySelectorAll("#orderTable tbody tr");
+        for (let row of rows) {
+            const noStok = row.cells[1]?.textContent.trim();
+            const qtyInput = row.cells[5]?.querySelector("input"); // kolom 5 = Jumlah (input)
+            if (noStok && qtyInput) {
+                const qty = parseInt(qtyInput.value, 10) || 0;
+                const payloadUpdate = JSON.stringify({
+                    action: "updateItemQuantity",
+                    noStok: noStok,
+                    jumlah: qty
+                });
+
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: payloadUpdate
+                });
+            }
+        }
+        alert("Perubahan jumlah berhasil diupdate ke Sheet.");
+        isEditMode = false;
+        document.querySelector("button[onclick='addItem()']").textContent = "TAMBAH";
+    } catch (err) {
+        console.error("Gagal update:", err);
+        alert("Terjadi kesalahan saat update ke Sheet.");
+    }
+}
+
 // ======================
 // KUMPULKAN DATA ORDER
 // ======================
@@ -1090,19 +1094,27 @@ function collectOrderData() {
 
     rows.forEach(row => {
         const noStok   = row.cells[1]?.textContent.trim() || "";
-        const namaItem = row.cells[2]?.textContent.trim() || "";
-        const harga    = row.cells[3]?.textContent.trim() || "";
-        const qtyInput = row.cells[4]?.querySelector("input");
+        const kategori = row.cells[2]?.textContent.trim() || "";
+        const namaItem = row.cells[3]?.textContent.trim() || "";
+        const vp       = row.cells[4]?.textContent.trim() || "";
+        const diskon   = row.cells[5]?.textContent.trim() || "";
+        const harga    = row.cells[6]?.textContent.trim() || "";
+        const hargaAfterDiskon = row.cells[7]?.textContent.trim() || "";
+        const qtyInput = row.cells[8]?.querySelector("input");
         const qty      = qtyInput ? parseInt(qtyInput.value, 10) || 0 : 0;
-        const totVp    = row.cells[5]?.textContent.trim() || "";
-        const subtotal = row.cells[6]?.textContent.trim() || "";
+        const totVp    = row.cells[9]?.textContent.trim() || "";
+        const subtotal = row.cells[10]?.textContent.trim() || "";
 
         items.push({
             noStok: noStok,
+            kategori: kategori,
             nama: namaItem,
-            harga: harga,
+            vp: vp,
+            diskon: diskon,
+            hargaEceran: harga,
+            setelahDiskon: hargaAfterDiskon,
             jumlah: qty,
-            vp: totVp,
+            totVp: totVp,
             subtotal: subtotal
         });
     });
@@ -1166,7 +1178,7 @@ async function submitForm() {
         });
 
         alert("Data berhasil dikirim (PDF + Email/WA).");
-        resetForm();
+        resetForm?.();
     } catch (err) {
         console.error("Gagal kirim:", err);
         alert("Terjadi kesalahan saat mengirim data");
