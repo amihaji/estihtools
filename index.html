@@ -604,14 +604,18 @@ button:hover {
             <select id="shipping" name="shipping" required>
                 <!-- Opsi akan diisi oleh JavaScript -->
             </select>
-            
             <div id="message" class="message"></div>   
             <div class="button-group"> 
-            
-               <button type="button" id="btnAction" onclick="handleAction()">TAMBAH</button>
-               <button type="button" onclick="resetForm()">RESET</button>
-               <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM</button>
-               <div id="spinner" class="spinner" style="display:none;"></div>
+                <!-- Tombol Tambah -->
+                <button type="button" id="btnTambah" onclick="addItem()">TAMBAH</button>
+                <!-- Tombol Update -->
+                <button type="button" id="btnUpdate" onclick="handleUpdate()" disabled>UPDATE</button>
+                <!-- Tombol Reset -->
+                <button type="button" onclick="resetForm()">RESET</button>
+                <!-- Tombol Kirim -->
+                <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM
+                    <span id="spinner" style="display:none; margin-left:5px;">⏳</span>
+                </button>
             </div>
         </form>
 
@@ -911,7 +915,7 @@ function addItem() {
                 <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
                 <td>${formatCurrency(mProductData.HargaEceran)}</td>
                 <td>${formatCurrency(mPriceAfterDiscount)}</td>
-                <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
+                <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:40px"></td>
                 <td>${formatCurrency(mTotVP)}</td>
                 <td>${formatCurrency(mHarga)}</td>
                 <td class="tooltip">
@@ -960,6 +964,21 @@ function addItem() {
         showMessage("Error: " + error.message, true);
     });
 }
+
+// === Aktifkan tombol UPDATE jika ada perubahan jumlah item di tabel ===
+function activateUpdateOnEdit() {
+  const tableBody = document.querySelector("#orderTable tbody");
+  tableBody.addEventListener("input", (e) => {
+    if (e.target.classList.contains("qty-input")) {
+      document.getElementById("btnUpdate").disabled = false;
+    }
+  });
+}
+
+// Panggil fungsi ini saat halaman pertama kali load
+document.addEventListener("DOMContentLoaded", () => {
+  activateUpdateOnEdit();
+});
 
 // Update jumlah item → langsung simpan order terbaru
 function handleUpdate() {
