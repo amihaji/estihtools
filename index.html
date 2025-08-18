@@ -607,12 +607,7 @@ button:hover {
             
             <div id="message" class="message"></div>   
             <div class="button-group"> 
-               <!----
-                <button type="button" onclick="addItem()">TAMBAH</button>
-                <button type="button" onclick="resetForm()">RESET</button>
-                <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM</button>
-                <div id="spinner" class="spinner" style="display:none;"></div>
-               --->
+            
                <button type="button" id="btnAction" onclick="handleAction()">TAMBAH</button>
                <button type="button" onclick="resetForm()">RESET</button>
                <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM</button>
@@ -635,7 +630,6 @@ button:hover {
                       <th>Jumlah</th>
                       <th>Tot VP</th>         
                       <th>Harga</th>
-                      <!-- <th>Aksi</th> <!-- Kolom baru untuk icon "X" -->
                       <!-- Kolom "Aksi" dengan ikon tong sampah -->
                       <th><i class="fa-regular fa-trash-can"></i></th> 
                   </tr> 
@@ -694,7 +688,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbyR1a3NU1ebEeDMm8-q3xZ78xcO0RtpYyhGyugKYIYnbv-MaYjrKfNyUYD-FgmWHT0v6g/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbxMLpIJXtG1dybTgtEWp7gBorHQLkrUaYW-uMS4A-WMd508HgBVjwmRwvijNYN0l18Jgw/exec";
 let isEditMode = false;
 
 // ✅ Perbaiki callAPI
@@ -957,13 +951,22 @@ function addItem() {
         };
         callAPI("saveItem", mOrderData, "POST");
         disableFields();
+        saveOrderToSheet(() => {
         showMessage("Item berhasil ditambahkan!", false);
-
+        });
+        
         if (typeof updateTotals === "function") {
             updateTotals();
         }
     }).catch(error => {
         showMessage("Error: " + error.message, true);
+    });
+}
+
+// Update jumlah item → langsung simpan order terbaru
+function handleUpdate() {
+    saveOrderToSheet(() => {
+        showMessage("Perubahan item berhasil disimpan!", false);
     });
 }
 
@@ -1126,46 +1129,63 @@ async function updateEditedRows() {
     }
 }
 
-// ======================
-// KUMPULKAN DATA ORDER
-// ======================
+
 // *** Mengumpulkan seluruh data order (header + items) dari form & tabel
-function collectOrderData(sendEmail = false) {
-  const mTableBody = document.querySelector("#orderTable tbody");
-  const rows = mTableBody.querySelectorAll("tr");
+function collectOrderData() {
+    const orderData = {
+        mDate: document.getElementById("date").value,
+        mInvoice: document.getElementById("invoice").value,
+        mDistributorName: document.getElementById("distributorName").value,
+        mDistributorPhone: document.getElementById("distributorPhone").value,
+        mConsumerName: document.getElementById("consumerName").value,
+        mConsumerPhone: document.getElementById("consumerPhone").value,
+        mConsumerEmail: document.getElementById("consumerEmail").value,
+        mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+        mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
+        mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")) || 0,
+        mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/\./g, "").replace(",", ".")) || 0,
+        items: []
+    };
 
-  const items = [];
-  rows.forEach(row => {
-    const cells = row.querySelectorAll("td");
-    items.push({
-      mNoStok: cells[1].textContent,
-      mNamaProduk: cells[2].textContent,
-      mVp: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "")) || 0,
-      mHargaEceran: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "")) || 0,
-      mSetelahDiskon: parseFloat(cells[4].textContent.replace(/[^\d,.-]/g, "")) || 0,
-      mJumlah: parseInt(cells[5].querySelector("input").value) || 0,
-      mTotVP: parseFloat(cells[6].textContent.replace(/[^\d,.-]/g, "")) || 0,
-      mHarga: parseFloat(cells[7].textContent.replace(/[^\d,.-]/g, "")) || 0
+    const rows = document.querySelectorAll("#orderTable tbody tr");
+    rows.forEach((row, idx) => {
+        const cells = row.querySelectorAll("td");
+        orderData.items.push({
+            mNoStok: cells[1].textContent,
+            mNamaProduk: cells[2].textContent,
+            mVp: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")) / parseFloat(cells[5].querySelector("input").value),
+            mHargaEceran: parseFloat(cells[3].textContent.replace(/\./g, "").replace(",", ".")),
+            mSetelahDiskon: parseFloat(cells[4].textContent.replace(/\./g, "").replace(",", ".")),
+            mJumlah: parseInt(cells[5].querySelector("input").value) || 0,
+            mTotVP: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")),
+            mHarga: parseFloat(cells[7].textContent.replace(/\./g, "").replace(",", "."))
+        });
     });
-  });
 
-  return {
-    mDate: document.getElementById("date").value,
-    mInvoice: document.getElementById("invoice").value,
-    mDistributorName: document.getElementById("distributorName").value,
-    mDistributorPhone: document.getElementById("distributorPhone").value,
-    mConsumerName: document.getElementById("consumerName").value,
-    mConsumerPhone: document.getElementById("consumerPhone").value,
-    mConsumerEmail: document.getElementById("consumerEmail").value,
-    mDiskon: document.getElementById("discount").options[
-      document.getElementById("discount").selectedIndex
-    ].text,
-    mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d,.-]/g, "")) || 0,
-    mTotalPrice: parseFloat(document.getElementById("grandTotal").textContent.replace(/[^\d,.-]/g, "")) || 0,
-    items,
-    sendEmail
-  };
+    return orderData;
+}
+
+function saveOrderToSheet(callback) {
+    const orderData = collectOrderData();
+
+    fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "saveOrder", data: orderData })
+    })
+    .then(res => res.json())
+    .then(result => {
+        console.log("SaveOrder Result:", result);
+        if (result.status === "success") {
+            if (callback) callback();
+        } else {
+            alert("Gagal simpan order: " + result.message);
+        }
+    })
+    .catch(err => {
+        console.error("Error saveOrder:", err);
+        alert("Error simpan order: " + err.message);
+    });
 }
 
 // ✅ Baru: updateOrder → hanya simpan perubahan
@@ -1188,20 +1208,27 @@ function updateOrder() {
 // ======================
 // SUBMIT FORM (KIRIM)
 // ======================
-// ✅ Revisi submitForm → simpan + kirim
+// Kirim → pastikan data terbaru sudah disimpan, baru lanjut kirim email/WA
 function submitForm() {
-  const orderData = collectOrderData(true); // sendEmail = true
-  callAPI("saveOrder", { data: orderData }, "POST")
-    .then(res => {
-      if (res.status === "success") {
-        showMessage("Data berhasil disimpan & dikirim!", false);
-      } else {
-        showMessage("Gagal mengirim: " + res.message, true);
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      showMessage("Error submitForm", true);
+    saveOrderToSheet(() => {
+        const orderData = collectOrderData();
+        fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "sendEmail", data: orderData })
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.status === "success") {
+                alert("Hasil terkirim ke WA dan Email!");
+            } else {
+                alert("Gagal kirim: " + result.message);
+            }
+        })
+        .catch(err => {
+            console.error("Error kirim:", err);
+            alert("Gagal kirim: " + err.message);
+        });
     });
 }
 
