@@ -688,7 +688,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbxMLpIJXtG1dybTgtEWp7gBorHQLkrUaYW-uMS4A-WMd508HgBVjwmRwvijNYN0l18Jgw/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbxkQ4y3uLiXI3LhzFiHnTvDXuR6C-sg_S4EcfFgkllm7Z_eoZDTHQTjUSOSRoasItP-Og/exec";
 let isEditMode = false;
 
 // ✅ Perbaiki callAPI
@@ -951,10 +951,8 @@ function addItem() {
         };
         callAPI("saveItem", mOrderData, "POST");
         disableFields();
-        saveOrderToSheet(() => {
-        showMessage("Item berhasil ditambahkan!", false);
-        });
-        
+        saveOrderToSheet(() => showMessage("Item tersimpan!", false));
+
         if (typeof updateTotals === "function") {
             updateTotals();
         }
@@ -965,11 +963,8 @@ function addItem() {
 
 // Update jumlah item → langsung simpan order terbaru
 function handleUpdate() {
-    saveOrderToSheet(() => {
-        showMessage("Perubahan item berhasil disimpan!", false);
-    });
+  saveOrderToSheet(() => showMessage("Perubahan disimpan!", false));
 }
-
 // ***************************************
 // Fungsi untuk menjalankan tombol "RESET"
 // ***************************************
@@ -1132,61 +1127,60 @@ async function updateEditedRows() {
 
 // *** Mengumpulkan seluruh data order (header + items) dari form & tabel
 function collectOrderData() {
-    const orderData = {
-        mDate: document.getElementById("date").value,
-        mInvoice: document.getElementById("invoice").value,
-        mDistributorName: document.getElementById("distributorName").value,
-        mDistributorPhone: document.getElementById("distributorPhone").value,
-        mConsumerName: document.getElementById("consumerName").value,
-        mConsumerPhone: document.getElementById("consumerPhone").value,
-        mConsumerEmail: document.getElementById("consumerEmail").value,
-        mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
-        mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-        mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")) || 0,
-        mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/\./g, "").replace(",", ".")) || 0,
-        items: []
-    };
+  const orderData = {
+    mDate: document.getElementById("date").value,
+    mInvoice: document.getElementById("invoice").value,
+    mDistributorName: document.getElementById("distributorName").value,
+    mDistributorPhone: document.getElementById("distributorPhone").value,
+    mConsumerName: document.getElementById("consumerName").value,
+    mConsumerPhone: document.getElementById("consumerPhone").value,
+    mConsumerEmail: document.getElementById("consumerEmail").value,
+    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+    mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
+    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")) || 0,
+    mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/\./g, "").replace(",", ".")) || 0,
+    items: []
+  };
 
-    const rows = document.querySelectorAll("#orderTable tbody tr");
-    rows.forEach((row, idx) => {
-        const cells = row.querySelectorAll("td");
-        orderData.items.push({
-            mNoStok: cells[1].textContent,
-            mNamaProduk: cells[2].textContent,
-            mVp: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")) / parseFloat(cells[5].querySelector("input").value),
-            mHargaEceran: parseFloat(cells[3].textContent.replace(/\./g, "").replace(",", ".")),
-            mSetelahDiskon: parseFloat(cells[4].textContent.replace(/\./g, "").replace(",", ".")),
-            mJumlah: parseInt(cells[5].querySelector("input").value) || 0,
-            mTotVP: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")),
-            mHarga: parseFloat(cells[7].textContent.replace(/\./g, "").replace(",", "."))
-        });
+  const rows = document.querySelectorAll("#orderTable tbody tr");
+  rows.forEach((row, idx) => {
+    const cells = row.querySelectorAll("td");
+    orderData.items.push({
+      mNoStok: cells[1].textContent,
+      mNamaProduk: cells[2].textContent,
+      mVp: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")) / parseInt(cells[5].querySelector("input").value),
+      mHargaEceran: parseFloat(cells[3].textContent.replace(/\./g, "").replace(",", ".")),
+      mSetelahDiskon: parseFloat(cells[4].textContent.replace(/\./g, "").replace(",", ".")),
+      mJumlah: parseInt(cells[5].querySelector("input").value) || 0,
+      mTotVP: parseFloat(cells[6].textContent.replace(/\./g, "").replace(",", ".")),
+      mHarga: parseFloat(cells[7].textContent.replace(/\./g, "").replace(",", "."))
     });
+  });
 
-    return orderData;
+  return orderData;
 }
 
 function saveOrderToSheet(callback) {
-    const orderData = collectOrderData();
+  const orderData = collectOrderData();
 
-    fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "saveOrder", data: orderData })
-    })
-    .then(res => res.json())
-    .then(result => {
-        console.log("SaveOrder Result:", result);
-        if (result.status === "success") {
-            if (callback) callback();
-        } else {
-            alert("Gagal simpan order: " + result.message);
-        }
-    })
-    .catch(err => {
-        console.error("Error saveOrder:", err);
-        alert("Error simpan order: " + err.message);
-    });
+  fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "saveOrder", data: orderData })
+  })
+  .then(res => res.json())
+  .then(result => {
+    if (result.status === "success") {
+      if (callback) callback();
+    } else {
+      alert("Gagal simpan order: " + result.message);
+    }
+  })
+  .catch(err => {
+    alert("Error simpan order: " + err.message);
+  });
 }
+
 
 // ✅ Baru: updateOrder → hanya simpan perubahan
 function updateOrder() {
@@ -1210,26 +1204,25 @@ function updateOrder() {
 // ======================
 // Kirim → pastikan data terbaru sudah disimpan, baru lanjut kirim email/WA
 function submitForm() {
-    saveOrderToSheet(() => {
-        const orderData = collectOrderData();
-        fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "sendEmail", data: orderData })
-        })
-        .then(res => res.json())
-        .then(result => {
-            if (result.status === "success") {
-                alert("Hasil terkirim ke WA dan Email!");
-            } else {
-                alert("Gagal kirim: " + result.message);
-            }
-        })
-        .catch(err => {
-            console.error("Error kirim:", err);
-            alert("Gagal kirim: " + err.message);
-        });
+  saveOrderToSheet(() => {
+    const orderData = collectOrderData();
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "sendEmail", data: orderData })
+    })
+    .then(res => res.json())
+    .then(result => {
+      if (result.status === "success") {
+        alert("Hasil terkirim ke WA dan Email!");
+      } else {
+        alert("Gagal kirim: " + result.message);
+      }
+    })
+    .catch(err => {
+      alert("Gagal kirim: " + err.message);
     });
+  });
 }
 
 // ***************************************************************
