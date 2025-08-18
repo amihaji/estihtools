@@ -694,23 +694,23 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbyaVgbP_llo9iJcli9RGGpdVE1nNPbXBXuneI2qJLfsWZKqUpYZfBP8aWEIiK18664y/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbyR1a3NU1ebEeDMm8-q3xZ78xcO0RtpYyhGyugKYIYnbv-MaYjrKfNyUYD-FgmWHT0v6g/exec";
 let isEditMode = false;
 
+// ✅ Perbaiki callAPI
 function callAPI(action, params = {}, method = "GET") {
-    if (method === "GET") {
-        const url = new URL(API_URL);
-        url.searchParams.append("action", action);
-        Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-        return fetch(url).then(res => res.json());
-    } else {
-        // POST → kirim JSON dengan header benar
-        return fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action, ...params })
-        }).then(res => res.json());
-    }
+  if (method === "GET") {
+    const url = new URL(API_URL);
+    url.searchParams.append("action", action);
+    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+    return fetch(url).then(res => res.json());
+  } else {
+    return fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, ...params })
+    }).then(res => res.json());
+  }
 }
 
 // *********************************************
@@ -1091,7 +1091,6 @@ function deleteItem(icon) {
         });
 }
 
-
 // ======================
 // UPDATE JUMLAH KE SHEET
 // ======================
@@ -1139,15 +1138,14 @@ function collectOrderData(sendEmail = false) {
   rows.forEach(row => {
     const cells = row.querySelectorAll("td");
     items.push({
-      mNoStok: cells[1].textContent,                                   // No. Stok
-      mKategori: cells[2].getAttribute("data-kategori") || "",         // Kategori (opsional, kalau ada)
-      mNamaProduk: cells[2].textContent,                               // Nama Produk
-      mVp: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-      mHargaEceran: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-      mSetelahDiskon: parseFloat(cells[4].textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-      mJumlah: parseInt(cells[5].querySelector("input").value) || 0,   // Ambil dari input jumlah
-      mTotVP: parseFloat(cells[6].textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-      mHarga: parseFloat(cells[7].textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0
+      mNoStok: cells[1].textContent,
+      mNamaProduk: cells[2].textContent,
+      mVp: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "")) || 0,
+      mHargaEceran: parseFloat(cells[3].textContent.replace(/[^\d,.-]/g, "")) || 0,
+      mSetelahDiskon: parseFloat(cells[4].textContent.replace(/[^\d,.-]/g, "")) || 0,
+      mJumlah: parseInt(cells[5].querySelector("input").value) || 0,
+      mTotVP: parseFloat(cells[6].textContent.replace(/[^\d,.-]/g, "")) || 0,
+      mHarga: parseFloat(cells[7].textContent.replace(/[^\d,.-]/g, "")) || 0
     });
   });
 
@@ -1163,42 +1161,48 @@ function collectOrderData(sendEmail = false) {
       document.getElementById("discount").selectedIndex
     ].text,
     mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-    mTotalPrice: parseFloat(document.getElementById("grandTotal").textContent.replace(/[^\d,.-]/g, "").replace(",", ".")) || 0,
-    items: items,
-    sendEmail: sendEmail
+    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d,.-]/g, "")) || 0,
+    mTotalPrice: parseFloat(document.getElementById("grandTotal").textContent.replace(/[^\d,.-]/g, "")) || 0,
+    items,
+    sendEmail
   };
 }
 
+// ✅ Baru: updateOrder → hanya simpan perubahan
 function updateOrder() {
   const orderData = collectOrderData(false); // sendEmail = false
-  const payload = JSON.stringify({ action: "saveOrder", data: orderData });
-
-  fetch(API_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: payload
-  });
-
-  alert("Perubahan berhasil diupdate ke Sheet!");
+  callAPI("saveOrder", { data: orderData }, "POST")
+    .then(res => {
+      if (res.status === "success") {
+        showMessage("Perubahan berhasil diupdate ke Sheet!", false);
+      } else {
+        showMessage("Gagal update: " + res.message, true);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      showMessage("Error updateOrder", true);
+    });
 }
 
 // ======================
 // SUBMIT FORM (KIRIM)
 // ======================
+// ✅ Revisi submitForm → simpan + kirim
 function submitForm() {
   const orderData = collectOrderData(true); // sendEmail = true
-  const payload = JSON.stringify({ action: "saveOrder", data: orderData });
-
-  fetch(API_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: payload
-  });
-
-  alert("Data berhasil disimpan & dikirim!");
+  callAPI("saveOrder", { data: orderData }, "POST")
+    .then(res => {
+      if (res.status === "success") {
+        showMessage("Data berhasil disimpan & dikirim!", false);
+      } else {
+        showMessage("Gagal mengirim: " + res.message, true);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      showMessage("Error submitForm", true);
+    });
 }
 
 // ***************************************************************
