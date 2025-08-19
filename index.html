@@ -607,7 +607,6 @@ button:hover {
             <div id="message" class="message"></div>   
             <div class="button-group"> 
                 <button type="button" id="btnAdd" onclick="addItem()">TAMBAH</button>
-                <button type="button" id="btnUpdate" onclick="handleUpdate()" disabled>UPDATE</button>
                 <button type="button" onclick="resetForm()">RESET</button>
                 <button type="button" id="kirimButton" onclick="submitForm()" disabled>KIRIM</button>
                 <div id="spinner" class="spinner" style="display:none;"></div>
@@ -856,6 +855,7 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
     
     // Update total
     updateTotals();
+    saveOrderToSheet(collectOrderData()); // Simpan otomatis
     
     // Aktifkan tombol update
     document.getElementById("btnUpdate").disabled = false;
@@ -972,15 +972,6 @@ function addItem() {
   });
 }
 
-// === Update item (edit jumlah) & simpan ke Sheet ===
-function handleUpdate() {
-  const orderData = collectOrderData();
-  saveOrderToSheet(orderData).then(() => {
-    showMessage("Perubahan berhasil diperbarui di sheet!", false);
-    document.getElementById("btnUpdate").disabled = true; // nonaktifkan lagi
-  });
-}
-
 function handleAction() {
   const btn = document.getElementById("btnAction");
   if (btn.textContent === "Tambah") {
@@ -1023,13 +1014,6 @@ function activateUpdateOnEdit() {
 document.addEventListener("DOMContentLoaded", () => {
   activateUpdateOnEdit();
 });
-
-// Update jumlah item → langsung simpan order terbaru
-function handleUpdate() {
-  const orderData = collectOrderData();
-  saveOrderToSheet(orderData);
-  showMessage("Perubahan berhasil diperbarui di sheet!", false);
-}
 
 // ***************************************
 // Fungsi untuk menjalankan tombol "RESET"
@@ -1103,6 +1087,7 @@ function deleteItem(icon) {
             updateItemNumbers();
             // Update total setelah hapus
             updateTotals();
+            saveOrderToSheet(collectOrderData());
         })
         .catch(error => {
             console.error("Gagal menghapus item:", error);
@@ -1216,22 +1201,10 @@ function saveOrderToSheet(orderData) {
     });
 }
 
-// ✅ Baru: updateOrder → hanya simpan perubahan
-function updateOrder() {
-  const orderData = collectOrderData(false); // sendEmail = false
-  callAPI("saveOrder", { data: orderData }, "POST")
-    .then(res => {
-      if (res.status === "success") {
-        showMessage("Perubahan berhasil diupdate ke Sheet!", false);
-      } else {
-        showMessage("Gagal update: " + res.message, true);
-      }
-    })
-    .catch(err => {
-      console.error(err);
-      showMessage("Error updateOrder", true);
-    });
-}
+// Trigger saat ada perubahan
+document.querySelector('#orderTable').addEventListener('input', () => {
+  saveOrderToSheet(collectOrderData());
+});
 
 // ======================
 // SUBMIT FORM (KIRIM)
