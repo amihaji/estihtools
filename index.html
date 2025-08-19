@@ -687,7 +687,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbx8Q_zunuCGBCEbOor2KDRpDkYGE8FtsCYGiVd4JyW74lLbYQFVkYI-I5qTdqpHW_jf/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbxvxwu0JmOLqgg08FQxxgtkKEPv1Us_t5bJSQ9ohfubK11R84RUzzRfPMDttYC6tYSd/exec";
 let isEditMode = false;
 
 // === Fungsi umum komunikasi dengan Google Apps Script ===
@@ -864,34 +864,43 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
 
 // Perbaiki fungsi updateTotals()
 function updateTotals() {
-  const rows = document.querySelectorAll('#orderTable tbody tr');
+  const rows      = document.querySelectorAll('#orderTable tbody tr');
   let totalJumlah = 0;
-  let totalVP = 0;
-  let totalHarga = 0;
+  let totalVP     = 0;
+  let totalHarga  = 0;
 
   rows.forEach(row => {
-    const qty = parseInt(row.querySelector('.qty-input').value) || 0;
-    const vp = parseFloat(row.getAttribute('data-vp')) || 0;
-    const priceAfterDiscount = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
+    // Ambil nilai jumlah dari input
+    const qtyInput = row.querySelector('.qty-input');
+    const qty      = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+    
+    // Ambil VP per item dari atribut data
+    const vpPerItem = parseFloat(row.getAttribute('data-vp')) || 0;
+    
+    // Ambil harga setelah diskon (hilangkan format currency)
+    const priceAfterDiscount = parseFloat(
+      row.cells[4].textContent
+        .replace(/[^\d,]/g, '')
+        .replace(',', '.')
+    ) || 0;
 
     totalJumlah += qty;
-    totalVP += vp * qty;
+    totalVP += vpPerItem * qty;
     totalHarga += priceAfterDiscount * qty;
   });
 
   // Update footer tabel
   document.getElementById('totalJumlah').textContent = totalJumlah;
-  document.getElementById('totalVP').textContent = formatCurrency(Math.round(totalVP * 100) / 100);
-  document.getElementById('totalHarga').textContent = formatCurrency(Math.round(totalHarga * 100) / 100);
+  document.getElementById('totalVP').textContent     = formatCurrency(totalVP);
+  document.getElementById('totalHarga').textContent  = formatCurrency(totalHarga);
 
-  // Update summary details
+  // Update summary
   const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
-  const tax = 0; // Pajak 0%
-  const grandTotal = totalHarga + shippingCost + tax;
-
+  const tax          = 0;
+  const grandTotal   = totalHarga + shippingCost + tax;
   document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
-  document.getElementById('tax').textContent = formatCurrency(tax);
-  document.getElementById('totalPrice').textContent = formatCurrency(grandTotal);
+  document.getElementById('tax').textContent          = formatCurrency(tax);
+  document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
 }
 
 // ======================
@@ -947,6 +956,9 @@ function addItem() {
       </tr>
     `;
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+
+    // Panggil updateTotals() setelah menambah item
+    updateTotals();
     document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
     document.getElementById("kirimButton").disabled = false;
 
@@ -1087,7 +1099,10 @@ function deleteItem(icon) {
     callAPI("deleteItemFromSheet", { noStok: noStok }, "POST")
         .then(() => {
             console.log(`Item ${noStok} berhasil dihapus di sheet`);
+            // Update nomor item
             updateItemNumbers();
+            // Update total setelah hapus
+            updateTotals();
         })
         .catch(error => {
             console.error("Gagal menghapus item:", error);
@@ -1184,6 +1199,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelector("#orderTable tbody").addEventListener("input", (e) => {
     if (e.target.classList.contains("qty-input")) {
       document.getElementById("btnUpdate").disabled = false;
+      updateTotals();
     }
   });
 });
