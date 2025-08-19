@@ -811,41 +811,47 @@ function loadOptions() {
 
 /** Ubah tombol ke mode UPDATE ketika user edit jumlah */
 function enableUpdateMode(row) {
-    const qtyInput = row.querySelector(".qty-input");
+    const cells = row.querySelectorAll("td");
+    if (!cells[5]) return; // amanin kalau kolom ke-6 tidak ada
+
+    const qtyInput = cells[5].querySelector("input");
+    if (!qtyInput) return;
+
     qtyInput.addEventListener("change", () => {
-        const jumlah = parseInt(qtyInput.value) || 0;
+        const jumlahBaru = parseInt(qtyInput.value) || 0;
+        const hargaPerUnit = unformatNumber(cells[4].textContent);
+        const vpPerUnit = parseFloat(cells[6]?.dataset?.vp || 0);
 
-        const hargaEceran = parseFloat(row.cells[3].textContent.replace(/\./g, "").replace(",", ".")) || 0;
-        const setelahDiskon = parseFloat(row.cells[4].textContent.replace(/\./g, "").replace(",", ".")) || 0;
-        const vp = parseFloat(row.cells[6].dataset.vp) || 0; // simpan VP mentah di dataset
+        const totVP = vpPerUnit * jumlahBaru;
+        const harga = hargaPerUnit * jumlahBaru;
 
-        const totVP = vp * jumlah;
-        const harga = setelahDiskon * jumlah;
+        cells[6].textContent = formatCurrency(totVP);
+        cells[7].textContent = formatCurrency(harga);
 
-        // update tampilan tabel
-        row.cells[6].textContent = formatCurrency(totVP);
-        row.cells[7].textContent = formatCurrency(harga);
-
-        // update ringkasan total
         updateSummary();
 
-        // simpan ke sheet
+        // simpan langsung ke sheet
         const mOrderData = collectOrderData();
-        saveOrderToSheet(mOrderData);
+        saveOrderToSheet(mOrderData).catch(err => {
+            console.error("Gagal update item:", err);
+        });
     });
 }
 
 function updateSummary() {
-    const rows = document.querySelectorAll("#orderTable tbody tr");
+    const mTableBody = document.querySelector("#orderTable tbody");
+    const rows = mTableBody.querySelectorAll("tr");
+
     let totalQty = 0, totalVP = 0, totalHarga = 0;
 
     rows.forEach(row => {
-        const qty = parseInt(row.querySelector(".qty-input").value) || 0;
-        const totVP = parseFloat(row.cells[6].textContent.replace(/\./g, "").replace(",", ".")) || 0;
-        const harga = parseFloat(row.cells[7].textContent.replace(/\./g, "").replace(",", ".")) || 0;
+        const cells = row.querySelectorAll("td");
+        const qty = parseInt(cells[5]?.querySelector("input")?.value) || 0;
+        const vp = unformatNumber(cells[6]?.textContent);
+        const harga = unformatNumber(cells[7]?.textContent);
 
         totalQty += qty;
-        totalVP += totVP;
+        totalVP += vp;
         totalHarga += harga;
     });
 
@@ -1231,16 +1237,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function saveOrderToSheet(mOrderData) {
     return callAPI("saveItem", mOrderData, "POST")
         .then(res => {
-            console.log("Data tersimpan di Sheet:", res);
-            showMessage("Perubahan berhasil disimpan di Sheet!", false);
+            console.log("Berhasil simpan:", res);
         })
         .catch(err => {
-            console.error("Gagal simpan ke Sheet:", err);
-            showMessage("Error menyimpan ke Sheet: " + err.message, true);
+            console.error("Error saveOrder:", err);
         });
 }
 
-// ✅ Baru: updateOrder → hanya simpan perubahan
 function updateOrder() {
   const orderData = collectOrderData(false); // sendEmail = false
   callAPI("saveOrder", { data: orderData }, "POST")
