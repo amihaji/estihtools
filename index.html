@@ -155,6 +155,19 @@ button:hover {
     background-color: #42a5f5;
 }
 
+#btnUpdate {
+  background-color: #ff9800; /* Warna oranye */
+}
+
+#btnUpdate:hover {
+  background-color: #fb8c00;
+}
+
+#btnUpdate:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 /* Tabel Ringkasan Pesanan */
 #orderTable {
     width: 100%;
@@ -685,7 +698,9 @@ button:hover {
 // URL Web App Google Apps Script 
 // *******************************
 const API_URL  = "https://script.google.com/macros/s/AKfycbyziJmEStWPtdxbDYwuLlfMwRziThtnUDTXhfZFFleHofJgwIXB1SJ3Fj-Pc9bFe3RP/exec";
-let isEditMode = false;
+
+let isEditMode = false;    // Untuk mendefenisikan mode Edit
+let currentEditRow = null; // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
 document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
 
@@ -847,19 +862,19 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
   if (e.target.classList.contains('qty-input')) {
     const row = e.target.closest('tr');
     const qty = parseInt(e.target.value) || 0;
-    const priceAfterDiscount = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
-    const vpPerItem = parseFloat(row.getAttribute('data-vp')) || 0;
+    const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
     
-    // Update nilai langsung di tabel
+    // Update tampilan
     row.cells[6].textContent = formatCurrency(vpPerItem * qty);
-    row.cells[7].textContent = formatCurrency(priceAfterDiscount * qty);
-    
-    // Update total
+    row.cells[7].textContent = formatCurrency(price * qty);
     updateTotals();
-    saveOrderToSheet(collectOrderData()); // Simpan otomatis
     
-    // Aktifkan tombol update
-    document.getElementById("btnUpdate").disabled = false;
+    // Aktifkan mode edit
+    if (!isEditMode) {
+      isEditMode = true;
+      currentEditRow = row;
+      document.getElementById('btnUpdate').disabled = false;
+    }
   }
 });
 
@@ -909,6 +924,12 @@ function updateTotals() {
 // ======================
 // === Tambah item ke tabel & simpan ke Sheet ===
 function addItem() {
+  // Untuk Mengecek Apa Inputan Baru atau Edit
+  if (isEditMode) {
+    updateItem();
+    return;
+  }
+
   const mDiscountSelect = document.getElementById('discount');
   const mProductSelect  = document.getElementById('product');
   const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
@@ -966,11 +987,31 @@ function addItem() {
     disableFields();
     showMessage("Item berhasil ditambahkan!", false);
 
-    // Simpan ke sheet
-    //saveOrderToSheet(collectOrderData());
+    // Simpan ke sheet hanya jika bukan edit mode
+    if (!isEditMode) {
+      saveOrderToSheet(collectOrderData());
+    }
+    
   }).catch(error => {
     showMessage("Error: " + error.message, true);
   });
+}
+
+function updateItem() {
+  if (!currentEditRow) return;
+  
+  // Simpan perubahan ke sheet
+  saveOrderToSheet(collectOrderData())
+    .then(() => {
+      showMessage("Perubahan tersimpan!", false);
+      resetEditMode();
+    });
+}
+
+function resetEditMode() {
+  isEditMode = false;
+  currentEditRow = null;
+  document.getElementById('btnUpdate').disabled = true;
 }
 
 function handleAction() {
@@ -987,8 +1028,9 @@ function handleAction() {
     btn.disabled = true;         // nonaktifkan sampai ada edit lagi
   }
 }
-
+//==================================
 function updateItem(updatedOrderData) {
+//==================================
   // langsung kirim ke sheet dengan metode no-cors
   callAPI("saveItem", updatedOrderData, "POST")
     .then(() => {
@@ -1146,7 +1188,7 @@ function collectOrderData() {
 }
 
 // delegasi event yang lebih spesifik
-document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
+BACKUP_document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
   if (e.target.classList.contains('qty-input')) {
     const row = e.target.closest('tr');
     const qty = parseInt(e.target.value) || 0;
@@ -1162,6 +1204,17 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
       saveOrderToSheet(collectOrderData());
     }, 1000); // Simpan setelah 1 detik tidak ada perubahan
   }
+});
+
+// 1. Untuk mode edit eksplisit:
+  document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
+    if (e.target.classList.contains('qty-input')) {
+      if (!isEditMode) {
+        enableUpdateMode();
+        currentEditRow = e.target.closest('tr');
+      }
+      updateTotals();
+    }
 });
 
 function saveOrderToSheet(orderData) {
