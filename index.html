@@ -687,7 +687,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbwHwHJ5vyPwYg06pI_tW0KBVauhPyXsiuII79-aSa_ovHHhUnALRugzXKSzyWQKMkup/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbx8Q_zunuCGBCEbOor2KDRpDkYGE8FtsCYGiVd4JyW74lLbYQFVkYI-I5qTdqpHW_jf/exec";
 let isEditMode = false;
 
 // === Fungsi umum komunikasi dengan Google Apps Script ===
@@ -881,8 +881,8 @@ function updateTotals() {
 
   // Update footer tabel
   document.getElementById('totalJumlah').textContent = totalJumlah;
-  document.getElementById('totalVP').textContent = formatCurrency(totalVP);
-  document.getElementById('totalHarga').textContent = formatCurrency(totalHarga);
+  document.getElementById('totalVP').textContent = formatCurrency(Math.round(totalVP * 100) / 100);
+  document.getElementById('totalHarga').textContent = formatCurrency(Math.round(totalHarga * 100) / 100);
 
   // Update summary details
   const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
@@ -924,8 +924,8 @@ function addItem() {
       default:    mPriceAfterDiscount = mProductData.HargaEceran;
     }
 
-    const mHarga = mPriceAfterDiscount * mQuantity;
-    const mTotVP = mProductData.VP * mQuantity;
+    const mHarga = Math.round(mPriceAfterDiscount * mQuantity * 100) / 100;
+    const mTotVP = Math.round(mProductData.VP * mQuantity * 100) / 100;
 
     // Simpan kategori & VP sebagai atribut row
     const mNewRow = `
@@ -1130,8 +1130,6 @@ async function updateEditedRows() {
     }
 }
 
-
-// *** Mengumpulkan seluruh data order (header + items) dari form & tabel
 // === Kumpulkan data tabel ke object order ===
 function collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
@@ -1252,16 +1250,25 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
 // Fungsi untuk menformat currency
 // ********************************
 function formatCurrency(amount) {
-  if (isNaN(amount)) return "0,00";
-  // Konversi ke number jika input berupa string
+  if (isNaN(amount)) return "0";
+  
+  // Konversi ke number jika input string
   if (typeof amount === 'string') {
     amount = parseFloat(amount.replace(/[^\d]/g, ''));
   }
+  
+  // Format tanpa desimal jika angka bulat
+  if (Number.isInteger(amount)) {
+    return new Intl.NumberFormat('id-ID').format(amount);
+  }
+  
+  // Format dengan 2 desimal jika perlu
   return new Intl.NumberFormat('id-ID', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: 2
   }).format(amount);
 }
+
 // ******************************************************
 // Fungsi untuk memformat tanggal Indonesia (DD/MM/YYYY)
 // ******************************************************
