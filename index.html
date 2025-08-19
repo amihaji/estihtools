@@ -687,7 +687,7 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbzXYbCWTgmb36UtbXrLhfUqElauU6KIy5RfueY3YU0OAYD6iXAvBxP1DlRattYcmYPN/exec";
+const API_URL  = "https://script.google.com/macros/s/AKfycbxtV8kVviYVazUqRG87RY68zviKLH8LK61NPjjGAtIWxRlX698nZWOsNzUUa00Hr5CeJg/exec";
 let isEditMode = false;
 
 // === Fungsi umum komunikasi dengan Google Apps Script ===
@@ -810,10 +810,48 @@ function loadOptions() {
 }
 
 /** Ubah tombol ke mode UPDATE ketika user edit jumlah */
-function enableUpdateMode() {
-    const btn = document.getElementById("btnAction");
-    btn.textContent = "UPDATE";
-    isEditMode = true;
+function enableUpdateMode(row) {
+    const qtyInput = row.querySelector(".qty-input");
+    qtyInput.addEventListener("change", () => {
+        const jumlah = parseInt(qtyInput.value) || 0;
+
+        const hargaEceran = parseFloat(row.cells[3].textContent.replace(/\./g, "").replace(",", ".")) || 0;
+        const setelahDiskon = parseFloat(row.cells[4].textContent.replace(/\./g, "").replace(",", ".")) || 0;
+        const vp = parseFloat(row.cells[6].dataset.vp) || 0; // simpan VP mentah di dataset
+
+        const totVP = vp * jumlah;
+        const harga = setelahDiskon * jumlah;
+
+        // update tampilan tabel
+        row.cells[6].textContent = formatCurrency(totVP);
+        row.cells[7].textContent = formatCurrency(harga);
+
+        // update ringkasan total
+        updateSummary();
+
+        // simpan ke sheet
+        const mOrderData = collectOrderData();
+        saveOrderToSheet(mOrderData);
+    });
+}
+
+function updateSummary() {
+    const rows = document.querySelectorAll("#orderTable tbody tr");
+    let totalQty = 0, totalVP = 0, totalHarga = 0;
+
+    rows.forEach(row => {
+        const qty = parseInt(row.querySelector(".qty-input").value) || 0;
+        const totVP = parseFloat(row.cells[6].textContent.replace(/\./g, "").replace(",", ".")) || 0;
+        const harga = parseFloat(row.cells[7].textContent.replace(/\./g, "").replace(",", ".")) || 0;
+
+        totalQty += qty;
+        totalVP += totVP;
+        totalHarga += harga;
+    });
+
+    document.getElementById("totalQty").textContent = totalQty;
+    document.getElementById("totalVP").textContent = formatCurrency(totalVP);
+    document.getElementById("totalPrice").textContent = formatCurrency(totalHarga);
 }
 
 /** Kembali ke mode TAMBAH */
@@ -864,67 +902,96 @@ document.addEventListener("input", function(e) {
 // ======================
 // FUNGSI ADD ITEM (Tambah / Update)
 // ======================
-// === Tambah item ke tabel & simpan ke Sheet ===
 function addItem() {
-  const mDiscountSelect = document.getElementById('discount');
-  const mProductSelect  = document.getElementById('product');
-  const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
-  const mShippingSelect = document.getElementById('shipping');
-  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
+    const mDiscountSelect = document.getElementById('discount');
+    const mProductSelect  = document.getElementById('product');
+    const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
+    const mShippingSelect = document.getElementById('shipping');
+    const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
 
-  if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
-    alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
-    return;
-  }
-
-  callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
-    const mTableBody = document.querySelector("#orderTable tbody");
-    const mDiscount = mDiscountSelect.value;
-
-    let mPriceAfterDiscount;
-    switch (mDiscount) {
-      case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
-      case "25%": mPriceAfterDiscount = mProductData.Member25; break;
-      case "35%": mPriceAfterDiscount = mProductData.SC35; break;
-      case "42%": mPriceAfterDiscount = mProductData.SB42; break;
-      case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-      default:    mPriceAfterDiscount = mProductData.HargaEceran;
+    if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
+        alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
+        return;
     }
 
-    const mHarga = mPriceAfterDiscount * mQuantity;
-    const mTotVP = mProductData.VP * mQuantity;
+    callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+        const mTableBody = document.querySelector("#orderTable tbody");
+        const mDiscount = mDiscountSelect.value;
 
-    // Simpan kategori & VP sebagai atribut row
-    const mNewRow = `
-      <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
-        <td>${mTableBody.rows.length + 1}</td>
-        <td>${mProductSelect.value}</td>
-        <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-        <td>${formatCurrency(mProductData.HargaEceran)}</td>
-        <td>${formatCurrency(mPriceAfterDiscount)}</td>
-        <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
-        <td>${formatCurrency(mTotVP)}</td>
-        <td>${formatCurrency(mHarga)}</td>
-        <td class="tooltip">
-          <span class="delete-icon" onclick="deleteItem(this)">
-            <i class="fas fa-times"></i>
-          </span>     
-          <span class="tooltiptext">Hapus</span>   
-        </td>
-      </tr>
-    `;
-    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
-    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-    document.getElementById("kirimButton").disabled = false;
+        let mPriceAfterDiscount;
+        switch (mDiscount) {
+            case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
+            case "25%": mPriceAfterDiscount = mProductData.Member25; break;
+            case "35%": mPriceAfterDiscount = mProductData.SC35; break;
+            case "42%": mPriceAfterDiscount = mProductData.SB42; break;
+            case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
+            default:    mPriceAfterDiscount = mProductData.HargaEceran;
+        }
 
-    disableFields();
-    showMessage("Item berhasil ditambahkan!", false);
+        const mHarga = mPriceAfterDiscount * mQuantity;
+        const mTotVP = mProductData.VP * mQuantity;
 
-    // Simpan ke sheet
-    saveOrderToSheet(collectOrderData());
-  }).catch(error => {
-    showMessage("Error: " + error.message, true);
-  });
+        const mNewRow = `
+            <tr>
+                <td>${mTableBody.rows.length + 1}</td>
+                <td>${mProductSelect.value}</td>
+                <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
+                <td>${formatCurrency(mProductData.HargaEceran)}</td>
+                <td>${formatCurrency(mPriceAfterDiscount)}</td>
+                <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
+                <td data-vp="${mProductData.VP}">${formatCurrency(mTotVP)}</td>
+                <td>${formatCurrency(mHarga)}</td>
+                <td class="tooltip">
+                    <span class="delete-icon" onclick="deleteItem(this)">
+                        <i class="fas fa-times"></i>
+                    </span>     
+                    <span class="tooltiptext">Hapus</span>   
+                </td>
+            </tr>
+        `;
+        mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+        document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
+        document.getElementById("kirimButton").disabled = false;
+
+        const mOrderData = {
+            mDate: document.getElementById("date").value,
+            mInvoice: document.getElementById("invoice").value,
+            mDistributorName: document.getElementById("distributorName").value,
+            mDistributorPhone: document.getElementById("distributorPhone").value,
+            mConsumerName: document.getElementById("consumerName").value,
+            mConsumerPhone: document.getElementById("consumerPhone").value,
+            mConsumerEmail: document.getElementById("consumerEmail").value,
+            mDiskon: selectedDiscountLabel,
+            mByKirim: parseFloat(mShippingSelect.value),
+            mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
+            mItem: {
+                mNoStok: mProductSelect.value,
+                mKategori: mProductData.Kategori,
+                mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
+                mVp: mProductData.VP,
+                mHargaEceran: mProductData.HargaEceran,
+                mSetelahDiskon: mPriceAfterDiscount,
+                mJumlah: mQuantity,
+                mTotVP: mTotVP,
+                mHarga: mHarga
+            }
+        };
+
+        // simpan ke sheet (angka mentah, tidak formatCurrency)
+        saveOrderToSheet(mOrderData);
+
+        disableFields();
+        showMessage("Item berhasil ditambahkan!", false);
+
+        // aktifkan edit qty (langsung update sheet saat diubah)
+        const newRowElement = mTableBody.lastElementChild;
+        enableUpdateMode(newRowElement);
+
+        // hitung ulang total
+        updateSummary();
+    }).catch(error => {
+        showMessage("Error: " + error.message, true);
+    });
 }
 
 // === Update item (edit jumlah) & simpan ke Sheet ===
@@ -1045,7 +1112,6 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-
 // ===== Fungsi Update Total =====
 function updateTotals() {
     const mRows = document.querySelectorAll('#orderTable tbody tr');
@@ -1099,91 +1165,59 @@ function deleteItem(icon) {
         });
 }
 
-// ======================
-// UPDATE JUMLAH KE SHEET
-// ======================
-async function updateEditedRows() {
-    try {
-        const rows = document.querySelectorAll("#orderTable tbody tr");
-        for (let row of rows) {
-            const noStok = row.cells[1]?.textContent.trim();
-            const qtyInput = row.cells[5]?.querySelector("input");
-            if (noStok && qtyInput) {
-                const qty = parseInt(qtyInput.value, 10) || 0;
-                const payloadUpdate = JSON.stringify({
-                    action: "updateItemQuantity",
-                    noStok: noStok,
-                    jumlah: qty
-                });
-
-                await fetch(API_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: payloadUpdate
-                });
-            }
-        }
-
-        isEditMode = false;
-        document.querySelector("button[onclick='addItem()']").textContent = "TAMBAH";
-        alert("Perubahan jumlah berhasil diupdate ke Sheet.");
-    } catch (err) {
-        console.error("Gagal update:", err);
-        alert("Terjadi kesalahan saat update ke Sheet.");
-    }
-}
-
-
 // *** Mengumpulkan seluruh data order (header + items) dari form & tabel
 // === Kumpulkan data tabel ke object order ===
 function collectOrderData() {
-  const mTableBody = document.querySelector("#orderTable tbody");
-  const rows = mTableBody.querySelectorAll("tr");
+    const mTableBody = document.querySelector("#orderTable tbody");
+    const rows = mTableBody.querySelectorAll("tr");
 
-  const items = [];
-  rows.forEach((row, idx) => {
-    const mNoItem = idx + 1;
-    const mNoStok = row.cells[1].textContent;
-    const mNamaProduk = row.cells[2].textContent;
-    const mHargaEceran = parseFloat(row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
-    const mSetelahDiskon = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, "")) || 0;
-    const mJumlah = parseInt(row.querySelector("input").value) || 0;
-    const mTotVP = mJumlah * (parseFloat(row.getAttribute("data-vp")) || 0);
-    const mHarga = mJumlah * mSetelahDiskon;
+    const items = [];
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const qtyInput = cells[5].querySelector("input");
+        const jumlah = parseInt(qtyInput.value) || 0;
 
-    const mKategori = row.getAttribute("data-kategori") || "";
-    const mVp = parseFloat(row.getAttribute("data-vp")) || 0;
+        const vpPerUnit = parseFloat(cells[6].dataset.vp);   // ambil VP mentah dari dataset
+        const hargaEceran = unformatNumber(cells[3].textContent); 
+        const setelahDiskon = unformatNumber(cells[4].textContent);
+        const totVP = vpPerUnit * jumlah;
+        const harga = setelahDiskon * jumlah;
 
-    items.push({
-      mNoItem,
-      mNoStok,
-      mKategori,
-      mNamaProduk,
-      mVp,
-      mHargaEceran,
-      mSetelahDiskon,
-      mJumlah,
-      mTotVP,
-      mHarga
+        items.push({
+            mNoStok: cells[1].textContent,
+            mKategori: "", // kalau ada kategori, bisa ambil dari dataset lain
+            mNamaProduk: cells[2].textContent,
+            mVp: vpPerUnit,
+            mHargaEceran: hargaEceran,
+            mSetelahDiskon: setelahDiskon,
+            mJumlah: jumlah,
+            mTotVP: totVP,
+            mHarga: harga
+        });
     });
-  });
 
-  return {
-    mDate: document.getElementById("date").value,
-    mInvoice: document.getElementById("invoice").value,
-    mDistributorName: document.getElementById("distributorName").value,
-    mDistributorPhone: document.getElementById("distributorPhone").value,
-    mConsumerName: document.getElementById("consumerName").value,
-    mConsumerPhone: document.getElementById("consumerPhone").value,
-    mConsumerEmail: document.getElementById("consumerEmail").value,
-    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
-    mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
-    mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/[^\d]/g, "")) || 0,
-    items
-  };
+    return {
+        mDate: document.getElementById("date").value,
+        mInvoice: document.getElementById("invoice").value,
+        mDistributorName: document.getElementById("distributorName").value,
+        mDistributorPhone: document.getElementById("distributorPhone").value,
+        mConsumerName: document.getElementById("consumerName").value,
+        mConsumerPhone: document.getElementById("consumerPhone").value,
+        mConsumerEmail: document.getElementById("consumerEmail").value,
+        mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+        mByKirim: parseFloat(document.getElementById("shipping").value),
+        mPajak: unformatNumber(document.getElementById("tax").textContent),
+        mTotalPrice: unformatNumber(document.getElementById("totalPrice").textContent),
+        mItems: items
+    };
 }
+
+// 🔹 helper untuk mengubah "1.500.000,00" → 1500000.00
+function unformatNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/\./g, "").replace(",", "."));
+}
+
 
 // === Deteksi perubahan jumlah → aktifkan tombol UPDATE ===
 document.addEventListener("DOMContentLoaded", () => {
@@ -1194,16 +1228,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function saveOrderToSheet(orderData) {
-  return callAPI("saveOrder", orderData, "POST")
-    .then(res => {
-      console.log("Save OK:", res);
-      return res;
-    })
-    .catch(err => {
-      console.error("Error saveOrder:", err);
-      showMessage("Gagal simpan ke sheet!", true);
-    });
+function saveOrderToSheet(mOrderData) {
+    return callAPI("saveItem", mOrderData, "POST")
+        .then(res => {
+            console.log("Data tersimpan di Sheet:", res);
+            showMessage("Perubahan berhasil disimpan di Sheet!", false);
+        })
+        .catch(err => {
+            console.error("Gagal simpan ke Sheet:", err);
+            showMessage("Error menyimpan ke Sheet: " + err.message, true);
+        });
 }
 
 // ✅ Baru: updateOrder → hanya simpan perubahan
