@@ -103,71 +103,20 @@ input, select, button {
 }
 
 /* Mengatur kursor saat field dalam keadaan disabled */
-input:disabled, select:disabled {
-    cursor: not-allowed;
-}
-
+input:disabled, select:disabled { cursor: not-allowed; }
 /* Mengatur kursor saat field dalam keadaan enabled */
-input:enabled, select:enabled {
-    cursor: pointer;
-}
+input:enabled, select:enabled { cursor: pointer; }
 
 /* Pesan Error dan Sukses */
-#message {
-    text-align: center;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    font-weight: bold;
-    display: none;
-}
-
-#message.error {
-    background-color: #ffebee;
-    color: #c62828;
-    border: 1px solid #c62828;
-}
-
-#message.success {
-    background-color: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid #1565c0;
-}
+#message { text-align: center; padding: 10px; margin: 10px 0; border-radius: 5px; font-weight: bold; display: none; }
+#message.error { background-color: #ffebee; color: #c62828; border: 1px solid #c62828; }
+#message.success { background-color: #e3f2fd; color: #1565c0; border: 1px solid #1565c0; }
 
 /* Tombol */
-.button-group {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-button {
-    background-color: #1976d2;
-    color: white;
-    border: none;
-    cursor: pointer;
-    flex: 1;
-    transition: background-color 0.3s;
-    font-weight: bold;
-}
-
-button:hover {
-    background-color: #42a5f5;
-}
-/*
-#btnUpdate {
-  background-color: #ff9800; 
-}
-
-#btnUpdate:hover {
-  background-color: #fb8c00;
-}
-*/
-
-#btnUpdate:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
+.button-group { display: flex; gap: 10px; margin-top: 20px; }
+button { background-color: #1976d2; color: white; border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
+button:hover { background-color: #42a5f5; }
+#btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* Tabel Ringkasan Pesanan */
 #orderTable {
@@ -205,22 +154,13 @@ button:hover {
 
 /* Mengatur lebar kolom tabel */
 #orderTable th:nth-child(1),    /* Kolom "Item" */
-#orderTable td:nth-child(1) {
-    width: 6ch;                 /* 6 karakter */
-    max-width: 6ch;
-}
+#orderTable td:nth-child(1) { width: 6ch; max-width: 6ch; }
 
 #orderTable th:nth-child(2),    /* Kolom "No Stok" */
-#orderTable td:nth-child(2) {
-    width: 10ch;                 /* 10 karakter */
-    max-width: 10ch;
-}
+#orderTable td:nth-child(2) { width: 10ch;max-width: 10ch; }
 
 #orderTable th:nth-child(3),    /* Kolom "Nama Produk" */
-#orderTable td:nth-child(3) {
-    width: 30ch;                /* 20 karakter */
-    max-width: 30ch;
-}
+#orderTable td:nth-child(3) { width: 30ch; max-width: 30ch; }
 
 #orderTable td:nth-child(3) {   /* Kolom "Nama Produk" */
     white-space: nowrap;        /* Mencegah teks pindah ke baris baru */
@@ -229,40 +169,22 @@ button:hover {
 }
 
 #orderTable th:nth-child(4),    /* Kolom "Harga Eceran" */
-#orderTable td:nth-child(4) {
-    width: 14ch;                /* 14 karakter */
-    max-width: 14ch;
-}
+#orderTable td:nth-child(4) { width: 14ch; max-width: 14ch; }
 
 #orderTable th:nth-child(5),    /* Kolom "Diskon" */
-#orderTable td:nth-child(5) {
-    width: 14ch;                /* 14 karakter */
-    max-width: 14ch;
-}
+#orderTable td:nth-child(5) { width: 14ch; max-width: 14ch; }
 
 #orderTable th:nth-child(6),    /* Kolom "Jumlah" */
-#orderTable td:nth-child(6) {
-    width: 10ch;                 /* 10 karakter */
-    max-width: 10ch;
-}
+#orderTable td:nth-child(6) { width: 10ch; max-width: 10ch; }
 
 #orderTable th:nth-child(7),    /* Kolom "Tot VP" */
-#orderTable td:nth-child(7) {
-    width: 10ch;                /* 10 karakter */
-    max-width: 10ch;
-}
+#orderTable td:nth-child(7) { width: 10ch; max-width: 10ch; }
 
 #orderTable th:nth-child(8),    /* Kolom "Harga" */
-#orderTable td:nth-child(8) {
-    width: 14ch;                /* 14 karakter */
-    max-width: 14ch;
-}
+#orderTable td:nth-child(8) { width: 14ch; max-width: 14ch; }
 
 #orderTable th:nth-child(9),    /* Kolom "Tong sampah" */
-#orderTable td:nth-child(9) {
-    width: 4ch;                 /* 4 karakter */
-    max-width: 4ch;
-}
+#orderTable td:nth-child(9) { width: 4ch; max-width: 4ch; }
 /* akhir batas Mengatur Lebar kolom tabel */
 
 #orderTable td:nth-child(1),    /* Kolom "Item" */
@@ -281,18 +203,13 @@ button:hover {
 
 #orderTable td:nth-child(9) {     /* Kolom Tong sampah */
     text-align: center;
-    /* border: 1px solid #ddd;     /* Tambahkan border untuk seluruh tabel */
 }
 
 /* Sorotan Baris */
-#orderTable tbody tr:hover {
-    /* background-color: #f0f2f5;  /* warna abu-abu muda */ 
-    background-color: #c3ccd5;     /* warna abu-abu muda */
-    color: black;
-}
+#orderTable tbody tr:hover { background-color: #c3ccd5; color: black; }
 
 /* Sembunyikan Icon "X"dari FontAwesome */ 
-.delete-icon {
+.delete-icon { 
     display: block;             /* Sembunyikan Icon "X" secara default */
     margin: 0 !important;       /* Hilangkan margin */
 }
@@ -304,7 +221,6 @@ button:hover {
 
 /* Icon "X" dari FontAwesome */
 .fa-times {
-    /* color: #666;                /* Warna abu-abu tua */
     color: white;                /* Warna putih untuk menyamarkan tampilan */
     font-size: 20px;               /* Ukuran ikon */
     cursor: pointer;               /* Ubah kursor menjadi pointer saat dihover */
@@ -313,19 +229,14 @@ button:hover {
     box-shadow: none !important;   /* Hilangkan shadow  */
 }
 
-.fa-times:hover {
-    color: red;                    /* Warna merah saat dihover */
-}
+.fa-times:hover { color: red;}  /* Warna saat di hover
 
 /* Tooltip */
-.tooltip { 
-    position: relative;
-    display: inline-block;
-}
+.tooltip { position: relative; display: inline-block; }
 
 .tooltip .tooltiptext {
     visibility: hidden;
-    width: 50px;                  /* Lebar bingkai tooltip */
+    width: 50px;                 /* Lebar bingkai tooltip */
     background-color: red;     /* Latar tooltip merah */
     color: #fff;               /* Font warna putih */
     font-size : 9px;
@@ -342,16 +253,11 @@ button:hover {
     transition: opacity 0.3s;
 }
 
-.tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-}
+.tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
 /* Tabel Total */
-#orderTable tfoot td {
-    font-weight: bold;
-    background-color: #a5b3c0;  /* Warna Abu-abu */
-}
+#orderTable tfoot td { font-weight: bold; background-color: #a5b3c0; }  /* Warna Abu-abu */
+
 
 /* Summary Details */
 #summaryDetails {
@@ -375,14 +281,8 @@ button:hover {
     font-weight: bold;
     font-size: 14px;
 }
-.footer a {
-    color: white;
-    text-decoration: none;
-}
-.footer a:hover {
-    /* text-decoration: underline; */
-    color: red;
-}
+.footer a { color: white; text-decoration: none; }
+.footer a:hover { color: red; }
 
 /* ------------------------------------------------------------*/
 /* Modal Styles : Pengaturan pada Form Ketentuan dan Kebijakan */
@@ -408,16 +308,8 @@ button:hover {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-.close {
-    color: #aaa;
-    float: right;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-}
-.close:hover {
-    color: #000;
-}
+.close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+.close:hover { color: #000; }
 
 #setujuButton {
     margin-top: 20px;
@@ -451,20 +343,14 @@ button:hover {
     100% { transform: rotate(360deg); }
 }
 
-#kirimButton[disabled] {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
+#kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
 /* ----------------------------------*/
-
 /* Media Query untuk Handphone */
 @media (max-width: 768px) {
-  
-    /* Container Utama */
+     /* Container Utama */
     .container {
         width: 100%;
         padding: 10px;
@@ -473,7 +359,6 @@ button:hover {
     }
     /* Header */
     .header img { width: 100%; height: auto; }
-
     /* Formulir */
     form  { display: flex; flex-direction: column; gap: 10px;  }
     label { font-size: 14px;}
@@ -483,7 +368,6 @@ button:hover {
         width: 100%;
         box-sizing: border-box;
     }
-
     /* Tombol */
     .button-group {
         flex-direction: column;  /* Tombol vertikal di handphone */
@@ -493,7 +377,6 @@ button:hover {
         width: 100%;
         margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
     }
-
     /* Tabel */
     .table-wrapper {
         width: 100%;
@@ -508,7 +391,6 @@ button:hover {
     #orderTable td {
         padding: 6px;           /* Padding diperkecil */
     }
-
     /* Ringkasan Pesanan */
     #orderSummary {
         margin-top: 20px;
@@ -517,7 +399,6 @@ button:hover {
         font-size: 12px;
         margin: 3px 50;          /* Jarak antar baris diperkecil */
     }
-
     /* Footer */
     .footer {
         flex-direction: column; /* Footer vertikal di handphone */
@@ -526,7 +407,6 @@ button:hover {
         text-align: left;
         padding: 10px;          /* Padding diperkecil */
     }
-
     /* Modal Ketentuan dan Kebijakan */
     .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
     .modal-content h2 { font-size: 18px; }
@@ -620,20 +500,9 @@ button:hover {
             </select>
             <div id="message" class="message"></div>   
             <div id="spinner" class="spinner" style="display:none; align-items: center;"></div>
-            <!--
-            <div class="button-group"> 
-                <button type="button" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
-                <button type="button" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
-                    <i class="fas fa-edit"></i> UPDATE
-                </button>
-                <button type="button" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
-                <button type="button" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
-            </div>
-            --> 
             
             <div class="button-group"> 
                 <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
-                <!-- TAMBAH TOMBOL UPDATE INI -->
                 <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
                     <i class="fas fa-edit"></i> UPDATE
                 </button>
@@ -643,7 +512,7 @@ button:hover {
         </form>
 
         <div id="orderSummary">
-        <h2>Ringkasan Pesanan</h2>
+        <h3>Ringkasan Pesanan</h3>
         <div class="table-wrapper">
           <table id="orderTable">
               <!-- Kolom Tabel : Judul Nama Field -->
@@ -995,7 +864,6 @@ function resetForm() {
     showMessage("Form telah direset", false);
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
 }
-// AKHIR =======================
 
 // *********************************************
 // Fungsi untuk Pengaturan awal, saat form aktif
@@ -1160,24 +1028,9 @@ function updateTotals() {
   document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
 }
 
-//==================================
-function BACKUP_updateItem(updatedOrderData) {
-//==================================
-  // langsung kirim ke sheet dengan metode no-cors
-  callAPI("saveItem", updatedOrderData, "POST")
-    .then(() => {
-      console.log("Update tersimpan di sheet:", updatedOrderData);
-      showMessage("Item berhasil diupdate!", false);
-    })
-    .catch(err => {
-      console.error("Gagal update:", err);
-      showMessage("Gagal update data!", true);
-    });
-}
-
-// ********************************************************
+// *******************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
-// ********************************************************
+// *******************************************************
 function updateItemNumbers() {
     const rows    = document.querySelectorAll('#orderTable tbody tr');
     const invoice = document.getElementById('invoice').value; // Ambil No Simulasi (Invoice) dari form
@@ -1339,9 +1192,9 @@ function formatCurrency(amount) {
   }).format(amount);
 }
 
-// ******************************************************
+// *****************************************************
 // Fungsi untuk memformat tanggal Indonesia (DD/MM/YYYY)
-// ******************************************************
+// *****************************************************
 function formatDate(dateString) {
     const mDate  = new Date(dateString);
     const mDay   = String(mDate.getDate()).padStart(2, '0');
@@ -1350,9 +1203,9 @@ function formatDate(dateString) {
     return `${mDay}/${mMonth}/${mYear}`;
 }
 
-// *********************************
+// *******************************
 // Fungsi validasi penulisan email
-// *********************************
+// *******************************
 function validateEmail() {
     const emailField = document.getElementById('consumerEmail');
     const emailValue = emailField.value.trim();
