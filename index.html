@@ -122,6 +122,22 @@ input:enabled, select:enabled { cursor: pointer; }
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
+/* Pesan Validasi  */
+.validasi-message {
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    display: none;
+    align-items: center;
+    gap: 8px; /* agar icon dan teks tidak dempet */
+}
+.pesan-validasi-icon {font-size: 18px;}
+.validasi-error { background-color: #d9534f; color: white; }
+.validasi-success { background-color: #0275d8; color: white; }
+.validasi-warning { background-color: #f0ad4e; color: black; }
+
+
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 20px; }
 button { background-color: #1976d2; color: white; border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
@@ -1344,13 +1360,13 @@ function showNotifValidasi(type, message, duration = 3000) {
   iconValidasi.className = 'pesan-validasi-icon me-2';
 
   if (type === 'error') {
-    boxValidasi.classList.add('notification-error');
+    boxValidasi.classList.add('validasi-error');
     iconValidasi.classList.add('fas', 'fa-times-circle');
   } else if (type === 'success') {
-    boxValidasi.classList.add('notification-success');
+    boxValidasi.classList.add('validasi-success');
     iconValidasi.classList.add('fas', 'fa-check-circle');
   } else if (type === 'warning') {
-    boxValidasi.classList.add('notification-warning');
+    boxValidasi.classList.add('validasi-warning');
     iconValidasi.classList.add('fas', 'fa-exclamation-circle');
   }
 
