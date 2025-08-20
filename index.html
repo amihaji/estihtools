@@ -139,11 +139,6 @@ input:enabled, select:enabled { cursor: pointer; }
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; }
 button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
-
-/*
-button { background-color: #1976d2; color: white; border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
-*/
-/*button:hover { background-color: #42a5f5; } */
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* Tabel Ringkasan Pesanan */
@@ -152,7 +147,7 @@ button { background-color: #1976d2; color: white; border: none; cursor: pointer;
     max-width: 100%;             /* Maksimum lebar tabel adalah 100% dari container */
     overflow-x: auto;            /* Tambahkan scroll horizontal jika tabel terlalu lebar */
     border-collapse: collapse;   /* Gabungkan border sel */
-    margin-top: 10px;
+    margin-top: 5px;
     margin-bottom: 20px;
     box-sizing: border-box;      /* Pastikan padding dan border termasuk dalam lebar */
     table-layout: fixed;         /* Lebar kolom diatur secara proporsional */
@@ -585,9 +580,9 @@ tr:hover .action-icon {
         <div id="orderSummary">
         <!-- Tampilan Spinner -->
         <div id="spinner" class="spinner" style="display:none; align-content: center;"></div>
-        <h5>Ringkasan Pesanan</h5>
         <div class="table-wrapper">
-          <table id="orderTable">  
+            <h5>Ringkasan Pesanan</h5>
+            <table id="orderTable">  
               <!-- Kolom Tabel : Judul Nama Field -->
               <thead>
                   <tr>
