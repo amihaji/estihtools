@@ -122,7 +122,7 @@ input:enabled, select:enabled { cursor: pointer; }
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
-/* Pesan Validasi  */
+/* Pesan Validasi Box */
 .validasi-message {
     padding: 10px 15px;
     border-radius: 6px;
@@ -1372,7 +1372,7 @@ function showNotifValidasi(type, message, duration = 3000) {
 
   textValidasi.textContent  = message;
   boxValidasi.style.display = 'flex';
-  setTimeout(() => { box.style.display = 'none'; }, duration);
+  setTimeout(() => { boxValidasi.style.display = 'none'; }, duration);
 }
 
 
