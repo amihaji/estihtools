@@ -381,7 +381,6 @@ tr:hover .action-icon {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     vertical-align: middle;
-    /* margin-left: 10px; */
 }
 
 @keyframes spin {
@@ -548,9 +547,12 @@ tr:hover .action-icon {
             <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
               <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
             </div>
-            
-            <!-- Tampilan Spinner -->
-            <div id="spinner" class="spinner" style="display:none;"></div>
+
+            <!-- Pesan Validasi Inputan -->
+            <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
+              <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
+            </div>
+           
             <!-- Tampilan tombol -->
             <div class="button-group"> 
                 <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
@@ -564,6 +566,8 @@ tr:hover .action-icon {
         </form>
 
         <div id="orderSummary">
+        <!-- Tampilan Spinner -->
+        <div id="spinner" class="spinner" style="display:none;"></div>
         <h3>Ringkasan Pesanan</h3>
         <div class="table-wrapper">
           <table id="orderTable">  
@@ -890,27 +894,27 @@ function validateForm() {
     const hpPattern        = /^[0-9]{10,14}$/;                  // hanya angka, panjang 10–14
     
     if (!userNamePattern.test(distributorName)) {
-        showNotification("warning", " WARNING : Nama Member, huruf besar dan 3-20 karakter.");
+        showNotifValidasi("warning", " WARNING : Nama Member, huruf besar dan 3-20 karakter.");
         return false;
     }
     if (!hpPattern.test(distributorPhone)) {
-        showNotification("warning", " WARNING : Nomor HP Member, harus 10-14 digit angka.");
+        showNotifValidasi("warning", " WARNING : Nomor HP Member, harus 10-14 digit angka.");
         return false;
     }
     if (!userNamePattern.test(consumerName)) {
-        showNotification("warning", " WARNING : Nama Konsuman, huruf besar dan 3-20 karakter.");
+        showNotifValidasi("warning", " WARNING : Nama Konsuman, huruf besar dan 3-20 karakter.");
         return false;
     }
     if (!hpPattern.test(consumerPhone)) {
-        showNotification("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
+        showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
         return false;
     }
     if (!emailPattern.test(consumerEmail)) {
-        showNotification("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
+        showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
         return false;
     }
     if (!qtyPattern.test(quantity)) {
-        showNotification("warning", " WARNING : Jumlah item harus 1-3 digit angka.");
+        showNotifValidasi("warning", " WARNING : Jumlah item harus 1-3 digit angka.");
         return false;
     }
     return true;
@@ -1326,6 +1330,36 @@ function showNotification(type, message, duration = 3000) {
   box.style.display = 'flex';
   setTimeout(() => { box.style.display = 'none'; }, duration);
 }
+
+// ***********************************
+// Fungsi untuk Pesan Validasi Inputan
+// ***********************************
+function showNotifValidasi(type, message, duration = 3000) {
+  const boxValidasi  = document.getElementById('validasiBox');
+  const iconValidasi = document.getElementById('pesanValidasiIcon');
+  const textValidasi = document.getElementById('pesanValidasiText');
+
+  // Reset class
+  boxValidasi.className  = 'validasi-message w-100 mb-2';
+  iconValidasi.className = 'pesan-validasi-icon me-2';
+
+  if (type === 'error') {
+    boxValidasi.classList.add('notification-error');
+    iconValidasi.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxValidasi.classList.add('notification-success');
+    iconValidasi.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxValidasi.classList.add('notification-warning');
+    iconValidasi.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textValidasi.textContent  = message;
+  boxValidasi.style.display = 'flex';
+  setTimeout(() => { box.style.display = 'none'; }, duration);
+}
+
+
 
 // ************************************
 // Fungsi untuk Ketentuan dan Kebijakan
