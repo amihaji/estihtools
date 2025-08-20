@@ -731,265 +731,6 @@ function callAPI(action, params = {}, method = "GET") {
   }
 }
 
-// ==============================================
-// INISIALISASI SAAT HALAMAN SUDAH LOAD SEMPURNA
-// ==============================================
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("DOM fully loaded and parsed");
-    
-    // 1. GENERATE TANGGAL DAN INVOICE
-    const mDateField    = document.getElementById('date'); 
-    const mInvoiceField = document.getElementById('invoice');
-    const mToday        = new Date();
-    
-    mDateField.value       = mToday.toISOString().split('T')[0];
-    mInvoiceField.value    = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
-    mDateField.disabled    = true;
-    mInvoiceField.disabled = true;
-
-    // 2. LOAD DROPDOWN OPTIONS
-    loadOptions();
-
-    // 3. EVENT LISTENER UNTUK EDIT JUMLAH ITEM
-    const tableBody = document.querySelector('#orderTable tbody');
-    if (tableBody) {
-        tableBody.addEventListener('input', function(e) {
-            if (e.target.classList.contains('qty-input')) {
-                console.log("Jumlah item diubah, aktifkan mode edit");
-                
-                // Update tampilan langsung
-                const row = e.target.closest('tr');
-                const qty = parseInt(e.target.value) || 0;
-                const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
-                
-                row.cells[7].textContent = formatCurrency(price * qty);
-                updateTotals();
-                
-                // Aktifkan mode UPDATE
-                enableUpdateMode();
-            }
-        });
-    } else {
-        console.error("Tabel body tidak ditemukan!");
-    }
-
-    // 4. EVENT LISTENER UNTUK VALIDASI EMAIL
-    const emailField = document.getElementById('consumerEmail');
-    if (emailField) {
-        emailField.addEventListener('blur', validateEmail);
-    }
-     
-    // **********************************************************
-    // Event listener untuk tombol close Ketentuan dan Kebijakan
-    // **********************************************************
-        document.querySelector('.close').addEventListener('click', hideKetentuanModal);
-        // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
-        document.getElementById('setujuButton').addEventListener('click', function() {
-        hideKetentuanModal();
-        //alert('Anda telah menyetujui ketentuan dan kebijakan');
-        showMessage("Anda telah menyetujui ketentuan dan kebijakan", false);
-    });
-
-    // *****************************************************
-    // Event listener untuk checkbox Ketentuan dan Kebijakan
-    // *****************************************************
-        document.getElementById('agreeCheckbox').addEventListener('change', function() {
-        const setujuButton = document.getElementById('setujuButton');
-        setujuButton.disabled = !this.checked;
-    });
-
-    // *************************************************
-    // Event listener untuk link Ketentuan dan Kebijakan
-    // *************************************************
-        document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
-        event.preventDefault(); // Mencegah navigasi ke halaman lain
-        showKetentuanModal();
-    });      
-
-    // 8. INITIAL STATE
-    console.log("Aplikasi siap digunakan");
-    isEditMode = false;
-});
-
-// ==================================
-// FUNGSI ENABLE/DISABLE UPDATE MODE
-// ==================================
-function enableUpdateMode() {
-    console.log("Mengaktifkan mode UPDATE");
-    const btnAdd = document.getElementById('btnAdd');
-    const btnUpdate = document.getElementById('btnUpdate');
-    
-    if (btnAdd && btnUpdate) {
-        btnAdd.style.display = 'none';
-        btnUpdate.style.display = 'block';
-        btnUpdate.disabled = false;
-    }
-    isEditMode = true;
-}
-
-// ***********************************
-// Fungsi Untuk mereset ke Mode Tambah
-// ***********************************
-function resetEditMode() {
-    console.log("Mereset mode ke TAMBAH");
-    const btnAdd = document.getElementById('btnAdd');
-    const btnUpdate = document.getElementById('btnUpdate');
-    
-    if (btnAdd && btnUpdate) {
-        btnAdd.style.display = 'block';
-        btnUpdate.style.display = 'none';
-        btnUpdate.disabled = true;
-    }
-    isEditMode = false;
-    currentEditRow = null;
-}
-
-// ==============================================
-// FUNGSI UPDATE ITEM (UNTUK TOMBOL UPDATE)
-// ==============================================
-function updateItem() {
-    console.log("Tombol UPDATE diklik");
-    
-    if (!isEditMode) {
-        showMessage("Tidak ada perubahan yang perlu disimpan", true);
-        return;
-    }
-    
-    // Simpan perubahan ke sheet
-    saveOrderToSheet(collectOrderData())
-        .then(() => {
-            showMessage("Perubahan tersimpan di sheet!", false);
-            resetEditMode();
-        })
-        .catch(error => {
-            console.error("Gagal menyimpan perubahan:", error);
-            showMessage("Gagal menyimpan perubahan", true);
-        });
-}
-
-// ==============================================
-// FUNGSI ADD ITEM YANG DIMODIFIKASI
-// ==============================================
-function addItem() {
-    console.log("Tombol TAMBAH diklik, mode edit:", isEditMode);
-    
-    // Jika sedang mode edit, jalankan update instead
-    if (isEditMode) {
-        updateItem();
-        return;
-    }
-    const mDiscountSelect = document.getElementById('discount');
-    const mProductSelect  = document.getElementById('product');
-    const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
-    const mShippingSelect = document.getElementById('shipping');
-    const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
-
-    if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
-        alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
-        return;
-    }
-
-    callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
-        const mTableBody = document.querySelector("#orderTable tbody");
-        const mDiscount = mDiscountSelect.value;
-
-        let mPriceAfterDiscount;
-        switch (mDiscount) {
-        case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
-        case "25%": mPriceAfterDiscount = mProductData.Member25; break;
-        case "35%": mPriceAfterDiscount = mProductData.SC35; break;
-        case "42%": mPriceAfterDiscount = mProductData.SB42; break;
-        case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-        default:    mPriceAfterDiscount = mProductData.HargaEceran;
-        }
-
-        const mHarga = Math.round(mPriceAfterDiscount * mQuantity * 100) / 100;
-        const mTotVP = Math.round(mProductData.VP * mQuantity * 100) / 100;
-
-        // Simpan kategori & VP sebagai atribut row
-        const mNewRow = `
-        <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
-            <td>${mTableBody.rows.length + 1}</td>
-            <td>${mProductSelect.value}</td>
-            <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-            <td>${formatCurrency(mProductData.HargaEceran)}</td>
-            <td>${formatCurrency(mPriceAfterDiscount)}</td>
-            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
-            <td>${formatCurrency(mTotVP)}</td>
-            <td>${formatCurrency(mHarga)}</td>
-            <td class="tooltip">
-            <span class="delete-icon" onclick="deleteItem(this)">
-                <i class="fas fa-times"></i>
-            </span>     
-            <span class="tooltiptext">Hapus</span>   
-            </td>
-        </tr>
-        `;
-        mTableBody.insertAdjacentHTML("beforeend", mNewRow);
-
-        // Panggil updateTotals() setelah menambah item
-        updateTotals();
-        document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-        document.getElementById("kirimButton").disabled = false;
-
-        disableFields();
-        showMessage("Item berhasil ditambahkan!", false);
-
-        // Simpan ke sheet hanya jika bukan edit mode
-        if (!isEditMode) {
-        saveOrderToSheet(collectOrderData());
-        }
-        
-    }).catch(error => {
-        showMessage("Error: " + error.message, true);
-    });
-}  
-
-// ==============================================
-// FUNGSI RESET FORM YANG DIMODIFIKASI
-// ==============================================
-function resetForm() {
-    console.log("Tombol Reset diklik");
-
-    // Reset form input
-    document.getElementById('orderForm').reset();
-
-    // Kosongkan tabel pesanan
-    document.querySelector('#orderTable tbody').innerHTML = '';
-
-    // Set Tanggal  dan invoice baru
-    const mDateField     = document.getElementById('date');       
-    const mToday         = new Date();
-    mDateField.value     = mToday.toISOString().split('T')[0];   // Format: INV-YYYYMMDD-XXX
-    const mInvoiceField  = document.getElementById('invoice');
-    const mInvoiceNumber = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
-    mInvoiceField.value  = mInvoiceNumber;
-
-    // Reset judul kolom "Diskon" + "Label Diskon" pada Tabel Form Rincian Pesanan
-    document.querySelector('#orderTable th:nth-child(5)').textContent = "Diskon";
-
-    // Reset semua nilai total ke 0
-    document.getElementById('totalVP').textContent       = formatCurrency(0);
-    document.getElementById('totalJumlah').textContent   = 0;
-    document.getElementById('totalHarga').textContent    = formatCurrency(0);
-
-    // Reset By Pengiriman, Pajak, dan Total Harga
-    document.getElementById('shippingCost').textContent  = formatCurrency(0);
-    document.getElementById('tax').textContent           = formatCurrency(0);
-    document.getElementById('totalPrice').textContent    = formatCurrency(0);
-
-    // Nonaktifkan tombol "KIRIM" saat form direset
-    document.getElementById("kirimButton").disabled = true;
-
-    // Enable semua field kecuali Tanggal dan Invoice
-    enableFields();
-
-    // Pastikan kembali ke mode TAMBAH
-    resetEditMode();
-    showMessage("Form telah direset", false);
-    console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
-}
-// AKHIR =======================
 
 // *********************************************
 // Fungsi untuk Pengaturan awal, saat form aktif
@@ -1088,13 +829,44 @@ function loadOptions() {
     });
 }
 
-// *****************************************************
+/** Ubah tombol ke mode UPDATE ketika user edit jumlah */
+function enableUpdateMode() {
+    const btn = document.getElementById("btnAction");
+    btn.textContent = "UPDATE";
+    isEditMode = true;
+}
+
+/** Kembali ke mode TAMBAH */
+function resetActionMode() {
+    const btn = document.getElementById("btnAction");
+    btn.textContent = "TAMBAH";
+    isEditMode = false;
+}
+
+/** Panggil saat user klik UPDATE → kirim ulang seluruh order ke Sheet */
+function updateSheet() {
+    const orderData = collectOrderData();
+    const payload = JSON.stringify({
+        action: "saveOrder",
+        data: orderData
+    });
+
+    fetch(API_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: payload
+    });
+
+    alert("Perubahan berhasil diupdate ke Sheet!");
+    resetActionMode(); // setelah update, kembali ke TAMBAH
+}
+
 // Tambahkan event listener untuk perubahan input jumlah
-// *****************************************************
 document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
   if (e.target.classList.contains('qty-input')) {
-    const row   = e.target.closest('tr');
-    const qty   = parseInt(e.target.value) || 0;
+    const row = e.target.closest('tr');
+    const qty = parseInt(e.target.value) || 0;
     const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
     
     // Update tampilan
@@ -1111,9 +883,7 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
   }
 });
 
-// ****************************
-// Perbaiki fungsi updateTotals
-// ****************************
+// Perbaiki fungsi updateTotals()
 function updateTotals() {
   const rows      = document.querySelectorAll('#orderTable tbody tr');
   let totalJumlah = 0;
@@ -1154,6 +924,115 @@ function updateTotals() {
   document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
 }
 
+// ======================
+// FUNGSI ADD ITEM (Tambah / Update)
+// ======================
+// === Tambah item ke tabel & simpan ke Sheet ===
+function addItem() {
+  // Untuk Mengecek Apa Inputan Baru atau Edit
+  if (isEditMode) {
+    updateItem();
+    return;
+  }
+
+  const mDiscountSelect = document.getElementById('discount');
+  const mProductSelect  = document.getElementById('product');
+  const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
+  const mShippingSelect = document.getElementById('shipping');
+  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
+
+  if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
+    alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
+    return;
+  }
+
+  callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+    const mTableBody = document.querySelector("#orderTable tbody");
+    const mDiscount = mDiscountSelect.value;
+
+    let mPriceAfterDiscount;
+    switch (mDiscount) {
+      case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
+      case "25%": mPriceAfterDiscount = mProductData.Member25; break;
+      case "35%": mPriceAfterDiscount = mProductData.SC35; break;
+      case "42%": mPriceAfterDiscount = mProductData.SB42; break;
+      case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
+      default:    mPriceAfterDiscount = mProductData.HargaEceran;
+    }
+
+    const mHarga = Math.round(mPriceAfterDiscount * mQuantity * 100) / 100;
+    const mTotVP = Math.round(mProductData.VP * mQuantity * 100) / 100;
+
+    // Simpan kategori & VP sebagai atribut row
+    const mNewRow = `
+      <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
+        <td>${mTableBody.rows.length + 1}</td>
+        <td>${mProductSelect.value}</td>
+        <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
+        <td>${formatCurrency(mProductData.HargaEceran)}</td>
+        <td>${formatCurrency(mPriceAfterDiscount)}</td>
+        <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
+        <td>${formatCurrency(mTotVP)}</td>
+        <td>${formatCurrency(mHarga)}</td>
+        <td class="tooltip">
+          <span class="delete-icon" onclick="deleteItem(this)">
+            <i class="fas fa-times"></i>
+          </span>     
+          <span class="tooltiptext">Hapus</span>   
+        </td>
+      </tr>
+    `;
+    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
+
+    // Panggil updateTotals() setelah menambah item
+    updateTotals();
+    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
+    document.getElementById("kirimButton").disabled = false;
+
+    disableFields();
+    showMessage("Item berhasil ditambahkan!", false);
+
+    // Simpan ke sheet hanya jika bukan edit mode
+    if (!isEditMode) {
+      saveOrderToSheet(collectOrderData());
+    }
+    
+  }).catch(error => {
+    showMessage("Error: " + error.message, true);
+  });
+}
+
+function updateItem() {
+  if (!currentEditRow) return;
+  
+  // Simpan perubahan ke sheet
+  saveOrderToSheet(collectOrderData())
+    .then(() => {
+      showMessage("Perubahan tersimpan!", false);
+      resetEditMode();
+    });
+}
+
+function resetEditMode() {
+  isEditMode = false;
+  currentEditRow = null;
+  document.getElementById('btnUpdate').disabled = true;
+}
+
+function handleAction() {
+  const btn = document.getElementById("btnAction");
+  if (btn.textContent === "Tambah") {
+    addItem();
+  } else {
+    // Mode update → ambil data hasil edit & simpan ulang
+    const orderData = collectOrderData();
+    callAPI("saveOrder", orderData, "POST");  // simpan ulang semua item di invoice
+    showMessage("Perubahan berhasil diperbarui!", false);
+
+    btn.textContent = "Tambah";  // reset ke Tambah
+    btn.disabled = true;         // nonaktifkan sampai ada edit lagi
+  }
+}
 //==================================
 function updateItem(updatedOrderData) {
 //==================================
@@ -1169,11 +1048,62 @@ function updateItem(updatedOrderData) {
     });
 }
 
+// === Aktifkan tombol UPDATE jika ada perubahan jumlah item di tabel ===
+function activateUpdateOnEdit() {
+  const tableBody = document.querySelector("#orderTable tbody");
+  tableBody.addEventListener("input", (e) => {
+    if (e.target.classList.contains("qty-input")) {
+      document.getElementById("btnUpdate").disabled = false;
+    }
+  });
+}
+
 // Panggil fungsi ini saat halaman pertama kali load
 document.addEventListener("DOMContentLoaded", () => {
   activateUpdateOnEdit();
 });
 
+// ***************************************
+// Fungsi untuk menjalankan tombol "RESET"
+// ***************************************
+function resetForm() {
+    console.log("Tombol Reset diklik");
+
+    // Reset form input
+    document.getElementById('orderForm').reset();
+
+    // Kosongkan tabel pesanan
+    document.querySelector('#orderTable tbody').innerHTML = '';
+
+    // Set Tanggal  dan invoice baru
+    const mDateField     = document.getElementById('date');       
+    const mToday         = new Date();
+    mDateField.value     = mToday.toISOString().split('T')[0];   // Format: INV-YYYYMMDD-XXX
+    const mInvoiceField  = document.getElementById('invoice');
+    const mInvoiceNumber = `SIM-${mToday.getFullYear()}${(mToday.getMonth()+1).toString().padStart(2,'0')}${mToday.getDate().toString().padStart(2,'0')}-${Math.floor(Math.random()*1000).toString().padStart(3,'0')}`;
+    mInvoiceField.value  = mInvoiceNumber;
+
+    // Reset judul kolom "Diskon" + "Label Diskon" pada Tabel Form Rincian Pesanan
+    document.querySelector('#orderTable th:nth-child(5)').textContent = "Diskon";
+
+    // Reset semua nilai total ke 0
+    document.getElementById('totalVP').textContent       = formatCurrency(0);
+    document.getElementById('totalJumlah').textContent   = 0;
+    document.getElementById('totalHarga').textContent    = formatCurrency(0);
+
+    // Reset By Pengiriman, Pajak, dan Total Harga
+    document.getElementById('shippingCost').textContent  = formatCurrency(0);
+    document.getElementById('tax').textContent           = formatCurrency(0);
+    document.getElementById('totalPrice').textContent    = formatCurrency(0);
+
+    // Nonaktifkan tombol "KIRIM" saat form direset
+    document.getElementById("kirimButton").disabled = true;
+
+    // Enable semua field kecuali Tanggal dan Invoice
+    enableFields();
+
+    console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
+}
 
 // ********************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
@@ -1192,9 +1122,7 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-// *******************
-// Fungsi Delete Item 
-// *******************
+// ===== Fungsi Delete Item =====
 function deleteItem(icon) {
   const row = icon.closest('tr');
   const noStok = row.cells[1].textContent.trim();
@@ -1215,9 +1143,7 @@ function deleteItem(icon) {
     .catch(error => console.error("Gagal menghapus:", error));
 }
 
-// ************************************
-// Kumpulkan data tabel ke object order
-// ************************************ 
+// === Kumpulkan data tabel ke object order ===
 function collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
@@ -1266,11 +1192,36 @@ function collectOrderData() {
   };
 }
 
+// delegasi event yang lebih spesifik
+BACKUP_document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
+  if (e.target.classList.contains('qty-input')) {
+    const row = e.target.closest('tr');
+    const qty = parseInt(e.target.value) || 0;
+    const price = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, '')) || 0;
+    
+    // Update tampilan
+    row.cells[7].textContent = formatCurrency(price * qty);
+    updateTotals();
+    
+    // Debounce untuk hindari terlalu banyak request
+    clearTimeout(window.saveTimer);
+    window.saveTimer = setTimeout(() => {
+      saveOrderToSheet(collectOrderData());
+    }, 1000); // Simpan setelah 1 detik tidak ada perubahan
+  }
+});
 
+// 1. Untuk mode edit eksplisit:
+  document.querySelector('#orderTable tbody').addEventListener('input', function(e) {
+    if (e.target.classList.contains('qty-input')) {
+      if (!isEditMode) {
+        enableUpdateMode();
+        currentEditRow = e.target.closest('tr');
+      }
+      updateTotals();
+    }
+});
 
-// *****************************
-// Untuk menyimpan data ke sheet
-// *****************************
 function saveOrderToSheet(orderData) {
   // Tampilkan loading indicator
   document.getElementById('spinner').style.display = 'inline-block';
@@ -1289,9 +1240,10 @@ function saveOrderToSheet(orderData) {
     });
 }
 
-// *******************************************
-// Kirim (simpan terakhir ke sheet + email/WA)
-// *******************************************
+// ======================
+// SUBMIT FORM (KIRIM)
+// ======================
+// === Kirim (simpan terakhir ke sheet + email/WA) ===
 function submitForm() {
   const orderData = collectOrderData();
   saveOrderToSheet(orderData).then(() => {
@@ -1305,9 +1257,9 @@ function submitForm() {
   });
 }
 
-// ************************************************************
-// Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
-// ************************************************************
+// ***************************************************************
+// *** Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
+// ***************************************************************
 document.querySelectorAll('#orderTable tbody tr').forEach(row => {
     row.addEventListener('mouseenter', () => {
         row.querySelector('.delete-icon').style.display = 'inline';
@@ -1426,6 +1378,32 @@ function hideKetentuanModal() {
     modal.style.display = 'none';
 }
 
+// **********************************************************
+// Event listener untuk tombol close Ketentuan dan Kebijakan
+// **********************************************************
+    document.querySelector('.close').addEventListener('click', hideKetentuanModal);
+    // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
+    document.getElementById('setujuButton').addEventListener('click', function() {
+    hideKetentuanModal();
+    //alert('Anda telah menyetujui ketentuan dan kebijakan');
+    showMessage("Anda telah menyetujui ketentuan dan kebijakan", false);
+});
+
+// *****************************************************
+// Event listener untuk checkbox Ketentuan dan Kebijakan
+// *****************************************************
+    document.getElementById('agreeCheckbox').addEventListener('change', function() {
+    const setujuButton = document.getElementById('setujuButton');
+    setujuButton.disabled = !this.checked;
+});
+
+// *************************************************
+// Event listener untuk link Ketentuan dan Kebijakan
+// *************************************************
+    document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
+    event.preventDefault(); // Mencegah navigasi ke halaman lain
+    showKetentuanModal();
+});      
 </script>
 </body>
 </html>
