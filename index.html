@@ -154,14 +154,15 @@ button {
 button:hover {
     background-color: #42a5f5;
 }
-
+/*
 #btnUpdate {
-  background-color: #ff9800; /* Warna oranye */
+  background-color: #ff9800; 
 }
 
 #btnUpdate:hover {
   background-color: #fb8c00;
 }
+*/
 
 #btnUpdate:disabled {
   background-color: #ccc;
@@ -618,16 +619,26 @@ button:hover {
                 <!-- Opsi akan diisi oleh JavaScript -->
             </select>
             <div id="message" class="message"></div>   
-            <div id="spinner" class="spinner" style="display:none;"></div>
-            
+            <div id="spinner" class="spinner" style="display:none; align-items: center;"></div>
+            <!--
             <div class="button-group"> 
-                <button type="button" id="btnAdd" onclick="addItem()"><i class="far fa-file"></i> TAMBAH</button>
-                <!-- TAMBAH TOMBOL UPDATE INI -->
+                <button type="button" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
                 <button type="button" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
-                    <i class="fas fa-save"></i> UPDATE
+                    <i class="fas fa-edit"></i> UPDATE
                 </button>
                 <button type="button" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
                 <button type="button" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
+            </div>
+            --> 
+            
+            <div class="button-group"> 
+                <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
+                <!-- TAMBAH TOMBOL UPDATE INI -->
+                <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
+                    <i class="fas fa-edit"></i> UPDATE
+                </button>
+                <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
+                <button type="button" class="btn btn-success" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
             </div>
         </form>
 
@@ -853,15 +864,13 @@ function updateItem() {
     // Simpan perubahan ke sheet
     const orderData = collectOrderData();
     saveOrderToSheet(orderData).then(() => {
-    //saveOrderToSheet(collectOrderData())
-    //    .then(() => {
-            showMessage("Perubahan tersimpan di sheet!", false);
-            resetEditMode();
-        })
-        .catch(error => {
-            console.error("Gagal menyimpan perubahan:", error);
-            showMessage("Gagal menyimpan perubahan", true);
-        });
+        showMessage("Perubahan tersimpan di sheet!", false);
+        resetEditMode();
+    })
+    .catch(error => {
+        console.error("Gagal menyimpan perubahan:", error);
+        showMessage("Gagal menyimpan perubahan", true);
+    });
 }
 
 // ==============================================
@@ -1287,6 +1296,7 @@ function submitForm() {
     callAPI("sendEmail", orderData, "POST")
       .then(response => {
         showMessage("Hasil terkirim ke WA & Email!", false);
+        resetForm();
       })
       .catch(error => {
         showMessage("Gagal kirim: " + error.message, true);
