@@ -151,7 +151,7 @@ button:hover { background-color: #42a5f5; }
     max-width: 100%;             /* Maksimum lebar tabel adalah 100% dari container */
     overflow-x: auto;            /* Tambahkan scroll horizontal jika tabel terlalu lebar */
     border-collapse: collapse;   /* Gabungkan border sel */
-    margin-top: 20px;
+    margin-top: 5px;
     margin-bottom: 20px;
     box-sizing: border-box;      /* Pastikan padding dan border termasuk dalam lebar */
     table-layout: fixed;         /* Lebar kolom diatur secara proporsional */
@@ -233,7 +233,7 @@ button:hover { background-color: #42a5f5; }
 }
 
 /* Sorotan Baris */
-#orderTable tbody tr:hover { background-color: #c3ccd5; color: black; }
+#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
 
 /* Sembunyikan Icon "X"dari FontAwesome */ 
 .delete-icon { 
@@ -585,7 +585,7 @@ tr:hover .action-icon {
 
         <div id="orderSummary">
         <!-- Tampilan Spinner -->
-        <div id="spinner" class="spinner" style="display:none;"></div>
+        <div id="spinner" class="spinner" style="display:none; align-content: center;"></div>
         <h5>Ringkasan Pesanan</h5>
         <div class="table-wrapper">
           <table id="orderTable">  
