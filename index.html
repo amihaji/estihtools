@@ -702,14 +702,15 @@ button:hover {
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL  = "https://script.google.com/macros/s/AKfycbyziJmEStWPtdxbDYwuLlfMwRziThtnUDTXhfZFFleHofJgwIXB1SJ3Fj-Pc9bFe3RP/exec";
-
-let isEditMode = false;    // Untuk mendefenisikan mode Edit
-let currentEditRow = null; // Untuk menyimpan referensi row yang sedang diedit
+const API_URL      = "https://script.google.com/macros/s/AKfycbxc78KgYG92K5GIueNKHA_uVehB_msqTxQqVc4FbqSpZ74AZIHPw2Iqq5zfa3Qc-4I-/exec";
+let isEditMode     = false;     // Untuk mendefenisikan mode Edit
+let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
 document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
 
-// === Fungsi umum komunikasi dengan Google Apps Script ===
+// **********************************************
+// Fungsi untuk koneksi dengan Google Apps Script 
+// **********************************************
 function callAPI(action, params = {}, method = "GET") {
   const url = API_URL;
 
@@ -737,7 +738,7 @@ function callAPI(action, params = {}, method = "GET") {
 document.addEventListener("DOMContentLoaded", function() {
     console.log("DOM fully loaded and parsed");
     
-    // 1. GENERATE TANGGAL DAN INVOICE
+    // Generate Tanggal dan Invoice
     const mDateField    = document.getElementById('date'); 
     const mInvoiceField = document.getElementById('invoice');
     const mToday        = new Date();
@@ -747,10 +748,9 @@ document.addEventListener("DOMContentLoaded", function() {
     mDateField.disabled    = true;
     mInvoiceField.disabled = true;
 
-    // 2. LOAD DROPDOWN OPTIONS
-    loadOptions();
+    loadOptions();  // Load Dropdown Options
 
-    // 3. EVENT LISTENER UNTUK EDIT JUMLAH ITEM
+    // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
     if (tableBody) {
         tableBody.addEventListener('input', function(e) {
@@ -773,15 +773,13 @@ document.addEventListener("DOMContentLoaded", function() {
         console.error("Tabel body tidak ditemukan!");
     }
 
-    // 4. EVENT LISTENER UNTUK VALIDASI EMAIL
+    // Event listener untuk validasi email
     const emailField = document.getElementById('consumerEmail');
     if (emailField) {
         emailField.addEventListener('blur', validateEmail);
     }
      
-    // **********************************************************
     // Event listener untuk tombol close Ketentuan dan Kebijakan
-    // **********************************************************
         document.querySelector('.close').addEventListener('click', hideKetentuanModal);
         // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
         document.getElementById('setujuButton').addEventListener('click', function() {
@@ -790,23 +788,19 @@ document.addEventListener("DOMContentLoaded", function() {
         showMessage("Anda telah menyetujui ketentuan dan kebijakan", false);
     });
 
-    // *****************************************************
     // Event listener untuk checkbox Ketentuan dan Kebijakan
-    // *****************************************************
         document.getElementById('agreeCheckbox').addEventListener('change', function() {
         const setujuButton = document.getElementById('setujuButton');
         setujuButton.disabled = !this.checked;
     });
 
-    // *************************************************
     // Event listener untuk link Ketentuan dan Kebijakan
-    // *************************************************
         document.querySelector('a[href="ketentuan.html"]').addEventListener('click', function(event) {
         event.preventDefault(); // Mencegah navigasi ke halaman lain
         showKetentuanModal();
     });      
-
-    // 8. INITIAL STATE
+    
+    // Intial Aplikasi Siap Digunakam
     console.log("Aplikasi siap digunakan");
     isEditMode = false;
 });
@@ -816,13 +810,13 @@ document.addEventListener("DOMContentLoaded", function() {
 // ==================================
 function enableUpdateMode() {
     console.log("Mengaktifkan mode UPDATE");
-    const btnAdd = document.getElementById('btnAdd');
+    const btnAdd    = document.getElementById('btnAdd');
     const btnUpdate = document.getElementById('btnUpdate');
     
     if (btnAdd && btnUpdate) {
-        btnAdd.style.display = 'none';
+        btnAdd.style.display    = 'none';
         btnUpdate.style.display = 'block';
-        btnUpdate.disabled = false;
+        btnUpdate.disabled      = false;
     }
     isEditMode = true;
 }
@@ -832,15 +826,16 @@ function enableUpdateMode() {
 // ***********************************
 function resetEditMode() {
     console.log("Mereset mode ke TAMBAH");
-    const btnAdd = document.getElementById('btnAdd');
+    const btnAdd    = document.getElementById('btnAdd');
     const btnUpdate = document.getElementById('btnUpdate');
     
     if (btnAdd && btnUpdate) {
-        btnAdd.style.display = 'block';
+        btnAdd.style.display    = 'block';
+        btnAdd.disabled         = false;
         btnUpdate.style.display = 'none';
-        btnUpdate.disabled = true;
+        btnUpdate.disabled      = true;
     }
-    isEditMode = false;
+    isEditMode     = false;
     currentEditRow = null;
 }
 
@@ -856,8 +851,10 @@ function updateItem() {
     }
     
     // Simpan perubahan ke sheet
-    saveOrderToSheet(collectOrderData())
-        .then(() => {
+    const orderData = collectOrderData();
+    saveOrderToSheet(orderData).then(() => {
+    //saveOrderToSheet(collectOrderData())
+    //    .then(() => {
             showMessage("Perubahan tersimpan di sheet!", false);
             resetEditMode();
         })
@@ -945,9 +942,9 @@ function addItem() {
     });
 }  
 
-// ==============================================
+// ===================================
 // FUNGSI RESET FORM YANG DIMODIFIKASI
-// ==============================================
+// ===================================
 function resetForm() {
     console.log("Tombol Reset diklik");
 
@@ -1155,7 +1152,7 @@ function updateTotals() {
 }
 
 //==================================
-function updateItem(updatedOrderData) {
+function BACKUP_updateItem(updatedOrderData) {
 //==================================
   // langsung kirim ke sheet dengan metode no-cors
   callAPI("saveItem", updatedOrderData, "POST")
@@ -1168,12 +1165,6 @@ function updateItem(updatedOrderData) {
       showMessage("Gagal update data!", true);
     });
 }
-
-// Panggil fungsi ini saat halaman pertama kali load
-document.addEventListener("DOMContentLoaded", () => {
-  activateUpdateOnEdit();
-});
-
 
 // ********************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
@@ -1265,8 +1256,6 @@ function collectOrderData() {
     items
   };
 }
-
-
 
 // *****************************
 // Untuk menyimpan data ke sheet
