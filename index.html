@@ -584,7 +584,7 @@ tr:hover .action-icon {
         <div id="orderSummary">
         <!-- Tampilan Spinner -->
         <div id="spinner" class="spinner" style="display:none;"></div>
-        <h3>Ringkasan Pesanan</h3>
+        <h5>Ringkasan Pesanan</h5>
         <div class="table-wrapper">
           <table id="orderTable">  
               <!-- Kolom Tabel : Judul Nama Field -->
@@ -639,7 +639,7 @@ tr:hover .action-icon {
           <div id="ketentuanModal" class="modal">
               <div class="modal-content">
                   <span class="close">&times;</span>
-                  <h4>Ketentuan dan Kebijakan</h4>
+                  <h5>Ketentuan dan Kebijakan</h5>
                   <div id="ketentuanContent">
                       <!-- Isi ketentuan akan dimuat di sini -->
                   </div>
@@ -730,7 +730,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Event listener untuk tombol SETUJU Ketentuan dan Kebijakan
         document.getElementById('setujuButton').addEventListener('click', function() {
         hideKetentuanModal();
-        showNotification('succes', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
+        showNotification('success', 'SUKSES : Anda telah menyetujui ketentuan dan kebijakan');
     });
 
     // Event listener untuk checkbox Ketentuan dan Kebijakan
@@ -798,7 +798,7 @@ function updateItem() {
     // Simpan perubahan ke sheet
     const orderData = collectOrderData();
     saveOrderToSheet(orderData).then(() => {
-        showNotification('succes', 'SUKSES : Data berhasil tersimpan');
+        showNotification('success', 'SUKSES : Data berhasil tersimpan');
         resetEditMode();
     })
     .catch(error => {
@@ -884,7 +884,7 @@ function addItem() {
         // Simpan ke sheet hanya jika bukan edit mode
         if (!isEditMode) {
         saveOrderToSheet(collectOrderData());
-        showNotification('succes', 'SUKSES : Item berhasil ditambahkan');
+        showNotification('success', 'SUKSES : Item berhasil ditambahkan');
         }
         
     }).catch(error => {
@@ -977,7 +977,7 @@ function resetForm() {
 
     // Pastikan kembali ke mode TAMBAH
     resetEditMode();
-    showNotification('succes', 'SUKSES : Form telah direset');
+    showNotification('success', 'SUKSES : Form telah direset');
     
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
 }
