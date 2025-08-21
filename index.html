@@ -52,26 +52,32 @@ body {
     background-color: #f4f4f4;
 }
 
-/* Main Menu Navbar */
-.main-menu-link { 
-  font-weight: 500; 
-  padding: 8px 12px !important; 
-  border-radius: 6px; 
+/* Styling untuk Menu Utama */
+.main-menu-link {
+    font-weight: 500;
+    padding: 8px 12px !important;
+    border-radius: 6px;
+    transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
-.main-menu-link:hover, .main-menu-link.active { 
-  color: #dc3545 !important;  background-color: #dadada; 
+.main-menu-link:hover,
+.main-menu-link.active { 
+    color: #dc3545 !important; 
+    background-color: #dadada;
 }
-.brand-title { font-size: 12px; font:wide; color: #023581; line-height: 1; }
+
+/* Judul Header dan Menu */
+.brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
 
-/* Icon-icon Medsos */
-.social-icon { 
-  display: inline-flex; 
-  justify-content: center; 
-  align-items: center; 
-  width: 40px; 
-  height: 40px; 
-  border-radius: 50%; 
+/* Styling untuk Ikon Sosial Media */
+.social-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
 }
 .social-icon i { color: #555; transition: color 0.3s ease-in-out; }
 .social-icon:hover { background-color: #dadada; }
@@ -87,23 +93,11 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow-x: hidden;                /* Pastikan tidak ada overflow horizontal */
 }
-
-h1 {
-    text-align: center;
-    color: #333;
-}
+h1 { text-align: center; color: #333; }
 
 /* Header dengan Gambar */
-.header {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.header img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
+.header { text-align: center; margin-bottom: 20px; }
+.header img { max-width: 100%; height: auto; border-radius: 8px; }
 
 /* Form Styles */
 form {
@@ -155,6 +149,10 @@ input:enabled, select:enabled { cursor: pointer; }
 .validasi-error { background-color: #d9534f; color: white; }
 .validasi-success { background-color: #0275d8; color: white; }
 .validasi-warning { background-color: #f0ad4e; color: black; }
+
+/* Style spinner */
+#loadingSpinner { display: none; text-align: center; padding: 20px; }
+#loadingSpinner .spinner-border { width: 3rem; height: 3rem; border-width: 0.25em; }
 
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
@@ -356,21 +354,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     cursor: not-allowed;
 }
 
-.spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid #f3f3f3;     /* Warna background */
-    border-top: 3px solid #0e22d6; /* Warna garis atas */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    vertical-align: middle;  
-}
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
 #kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 /* ----------------------------------*/
@@ -464,32 +447,51 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     </div>      
     -->
     <!-- HEADER -->
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
+        <!-- HEADER MENU -->
+        <header class=>
+          <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
+          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
             <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="images/logo-EstihTools.png" alt="Logo" width="90" class="me-2">
-                <div class="d-md-block">
-                    <div class="brand-title">Estih Tools</div>
-                    <div class="brand-subtitle">Simulasi Estimasi Harga</div>
+              
+              <!-- Logo dan Nama Brand -->
+              <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="images/logo-EstihTools.png" alt="Logo" width="80" class="me-2">
+                <div class="d-none d-md-block">
+                  <div class="brand-title">EstihTools</div>
+                  <div class="brand-subtitle">Estimasi Harga Tools</div>
                 </div>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+              </a>
+
+              <!-- Tombol Hamburger untuk Mobile -->
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" width="100%">
                 <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNavbar">
+              </button>
+
+              <!-- Bagian Menu dan Social Media -->
+              <div class="collapse navbar-collapse" id="mainNavbar">
+                <!-- Social Media Icons -->
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
-                    <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank"><i class="fab fa-instagram"></i></a></li>
-                    <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube"></i></a></li>
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku"   target="_blank" title="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a></li>
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a></li>
+                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com"             target="_blank" title="YouTube"><i class="fab fa-youtube fa-lg"></i></a></li>
                 </ul>
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
+                <!-- Menu Navigasi Utama -->
+                <ul class="navbar-nav gap-2">
+                  <li class="nav-item"><a class="nav-link main-menu-link" href="#home">Home</a></li>
+                  <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
+                  <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
                 </ul>
-                </div>
+              </div>
             </div>
-            </nav>
+          </nav>
         </header>
+   
+        <!-- HEADER IMAGE -->
+        <!-- TIDAK DITAMPILKAN 
+        <div class="header-image">
+            <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
+        </div>       
+        -->
 
         <!-- Form Pesanan Barang -->        
         <form id="orderForm">
@@ -556,7 +558,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
         <div id="orderSummary">
         <!-- Tampilan Spinner -->
-        <div id="spinner" class="spinner" style="display:none; align-content: center;"></div>
+        <!-- <div id="spinner" class="spinner" style="display:none; align-content: center;"></div> -->
+        <div id="loadingSpinner" class="text-center my-3">
+            <div class="spinner-border text-primary"></div>
+            <!-- <p class="mt-2">Memproses data...</p> -->
+        </div>
         <div class="table-wrapper">
             <h5>Ringkasan Pesanan</h5>
             <table id="orderTable">  
@@ -623,6 +629,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
           </div>
       </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // *******************************
 // URL Web App Google Apps Script 
