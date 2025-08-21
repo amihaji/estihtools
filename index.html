@@ -232,11 +232,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 /* Menampilkan Icon "X" dari FontAwesome saat baris disorot */
 #orderTable tbody tr:hover .delete-icon {
-    display: inline-block;     /* Tampilkan Icon "X" saat baris disorot */
+    display: inline-block  !important;  /* Tampilkan Icon "X" saat baris disorot */
 }
 /* Icon "X" dari FontAwesome */
 .fa-times {
-    color: #210c97;              /* Warna putih untuk menyamarkan tampilan */
+    color: #210c97 !important;   /* Warna putih untuk menyamarkan tampilan */
     font-size: 20px;               /* Ukuran ikon */
     cursor: pointer;               /* Ubah kursor menjadi pointer saat dihover */
     border: none !important;       /* Hilangkan border */
@@ -341,11 +341,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     width: 20px;
     height: 20px;
     border: 3px solid #f3f3f3;     /* Warna background */
-    border-top: 3px solid #3498db; /* Warna garis atas */
+    border-top: 3px solid #af0000; /* Warna garis atas */
     border-radius: 50%;
     animation: spin 1s linear infinite;
     vertical-align: middle;
-    align-content: center;
+    align-content: center  !important; 
 }
 
 @keyframes spin {
