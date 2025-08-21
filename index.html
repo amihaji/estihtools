@@ -71,6 +71,11 @@ body {
     background-color: #dadada;
 }
 
+/* Untuk membuat sudut navbar mengikuti card */
+.card > header:first-child > .navbar {
+    border-top-left-radius: var(--bs-card-border-radius);
+    border-top-right-radius: var(--bs-card-border-radius);
+}
 /* Judul Header dan Menu */
 .brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
@@ -481,7 +486,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         <!-- HEADER MENU -->
         <header>
           <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
-          <nav class="navbar navbar-expand-lg navbar-light mt-0 mb-2" style="background-color: #f1f1f1;">
+          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
             <div class="container-fluid">
               
               <!-- Logo dan Nama Brand -->
@@ -523,7 +528,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
             <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
         </div>       
         -->
-        
+      <div class="card-body">
         <div class="card-title text-white text-center p-1 rounded" style="background-color:#002266;">
            <h4>SIMULASI ESTIMASI HARGA</h4>
         </div>
@@ -639,34 +644,35 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
               <div>Total Harga : <span id="totalPrice">0,00</span></div>
           </div>
           </div>
-      
-          <!-- Footer Form -->
-          <div class="footer">
-            <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
-            <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
-            <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
-            <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
-          </div>
+      </div>
+      <!-- Footer Form -->
+      <div class="footer">
+        <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
+        <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
+        <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
+        <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
+      </div>
 
-          <!-- Form Ketentuan dan Kebijakan -->
-          <div id="ketentuanModal" class="modal">
-              <div class="modal-content">
-                  <span class="close">&times;</span>
-                  <h5>Ketentuan dan Kebijakan</h5>
-                  <div id="ketentuanContent">
-                      <!-- Isi ketentuan akan dimuat di sini -->
-                  </div>
-                  <input type="checkbox" id="agreeCheckbox">
-                  <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
-                  <button id="setujuButton" disabled>SETUJU</button>
-              </div>
-          </div>
+      <!-- Form Ketentuan dan Kebijakan -->
+      <div id="ketentuanModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h5>Ketentuan dan Kebijakan</h5>
+            <div id="ketentuanContent">
+                <!-- Isi ketentuan akan dimuat di sini -->
+            </div>
+            <input type="checkbox" id="agreeCheckbox">
+            <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
+            <button id="setujuButton" disabled>SETUJU</button>
         </div>
+      </div>
     </div>  
   </div>  
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 // *******************************
 // URL Web App Google Apps Script 
