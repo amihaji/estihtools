@@ -260,7 +260,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 /* Menampilkan Icon "X" dari FontAwesome saat baris disorot */
 #orderTable tbody tr:hover .delete-icon {
-    display: inline-block  !important;  /* Tampilkan Icon "X" saat baris disorot */
+    display: block  !important;  /* Tampilkan Icon "X" saat baris disorot */
 }
 /* Icon "X" dari FontAwesome */
 .fa-times {
@@ -274,7 +274,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .fa-times:hover { color: red;}  /* Warna saat di hover
 
 /* Tooltip */
-.tooltip { position: relative; display: inline-block; }
+.tooltip { position: relative; display: block; }
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 50px;                 /* Lebar bingkai tooltip */
@@ -1263,7 +1263,7 @@ function collectOrderData() {
 // *****************************
 function saveOrderToSheet(orderData) {
   // Tampilkan loading indicator
-  document.getElementById('loadingSpinner').style.display = 'inline-block';
+  document.getElementById('loadingSpinner').style.display = 'block';
   
   return callAPI("saveOrder", orderData, "POST")
     .then(res => {
