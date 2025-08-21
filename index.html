@@ -55,8 +55,23 @@ body {
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-/* style header image */
-/* .header-image img { max-width: 100%; height: auto; } */
+
+/* Container Utama */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow-x: hidden;                /* Pastikan tidak ada overflow horizontal */
+}
+h1 { text-align: center; color: #333; }
+
+/* Header dengan Gambar */
+.header { text-align: center; margin-bottom: 20px; }
+.header img { max-width: 100%; height: auto; border-radius: 8px; }
 
 /* Styling untuk Menu Utama */
 .main-menu-link {
@@ -93,23 +108,6 @@ body {
 .social-icon i { color: #555; transition: color 0.3s ease-in-out; }
 .social-icon:hover { background-color: #dadada; }
 .social-icon:hover i { color: #dc3545; }
-
-/* Container Utama */
-.container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    overflow-x: hidden;                /* Pastikan tidak ada overflow horizontal */
-}
-h1 { text-align: center; color: #333; }
-
-/* Header dengan Gambar */
-.header { text-align: center; margin-bottom: 20px; }
-.header img { max-width: 100%; height: auto; border-radius: 8px; }
 
 /* Form Styles */
 form {
@@ -168,7 +166,7 @@ input:enabled, select:enabled { cursor: pointer; }
 
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
-.button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
+button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* Tabel Ringkasan Pesanan */
@@ -638,37 +636,37 @@ input:enabled, select:enabled { cursor: pointer; }
                             </tfoot>
                         </table>
                     </div>    
-                </div>
+                   <!-- </div> -->
 
-                <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
-                <div id="summaryDetails">
-                    <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
-                    <div>Pajak : <span id="tax">0,00</span></div>
-                    <div>Total Harga : <span id="totalPrice">0,00</span></div>
-                </div>
-            </div>
-            
-            <!-- Footer Form -->
-            <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">  
-                <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
-                <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
-                <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
-                <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
-            </footer>
-             
-            <!-- Form Ketentuan dan Kebijakan -->
-            <div id="ketentuanModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h5>Ketentuan dan Kebijakan</h5>
-                    <div id="ketentuanContent">
-                        <!-- Isi ketentuan akan dimuat di sini -->
+                    <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
+                    <div id="summaryDetails">
+                        <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
+                        <div>Pajak : <span id="tax">0,00</span></div>
+                        <div>Total Harga : <span id="totalPrice">0,00</span></div>
                     </div>
-                    <input type="checkbox" id="agreeCheckbox">
-                    <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
-                    <button id="setujuButton" disabled>SETUJU</button>
                 </div>
-            </div>
+            
+                <!-- Footer Form -->
+                <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">  
+                    <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
+                    <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
+                    <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
+                    <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
+                </footer>
+             
+                <!-- Form Ketentuan dan Kebijakan -->
+                <div id="ketentuanModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h5>Ketentuan dan Kebijakan</h5>
+                        <div id="ketentuanContent">
+                            <!-- Isi ketentuan akan dimuat di sini -->
+                        </div>
+                        <input type="checkbox" id="agreeCheckbox">
+                        <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
+                        <button id="setujuButton" disabled>SETUJU</button>
+                    </div>
+                </div>
 
         </div>  
     </div>  
