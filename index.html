@@ -474,202 +474,203 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
 <body>
 <div class="Container mt-5 mb-5">
-  <div class="row justify-content-center">
-    <div class="card mx-auto card shadow p-0" style="max-width:1024px">
-        <!--
-        <div class="header">
-        <body background="https://lh3.googleusercontent.com/d/1UMpdpx9R9kr6mfeztn3gSNnvmynLSuSb">
-        <img src="https://lh3.googleusercontent.com/d/1xQki5HyONHi7AcNNi24Q68CzFsTGu9y8" alt="Header EstihTools">
-        </div>      
-        -->
+    <div class="row justify-content-center">
+        <div class="card mx-auto card shadow p-0" style="max-width:1024px">
    
-        <!-- HEADER MENU -->
-        <header>
-          <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
-          <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
-            <div class="container-fluid">
-              
-              <!-- Logo dan Nama Brand -->
-              <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="images/logo-EstihTools.png" alt="Logo" width="80" class="me-2">
-                <div class="d-none d-md-block">
-                  <div class="brand-title">EstihTools</div>
-                  <div class="brand-subtitle">Estimasi Harga Tools</div>
-                </div>
-              </a>
-
-              <!-- Tombol Hamburger untuk Mobile -->
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" width="100%">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-
-              <!-- Bagian Menu dan Social Media -->
-              <div class="collapse navbar-collapse" id="mainNavbar">
-                <!-- Social Media Icons -->
-                <ul class="navbar-nav mx-auto">
-                  <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku"   target="_blank" title="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a></li>
-                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a></li>
-                  <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com"             target="_blank" title="YouTube"><i class="fab fa-youtube fa-lg"></i></a></li>
-                </ul>
-                <!-- Menu Navigasi Utama -->
-                <ul class="navbar-nav gap-2">
-                  <li class="nav-item"><a class="nav-link main-menu-link" href="#home">Home</a></li>
-                  <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
-                  <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
-                </ul>
-              </div>
-            </div>
-          </nav>
-        </header>
-   
-        <!-- HEADER IMAGE -->
-        <!-- TIDAK DITAMPILKAN 
-        <div class="header-image">
-            <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
-        </div>       
-        -->
-      <div class="card-body">
-        <div class="card-title text-white text-center p-1 rounded" style="background-color:#002266;">
-           <h4>SIMULASI ESTIMASI HARGA</h4>
-        </div>
-        <!-- Form Pesanan Barang -->        
-        <form id="orderForm" class="mt-2">
-            <label for="date">Tanggal:</label>
-            <input type="date" id="date" name="date" readonly>
-
-            <label for="invoice">Simulasi No.:</label>
-            <input type="text" id="invoice" name="invoice" readonly>
-
-            <label for="distributorName">Nama Member:</label>
-            <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-
-            <label for="distributorPhone">No. HP Member:</label>
-            <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-
-            <label for="consumerName">Nama Konsumen:</label>
-            <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-
-            <label for="consumerPhone">No. HP Konsumen:</label>
-            <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-
-            <label for="consumerEmail">Email Konsumen:</label>
-            <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
-
-            <label for="discount">Diskon:</label>
-            <select id="discount" name="discount" required>
-                <!-- Opsi akan diisi oleh JavaScript -->
-            </select>
-
-            <label for="product">Nama Produk:</label>
-            <select id="product" name="product" required>
-                <!-- Opsi akan diisi oleh JavaScript -->
-            </select>
-
-            <label for="quantity">Jumlah:</label>
-            <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
-
-            <label for="shipping">By Pengiriman:</label>
-            <select id="shipping" name="shipping" required>
-                <!-- Opsi akan diisi oleh JavaScript -->
-            </select>
+            <!--
+            <div class="header">
+                <body background="https://lh3.googleusercontent.com/d/1UMpdpx9R9kr6mfeztn3gSNnvmynLSuSb">
+                <img src="https://lh3.googleusercontent.com/d/1xQki5HyONHi7AcNNi24Q68CzFsTGu9y8" alt="Header EstihTools">
+            </div>      
+            -->
             
-            <!-- Pesan Notifikasi -->
-            <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
-                <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
+            <!-- HEADER MENU -->
+            <header>
+                <!-- Navbar ini akan memiliki background abu-abu yang membentang penuh -->
+                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f1f1f1;">
+                    <div class="container-fluid">
+                    
+                        <!-- Logo dan Nama Brand -->
+                        <a class="navbar-brand d-flex align-items-center" href="#">
+                            <img src="images/logo-EstihTools.png" alt="Logo" width="80" class="me-2">
+                            <div class="d-none d-md-block">
+                            <div class="brand-title">EstihTools</div>
+                            <div class="brand-subtitle">Estimasi Harga Tools</div>
+                            </div>
+                        </a>
+
+                        <!-- Tombol Hamburger untuk Mobile -->
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation" width="100%">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+
+                        <!-- Bagian Menu dan Social Media -->
+                        <div class="collapse navbar-collapse" id="mainNavbar">
+                            <!-- Social Media Icons -->
+                            <ul class="navbar-nav mx-auto">
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://facebook.com/beratidealku"   target="_blank" title="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a></li>
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://www.instagram.com/hestyamin" target="_blank" title="Instagram"><i class="fab fa-instagram fa-lg"></i></a></li>
+                            <li class="nav-item"><a class="nav-link social-icon" href="https://www.youtube.com"             target="_blank" title="YouTube"><i class="fab fa-youtube fa-lg"></i></a></li>
+                            </ul>
+                            <!-- Menu Navigasi Utama -->
+                            <ul class="navbar-nav gap-2">
+                            <li class="nav-item"><a class="nav-link main-menu-link" href="#home">Home</a></li>
+                            <li class="nav-item"><a class="nav-link main-menu-link" href="#about">About</a></li>
+                            <!-- <li class="nav-item"><a class="nav-link main-menu-link" href="#">Login</a></li> -->
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+        
+            <!-- HEADER IMAGE DITAMPILKAN
+                <div class="header-image">
+                    <img src="images/Header_WETools.jpg" alt="Header Image" class="img-fluid">
+                </div>       
+            -->
+            
+            <div class="card-body">
+                <div class="card-title text-white text-center p-1 rounded" style="background-color:#002266;">
+                <h4>SIMULASI ESTIMASI HARGA</h4>
+                </div>
+                <!-- Form Pesanan Barang -->        
+                <form id="orderForm" class="mt-2">
+                    <label for="date">Tanggal:</label>
+                    <input type="date" id="date" name="date" readonly>
+
+                    <label for="invoice">Simulasi No.:</label>
+                    <input type="text" id="invoice" name="invoice" readonly>
+
+                    <label for="distributorName">Nama Member:</label>
+                    <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+
+                    <label for="distributorPhone">No. HP Member:</label>
+                    <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+
+                    <label for="consumerName">Nama Konsumen:</label>
+                    <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+
+                    <label for="consumerPhone">No. HP Konsumen:</label>
+                    <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+
+                    <label for="consumerEmail">Email Konsumen:</label>
+                    <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+
+                    <label for="discount">Diskon:</label>
+                    <select id="discount" name="discount" required>
+                        <!-- Opsi akan diisi oleh JavaScript -->
+                    </select>
+
+                    <label for="product">Nama Produk:</label>
+                    <select id="product" name="product" required>
+                        <!-- Opsi akan diisi oleh JavaScript -->
+                    </select>
+
+                    <label for="quantity">Jumlah:</label>
+                    <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+
+                    <label for="shipping">By Pengiriman:</label>
+                    <select id="shipping" name="shipping" required>
+                        <!-- Opsi akan diisi oleh JavaScript -->
+                    </select>
+                    
+                    <!-- Pesan Notifikasi -->
+                    <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
+                        <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
+                    </div>
+
+                    <!-- Pesan Validasi Inputan -->
+                    <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
+                        <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
+                    </div>
+                
+                    <!-- Tampilan tombol -->
+                    <div class="button-group"> 
+                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
+                        <!-- Tombol "Update" akan nampak jika "jumlah item" diedit -->
+                        <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
+                            <i class="fas fa-edit"></i> UPDATE
+                        </button>
+                        <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
+                    </div>
+                </form>
+
+                <div id="orderSummary">
+                    <!-- Tampilan Spinner -->
+                    <!-- <div id="spinner" class="spinner" style="display:none; align-content: center;"></div> -->
+                    <div id="loadingSpinner" class="text-center my-3">
+                        <div class="spinner-border text-primary"></div>
+                        <!-- <p class="mt-2">Memproses data...</p> -->
+                    </div>
+                    <div class="table-wrapper">
+                        <h5>Ringkasan Pesanan</h5>
+                        <table id="orderTable">  
+                            <!-- Kolom Tabel : Judul Nama Field -->
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>No Stok</th>
+                                    <th>Nama Produk</th>
+                                    <th>Harga Eceran</th>
+                                    <th>Diskon</th>
+                                    <th>Jumlah</th>
+                                    <th>Tot VP</th>         
+                                    <th>Harga</th>
+                                    <!-- Kolom "Aksi" dengan ikon tong sampah -->
+                                    <th><i class="fa-regular fa-trash-can"></i></th> 
+                                </tr> 
+                            </thead>
+                            <!-- Baris Data item Tabel -->
+                            <tbody>
+                                <!-- Rows will be populated by JavaScript -->
+                            </tbody>
+                            <!-- Baris footer Tabel -->
+                            <tfoot>
+                                <tr>
+                                    <td style="text-align: right;" colspan="5"><strong>Total</strong></td>
+                                    <td style="text-align: right;" id="totalJumlah">0</td>
+                                    <td style="text-align: right;" id="totalVP">0,00</td> 
+                                    <td style="text-align: right;" id="totalHarga">0,00</td>
+                                    <td></td> <!-- Kolom kosong untuk aksi -->
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>    
+                </div>
+
+                <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
+                <div id="summaryDetails">
+                    <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
+                    <div>Pajak : <span id="tax">0,00</span></div>
+                    <div>Total Harga : <span id="totalPrice">0,00</span></div>
+                </div>
+            </div>
+            
+            <!-- Footer Form -->
+            <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">  
+                <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
+                <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
+                <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
+                <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
+            </footer>
+
+            <!-- Form Ketentuan dan Kebijakan -->
+            <div id="ketentuanModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h5>Ketentuan dan Kebijakan</h5>
+                    <div id="ketentuanContent">
+                        <!-- Isi ketentuan akan dimuat di sini -->
+                    </div>
+                    <input type="checkbox" id="agreeCheckbox">
+                    <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
+                    <button id="setujuButton" disabled>SETUJU</button>
+                </div>
             </div>
 
-            <!-- Pesan Validasi Inputan -->
-            <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
-                <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
-            </div>
-           
-            <!-- Tampilan tombol -->
-            <div class="button-group"> 
-                <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
-                <!-- Tombol "Update" akan nampak jika "jumlah item" diedit -->
-                <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
-                    <i class="fas fa-edit"></i> UPDATE
-                </button>
-                <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
-                <button type="button" class="btn btn-success" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
-            </div>
-        </form>
-
-        <div id="orderSummary">
-        <!-- Tampilan Spinner -->
-        <!-- <div id="spinner" class="spinner" style="display:none; align-content: center;"></div> -->
-        <div id="loadingSpinner" class="text-center my-3">
-            <div class="spinner-border text-primary"></div>
-            <!-- <p class="mt-2">Memproses data...</p> -->
-        </div>
-        <div class="table-wrapper">
-            <h5>Ringkasan Pesanan</h5>
-            <table id="orderTable">  
-              <!-- Kolom Tabel : Judul Nama Field -->
-              <thead>
-                  <tr>
-                      <th>Item</th>
-                      <th>No Stok</th>
-                      <th>Nama Produk</th>
-                      <th>Harga Eceran</th>
-                      <th>Diskon</th>
-                      <th>Jumlah</th>
-                      <th>Tot VP</th>         
-                      <th>Harga</th>
-                      <!-- Kolom "Aksi" dengan ikon tong sampah -->
-                      <th><i class="fa-regular fa-trash-can"></i></th> 
-                  </tr> 
-              </thead>
-              <!-- Baris Data item Tabel -->
-              <tbody>
-                  <!-- Rows will be populated by JavaScript -->
-              </tbody>
-              <!-- Baris footer Tabel -->
-              <tfoot>
-                  <tr>
-                      <td style="text-align: right;" colspan="5"><strong>Total</strong></td>
-                      <td style="text-align: right;" id="totalJumlah">0</td>
-                      <td style="text-align: right;" id="totalVP">0,00</td> 
-                      <td style="text-align: right;" id="totalHarga">0,00</td>
-                      <td></td> <!-- Kolom kosong untuk aksi -->
-                  </tr>
-              </tfoot>
-          </table>
-          </div>
-
-          <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
-          <div id="summaryDetails">
-              <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
-              <div>Pajak : <span id="tax">0,00</span></div>
-              <div>Total Harga : <span id="totalPrice">0,00</span></div>
-          </div>
-          </div>
-      </div>
-
-      <!-- Footer Form -->
-      <footer class="footer mb-3 text-white text-center p-2 rounded" style="background-color: #002266; margin-left: 15px; margin-right: 15px;">  
-        <a href="ketentuan.html"> -  Ketentuan dan Kebijakan</a> 
-        <a href="https://amihaji.github.io/wetools"> -  Cek disini Survey Kebugaran Anda</a>
-        <a href="https://bit.ly/LokasiKlubKita"> -  Cek disini Map Lokasi Klub Kita</a>
-        <a href="https://www.beratidealku.com"> -  Copyright (c) 2025, by: beratidealku - Allright Reserved</a>
-      </footer>
-
-      <!-- Form Ketentuan dan Kebijakan -->
-      <div id="ketentuanModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h5>Ketentuan dan Kebijakan</h5>
-            <div id="ketentuanContent">
-                <!-- Isi ketentuan akan dimuat di sini -->
-            </div>
-            <input type="checkbox" id="agreeCheckbox">
-            <label><center>Centang jika Anda menyetujui ketentuan dan kebijakan ini</center></label>
-            <button id="setujuButton" disabled>SETUJU</button>
-        </div>
-      </div>
-
+        </div>  
     </div>  
-  </div>  
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
