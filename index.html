@@ -213,36 +213,30 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) {   
     text-align: left;
 }
-/* Perataan Text Field */
-#orderTable td:nth-child(4),    /* Kolom "Harga Eceran" */
-#orderTable td:nth-child(5),    /* Kolom "Diskon" */
-#orderTable td:nth-child(6),    /* Kolom "Jumlah" */
-#orderTable td:nth-child(7),    /* Kolom "Tot VP" */
-#orderTable td:nth-child(8) {   /* Kolom "Harga" */
+/* Perataan Text Field kolom : Harga Eceran, Diskon, Jumlah, Tot VP, Harga */
+#orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) { 
     text-align: right;
 }
-/* Perataan Text Field */
-#orderTable td:nth-child(9) {     /* Kolom Tong sampah */
+/* Perataan Text Field kolom : tong sampah */
+#orderTable td:nth-child(9) {     
     text-align: center;
 }
 
 /* Sorotan Baris */
 #orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
 
-/* Sembunyikan Icon "X"dari FontAwesome */ 
+/* Sembunyikan Icon "X" dari FontAwesome */ 
 .delete-icon { 
     display: none;             /* Sembunyikan Icon "X" secara default */
-    margin: 0 !important;       /* Hilangkan margin */
+    margin: 0 !important;      /* Hilangkan margin */
 }
-
 /* Menampilkan Icon "X" dari FontAwesome saat baris disorot */
 #orderTable tbody tr:hover .delete-icon {
-    display: inline-block;      /* Tampilkan Icon "X" saat baris disorot */
+    display: inline-block;     /* Tampilkan Icon "X" saat baris disorot */
 }
-
 /* Icon "X" dari FontAwesome */
 .fa-times {
-    color: #646464;              /* Warna putih untuk menyamarkan tampilan */
+    color: #210c97;              /* Warna putih untuk menyamarkan tampilan */
     font-size: 20px;               /* Ukuran ikon */
     cursor: pointer;               /* Ubah kursor menjadi pointer saat dihover */
     border: none !important;       /* Hilangkan border */
@@ -1119,7 +1113,7 @@ function updateItemNumbers() {
 // Fungsi Delete Item 
 // *******************
 function deleteItem(icon) {
-  const row = icon.closest('tr');
+  const row    = icon.closest('tr');
   const noStok = row.cells[1].textContent.trim();
   
   // Hapus dari tampilan
