@@ -237,44 +237,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     margin: 0 !important;       /* Hilangkan margin */
 }
 
-/****
-/************************/
-/* Pengaturan Icon-icon */
-/************************/
-/* Default semua icon (enabled & disabled) tidak terlihat */
-/* Ikon default (hidden) */
-.action-icon {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 25px;
-    height: 25px;
-    opacity: 0;
-    transition: opacity 0.2s, color 0.2s, background-color 0.2s;
-    margin: 0 5px;
-    cursor: pointer;
-    color: #6c757d;
-    border-radius: 50%;
-    padding: 4px;
-    font-size: 15px;
-}
-
-/* Saat hover ke baris, semua icon disabled akan muncul */
-tr:hover .action-icon {
-    opacity: 1;
-}
-/* Hover efek untuk ikon aktif */
-.action-icon:hover {
-    color: red;
-    background-color: #e0e0e0;
-}
-/* Disabled icon – tidak bisa diklik dan tidak bereaksi saat hover */
-.action-icon.disabled {
-    pointer-events: none;
-    color: #bbb !important;
-    background-color: transparent !important;
-}
-
 /* Menampilkan Icon "X" dari FontAwesome saat baris disorot */
 #orderTable tbody tr:hover .delete-icon {
     display: inline-block;      /* Tampilkan Icon "X" saat baris disorot */
@@ -557,12 +519,12 @@ tr:hover .action-icon {
             
             <!-- Pesan Notifikasi -->
             <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
-              <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
+                <i id="pesanNotifIcon" class="pesan-notif-icon me-2"></i><span id="pesanNotifText"></span>
             </div>
 
             <!-- Pesan Validasi Inputan -->
             <div id="validasiBox" class="validasi-message w-100 mb-2" style="display: none;">
-              <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
+                <i id="pesanValidasiIcon" class="pesan-validasi-icon me-2"></i><span id="pesanValidasiText"></span>
             </div>
            
             <!-- Tampilan tombol -->
@@ -857,14 +819,13 @@ function addItem() {
             <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:80px; hight:40;"></td>
             <td>${formatCurrency(mTotVP)}</td>
             <td>${formatCurrency(mHarga)}</td>
+            
             <td class="tooltip">
-            <!--    
             <span class="delete-icon" onclick="deleteItem(this)">
                 <i class="fas fa-times"></i>
             </span>
-            -->
-
-            <span><i class="fas fa-trash-alt action-icon" title="Hapus Item" onclick="deleteItem(this)"></i></span>    
+           
+            <!-- <span><i class="fas fa-trash-alt action-icon" title="Hapus Item" onclick="deleteItem(this)"></i></span> -->
             <!-- <span class="tooltiptext">Hapus</span>-->
             </td>
         </tr>
