@@ -45,13 +45,37 @@
 /* ------------------------------- */
 /* Pengaturan Umum Styles CSS Form */
 /* ------------------------------- */
-
 body {
     font-family: Arial, sans-serif; /* Gunakan font Arial atau sans-serif */
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
 }
+
+/* Main Menu Navbar */
+.main-menu-link { 
+  font-weight: 500; 
+  padding: 8px 12px !important; 
+  border-radius: 6px; 
+}
+.main-menu-link:hover, .main-menu-link.active { 
+  color: #dc3545 !important;  background-color: #dadada; 
+}
+.brand-title { font-size: 12px; font:wide; color: #023581; line-height: 1; }
+.brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
+
+/* Icon-icon Medsos */
+.social-icon { 
+  display: inline-flex; 
+  justify-content: center; 
+  align-items: center; 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 50%; 
+}
+.social-icon i { color: #555; transition: color 0.3s ease-in-out; }
+.social-icon:hover { background-color: #dadada; }
+.social-icon:hover i { color: #dc3545; }
 
 /* Container Utama */
 .container {
@@ -88,11 +112,7 @@ form {
     gap: 10px;
 }
 
-label {
-    font-weight: bold;
-    margin-bottom: 0;
-}
-
+label { font-weight: bold; margin-bottom: 0; }
 input, select, button {
     padding: 10px;
     font-size: 16px;
@@ -341,14 +361,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     width: 20px;
     height: 20px;
     border: 3px solid #f3f3f3;     /* Warna background */
-    border-top: 3px solid #af0000; /* Warna garis atas */
+    border-top: 3px solid #0e22d6; /* Warna garis atas */
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    vertical-align: middle;
-    align-content: center  !important; 
-    align-items: center  !important; 
+    vertical-align: middle;  
 }
-
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
