@@ -1263,7 +1263,7 @@ function collectOrderData() {
 // *****************************
 function saveOrderToSheet(orderData) {
   // Tampilkan loading indicator
-  document.getElementById('spinner').style.display = 'inline-block';
+  document.getElementById('loadingSpinner').style.display = 'inline-block';
   
   return callAPI("saveOrder", orderData, "POST")
     .then(res => {
@@ -1275,7 +1275,7 @@ function saveOrderToSheet(orderData) {
       showNotification('error', 'ERROR : Gagal menyimpan perubahan');
     })
     .finally(() => {
-      document.getElementById('spinner').style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'none';
     });
 }
 
