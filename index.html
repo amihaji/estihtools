@@ -389,9 +389,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     }
     /* Edit Jumlah Item */
     .qty-input {
-        width: 20px; 
+        width: 15px; 
         height: 20px;
-        font-size: 14px;
+        font-size: 10px;
     } 
     /* Tabel */
     .table-wrapper {
@@ -814,7 +814,7 @@ function addItem() {
             <td>${formatCurrency(mPriceAfterDiscount)}</td>
           
             <!-- UNTUK EDIT JUMLAH ITEM -->
-            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:65px; height:30;"></td>
+            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:65px; height:25;"></td>
             <td>${formatCurrency(mTotVP)}</td>
             <td>${formatCurrency(mHarga)}</td>
             
