@@ -233,7 +233,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
 /* Sembunyikan Icon "X"dari FontAwesome */ 
 .delete-icon { 
-    display: block;             /* Sembunyikan Icon "X" secara default */
+    display: none;             /* Sembunyikan Icon "X" secara default */
     margin: 0 !important;       /* Hilangkan margin */
 }
 
@@ -244,14 +244,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
 /* Icon "X" dari FontAwesome */
 .fa-times {
-    color: white;                /* Warna putih untuk menyamarkan tampilan */
+    color: #646464;                /* Warna putih untuk menyamarkan tampilan */
     font-size: 20px;               /* Ukuran ikon */
     cursor: pointer;               /* Ubah kursor menjadi pointer saat dihover */
     border: none !important;       /* Hilangkan border */
     outline: none !important;      /* Hilangkan outline */
     box-shadow: none !important;   /* Hilangkan shadow  */
 }
-
 .fa-times:hover { color: red;}  /* Warna saat di hover
 
 /* Tooltip */
@@ -274,7 +273,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     opacity: 0;
     transition: opacity 0.3s;
 }
-.tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+.tooltip:hover .tooltiptext { visibility: visible; opacity: 2; }
 
 /* Tabel Total */
 #orderTable tfoot td { font-weight: bold; background-color: #a5b3c0; }  /* Warna Abu-abu */
