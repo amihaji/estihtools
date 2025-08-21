@@ -815,18 +815,17 @@ function addItem() {
             <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
             <td>${formatCurrency(mProductData.HargaEceran)}</td>
             <td>${formatCurrency(mPriceAfterDiscount)}</td>
+          
             <!-- UNTUK EDIT JUMLAH ITEM -->
             <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:80px; hight:40;"></td>
             <td>${formatCurrency(mTotVP)}</td>
             <td>${formatCurrency(mHarga)}</td>
             
+            <!-- ICON UNTUK HAPUS DATA -->
             <td class="tooltip">
             <span class="delete-icon" onclick="deleteItem(this)">
                 <i class="fas fa-times"></i>
             </span>
-           
-            <!-- <span><i class="fas fa-trash-alt action-icon" title="Hapus Item" onclick="deleteItem(this)"></i></span> -->
-            <!-- <span class="tooltiptext">Hapus</span>-->
             </td>
         </tr>
         `;
