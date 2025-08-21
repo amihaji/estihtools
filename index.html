@@ -814,7 +814,7 @@ function addItem() {
             <td>${formatCurrency(mPriceAfterDiscount)}</td>
           
             <!-- UNTUK EDIT JUMLAH ITEM -->
-            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:70px; hight:35;"></td>
+            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:70px; hight:30;"></td>
             <td>${formatCurrency(mTotVP)}</td>
             <td>${formatCurrency(mHarga)}</td>
             
@@ -1328,8 +1328,6 @@ function showNotifValidasi(type, message, duration = 3000) {
   setTimeout(() => { boxValidasi.style.display = 'none'; }, duration);
 }
 
-
-
 // ************************************
 // Fungsi untuk Ketentuan dan Kebijakan
 // ************************************
@@ -1394,8 +1392,6 @@ function updateRowIcons(row, mode) {
         kirimIcon.classList.add('disabled');
     }
 }
-
-
 </script>
 </body>
 </html>
