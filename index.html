@@ -169,49 +169,32 @@ input:enabled, select:enabled { cursor: pointer; }
 button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/***************************/
 /* Tabel Ringkasan Pesanan */
-/***************************/
-.table-wrapper {
-    width: 100%;
-    max-height: 400px; /* Tinggi maksimum untuk scroll vertikal */
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    position: relative;
-}
 #orderTable {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 0;
-    table-layout: auto;
+    border-collapse: collapse;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    table-layout: auto;    /* Ubah dari fixed ke auto */
+    min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
 }
-/* Header yang tetap (sticky) */
-#orderTable thead { position: sticky; top: 0; z-index: 100; }
+#orderTable th, #orderTable td {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;  /* Mencegah teks pindah baris */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Pengaturan kolom field tabel */
 #orderTable th {
     background-color: #002266;
     color: white;
     text-align: center;
     font-weight: bold;
-    padding: 10px;
-    border: 1px solid #ddd;
-    white-space: nowrap;
     position: sticky;
     top: 0;
-}
-
-/* Body tabel dengan scroll vertikal */
-#orderTable tbody { display: block; max-height: 250px; overflow-y: auto; }
-#orderTable thead tr, #orderTable tbody tr { display: table; width: 100%; table-layout: fixed; }
-#orderTable td {
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    z-index: 10;
 }
 
 /* Perataan Text Field */
@@ -231,6 +214,15 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     text-align: center;
 }
 
+/* Input jumlah di tabel */
+#orderTable .qty-input {
+    width: 55px;
+    height: 25px;
+    text-align: center;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
 /* Wrapper untuk Tabel */
 .table-wrapper {
     width: 100%;
@@ -281,9 +273,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 
 /* Tabel Total */
-#orderTable tfoot td { font-weight: bold; background-color: #bebebe; position: sticky; bottom: 0; }
-/* Tabel Total yang tetap (sticky) */
-#orderTable tfoot { position: sticky; bottom: 0; z-index: 50; }
+#orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
 /* Summary Details */
 #summaryDetails {
     margin-top: 20px;       /* Jarak Summery details dengan tabel */
@@ -459,7 +449,18 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         border: 1px solid #ccc;
         border-radius: 3px;
     }
-
+    /* Wrapper untuk Tabel */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    /* Sorotan Baris */
+    #orderTable tbody tr:hover {
+        background-color: #f8f9fa;
+    }
     /* Delete Icon */
     .delete-icon { 
         display: none;
@@ -478,7 +479,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     }
     .delete-icon .fa-times {
         color: #6c757d;
-        font-size: 12px;
+        font-size: 14px;
         transition: color 0.3s ease;
     }
     .delete-icon:hover {
@@ -503,7 +504,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         z-index: 5;
     }
     .table-wrapper {
-        max-height: 300px;
         border: none;
     }
     #orderTable {
@@ -513,7 +513,12 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     #orderTable th, #orderTable td {
         padding: 6px 8px;
     }
-    
+    #orderTable .qty-input {
+        width: 45px;
+        height: 22px;
+        font-size: 12px;
+    }
+   
     /* Footer */
     .footer {
         flex-direction: column; /* Footer vertikal di handphone */
@@ -534,7 +539,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     /* Input dan Select yang Enabled */
     input:enabled, select:enabled { cursor: pointer; }
 }
-
 </style>  
 </head>
 
