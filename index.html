@@ -229,7 +229,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    /* border-radius: 5px; */
 }
 
 /* Sorotan Baris */
@@ -248,21 +248,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     justify-content: center;
     transition: background-color 0.3s ease;
 }
-#orderTable tbody tr:hover .delete-icon {
-    display: flex !important;
-    background-color: transparent;
-}
-.delete-icon .fa-times {
-    color: #b6b6b6;
-    font-size: 16px;
-    transition: color 0.3s ease;
-}
-.delete-icon:hover {
-    background-color: #dadada !important;
-}
-.delete-icon:hover .fa-times {
-    color: red !important;
-}
+#orderTable tbody tr:hover .delete-icon { display: flex !important; background-color: transparent; }
+.delete-icon .fa-times { color: #b6b6b6; font-size: 16px; transition: color 0.3s ease; }
+.delete-icon:hover { background-color: #dadada !important; }
+.delete-icon:hover .fa-times { color: red !important; }
 
 /* Tampilkan tooltip */
 .tooltip {
@@ -336,17 +325,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     cursor: pointer;
     font-weight: bold;
 }
-#setujuButton:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
+#setujuButton:disabled { background-color: #ccc; cursor: not-allowed; }
 
 #kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
 /* ----------------------------------*/
-/* Media Query untuk Handphone */
 @media (max-width: 768px) {
      /* Container Utama */
     .container {
@@ -375,19 +360,14 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         width: 100%;        /* Item <li> sekarang akan selebar container */
     }
     .navbar-nav:not(.mx-auto) .main-menu-link {
-        width: 100%;       /* Link <a> di dalamnya juga ikut membentang */
+        width: 25%;        /* 100%  Link <a> di dalamnya juga ikut membentang */
         text-align: left;  /* Pastikan teks tetap rata kiri */
     }
 
     /* Formulir */
     form  { display: flex; flex-direction: column; gap: 10px;  }
     label { font-size: 14px;}
-    input, select, button {
-        font-size: 14px;
-        padding: 8px;
-        width: 100%;
-        box-sizing: border-box;
-    }
+    input, select, button { font-size: 14px; padding: 8px; width: 100%; box-sizing: border-box; }
     /* Tombol */
     .button-group {
         flex-direction: column;  /* Tombol vertikal di handphone */
@@ -440,6 +420,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     #orderTable td:nth-child(9) {     
         text-align: center;
     }
+
     /* Input jumlah di tabel */
     #orderTable .qty-input {
         width: 55px;
@@ -458,9 +439,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         border-radius: 5px;
     }
     /* Sorotan Baris */
-    #orderTable tbody tr:hover {
-        background-color: #f8f9fa;
-    }
+    #orderTable tbody tr:hover { background-color: #f8f9fa; }
+
     /* Delete Icon */
     .delete-icon { 
         display: none;
@@ -474,20 +454,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         justify-content: center;
         transition: all 0.3s ease;
     }
-    #orderTable tbody tr:hover .delete-icon {
-        display: flex;
-    }
-    .delete-icon .fa-times {
-        color: #6c757d;
-        font-size: 14px;
-        transition: color 0.3s ease;
-    }
-    .delete-icon:hover {
-        background-color: #dadada;
-    }
-    .delete-icon:hover .fa-times {
-        color: red;
-    }
+    #orderTable tbody tr:hover .delete-icon { display: flex;}
+    .delete-icon .fa-times { color: #6c757d; font-size: 14px; transition: color 0.3s ease; }
+    .delete-icon:hover { background-color: #dadada; }
+    .delete-icon:hover .fa-times { color: red; }
+
     /* Edit Jumlah Item */
     .qty-input {
         width: 55px  !important; 
@@ -503,21 +474,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         bottom: 0;
         z-index: 5;
     }
-    .table-wrapper {
-        border: none;
-    }
-    #orderTable {
-        font-size: 12px;
-        min-width: 500px;
-    }
-    #orderTable th, #orderTable td {
-        padding: 6px 8px;
-    }
-    #orderTable .qty-input {
-        width: 45px;
-        height: 22px;
-        font-size: 12px;
-    }
+    .table-wrapper { border: none; }
+    #orderTable { font-size: 12px; min-width: 500px;}
+    #orderTable th, #orderTable td { padding: 6px 8px; }
+    #orderTable .qty-input { width: 45px; height: 22px; font-size: 12px; }
    
     /* Footer */
     .footer {
