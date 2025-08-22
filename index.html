@@ -170,85 +170,39 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* Tabel Ringkasan Pesanan */
-/* ========================================== */
-/* TABEL RINGKASAN PESANAN DENGAN SCROLL FIXED */
-/* ========================================== */
-.table-wrapper {
-    width: 100%;
-    max-height: 400px;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
 #orderTable {
     width: 100%;
     border-collapse: collapse;
-    margin: 0;
+    margin-top: 5px;
+    margin-bottom: 20px;
+    table-layout: auto;    /* Ubah dari fixed ke auto */
+    min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
+}
+#orderTable th, #orderTable td {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    white-space: nowrap;  /* Mencegah teks pindah baris */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Header yang tetap (sticky) */
-#orderTable thead {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-}
-
+/* Pengaturan kolom field tabel */
 #orderTable th {
     background-color: #002266;
     color: white;
     text-align: center;
     font-weight: bold;
-    padding: 10px;
-    border: 1px solid #ddd;
-    white-space: nowrap;
-}
-
-/* Body tabel dengan scroll */
-#orderTable tbody {
-    display: block;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-#orderTable thead, #orderTable tbody, #orderTable tfoot {
-    width: 100%;
-}
-
-#orderTable thead tr, #orderTable tbody tr, #orderTable tfoot tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-#orderTable td {
-    padding: 8px 10px;
-    border: 1px solid #ddd;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Footer yang tetap (sticky) */
-#orderTable tfoot {
     position: sticky;
-    bottom: 0;
-    z-index: 50;
+    top: 0;
+    z-index: 10;
 }
 
-#orderTable tfoot td {
-    font-weight: bold;
-    background-color: #a5b3c0;
-}
-
-/* Perataan Text Field - TETAP seperti sebelumnya */
+/* Perataan Text Field */
 #orderTable td:nth-child(1), 
 #orderTable td:nth-child(2), 
 #orderTable td:nth-child(3) {   
     text-align: left;
 }
-
 #orderTable td:nth-child(4), 
 #orderTable td:nth-child(5), 
 #orderTable td:nth-child(6), 
@@ -256,12 +210,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #orderTable td:nth-child(8) { 
     text-align: right;
 }
-
 #orderTable td:nth-child(9) {     
     text-align: center;
 }
 
-/* Input jumlah di tabel - TETAP seperti sebelumnya */
+/* Input jumlah di tabel */
 #orderTable .qty-input {
     width: 55px;
     height: 25px;
@@ -270,13 +223,19 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     border: 1px solid #ccc;
     border-radius: 3px;
 }
-
-/* Sorotan Baris - TETAP seperti sebelumnya */
-#orderTable tbody tr:hover {
-    background-color: #f8f9fa;
+/* Wrapper untuk Tabel */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
-/* Delete Icon - TETAP seperti sebelumnya */
+/* Sorotan Baris */
+#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
+
+/* Delete Icon Styles */
 .delete-icon { 
     display: none;
     margin: 0;
@@ -287,25 +246,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease;
 }
-
 #orderTable tbody tr:hover .delete-icon {
-    display: flex;
+    display: flex !important;
+    background-color: transparent;
 }
-
 .delete-icon .fa-times {
-    color: #6c757d;
-    font-size: 14px;
+    color: #b6b6b6;
+    font-size: 16px;
     transition: color 0.3s ease;
 }
-
 .delete-icon:hover {
-    background-color: #dadada;
+    background-color: #dadada !important;
 }
-
 .delete-icon:hover .fa-times {
-    color: red;
+    color: red !important;
 }
 
 /* Tampilkan tooltip */
@@ -442,25 +398,32 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
     }
 
-    /* Tabel Ringkasan Pesanan - Mobile */
-    .table-wrapper {
-        max-height: 300px;
-    }
-    #orderTable tbody {
-        max-height: 250px;
-    }
+    /* Tabel Ringkasan Pesanan */
     #orderTable {
-        font-size: 12px;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        table-layout: auto;    /* Ubah dari fixed ke auto */
+        min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
     }
     #orderTable th, #orderTable td {
-        padding: 6px 8px;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        white-space: nowrap;   /* Mencegah teks pindah baris */
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
-    #orderTable .qty-input {
-        width: 45px;
-        height: 22px;
-        font-size: 12px;
+    /* Pengaturan kolom field tabel */
+    #orderTable th {
+        background-color: #002266;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
-
     /* Perataan Text Field */
     #orderTable td:nth-child(1), 
     #orderTable td:nth-child(2), 
@@ -477,7 +440,23 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     #orderTable td:nth-child(9) {     
         text-align: center;
     }
-    
+    /* Input jumlah di tabel */
+    #orderTable .qty-input {
+        width: 55px;
+        height: 25px;
+        text-align: center;
+        padding: 2px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    /* Wrapper untuk Tabel */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
     /* Sorotan Baris */
     #orderTable tbody tr:hover {
         background-color: #f8f9fa;
