@@ -264,7 +264,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     color: red !important;
 }
 
-/* Pastikan tooltip tidak mengganggu */
+/* Tampilkan tooltip */
 .tooltip {
     position: relative;
     display: inline-flex;
@@ -398,13 +398,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
     }
 
-    /* Edit Jumlah Item */
-    .qty-input {
-        width: 55px  !important; 
-        height: 20px !important; 
-        font-size: 12px ; 
-    } 
-   
     /* Tabel Ringkasan Pesanan */
     #orderTable {
         width: 100%;
@@ -495,7 +488,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .delete-icon:hover .fa-times {
         color: red;
     }
-
+    /* Edit Jumlah Item */
+    .qty-input {
+        width: 55px  !important; 
+        height: 20px !important; 
+        font-size: 12px ; 
+    } 
+   
     /* Tabel Total */
     #orderTable tfoot td { 
         font-weight: bold; 
@@ -528,6 +527,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         text-align: left;
         padding: 10px;          /* Padding diperkecil */
     }
+
     /* Modal Ketentuan dan Kebijakan */
     .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
     .modal-content h2 { font-size: 18px; }
@@ -687,7 +687,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                     <th>Tot VP</th>         
                                     <th>Harga</th>
                                     <!-- Kolom "Aksi" dengan ikon tong sampah -->
-                                    <th><i class="fa-regular fa-trash-can"></i></th> 
+                                    <th>Aksi <i class="fa-regular fa-trash-can"></i></th> 
                                 </tr> 
                             </thead>
                             <!-- Baris Data item Tabel -->
