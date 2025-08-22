@@ -356,12 +356,12 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         margin-bottom: 1rem;
     }
     /* Membuat item menu utama vertikal membentang penuh */
-    .navbar-nav:not(.mx-auto) .nav-item {
-        width: 25%;        /* Item <li> sekarang akan selebar container */
+    .navbar-nav:not(.mx-auto) .nav-item { 
+        width: 100%;        /* Item <li> sekarang akan selebar container */
     }
     .navbar-nav:not(.mx-auto) .main-menu-link {
         width: 100%;        /* 100%  Link <a> di dalamnya juga ikut membentang */
-        text-align: left;  /* Pastikan teks tetap rata kiri */
+        text-align: left;   /* Pastikan teks tetap rata kiri */
     }
 
     /* Formulir */
@@ -469,7 +469,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     /* Tabel Total */
     #orderTable tfoot td { 
         font-weight: bold; 
-        font-size: 14px;
+        font-size: 12px;
         background-color: #a5b3c0; 
         position: sticky;
         bottom: 0;
