@@ -42,11 +42,11 @@
     <title>EstiH Tools - Estimasi Harga</title>
  
 <style>
-
 /* ------------------------------- */
 /* Pengaturan Umum Styles CSS Form */
 /* ------------------------------- */
 body {
+  /* background-image: url('../images/Header_WETools.jpg'); */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -65,7 +65,7 @@ body {
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    overflow-x: hidden;
+    overflow-x: hidden;                /* Pastikan tidak ada overflow horizontal */
 }
 h1 { text-align: center; color: #333; }
 
@@ -81,7 +81,10 @@ h1 { text-align: center; color: #333; }
     transition: color 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
 .main-menu-link:hover,
-.main-menu-link.active { color: #dc3545 !important; background-color: #dadada; }
+.main-menu-link.active { 
+    color: #dc3545 !important; 
+    background-color: #dadada;
+}
 
 /* Untuk membuat sudut navbar mengikuti card */
 .card > header:first-child > .navbar {
@@ -89,7 +92,7 @@ h1 { text-align: center; color: #333; }
     border-top-right-radius: var(--bs-card-border-radius);
 }
 /* Judul Header dan Menu */
-.brand-title { font-size: 12px; font-weight: bold; color: #023581; line-height: 1; }
+.brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
 
 /* Styling untuk Ikon Sosial Media */
@@ -107,7 +110,11 @@ h1 { text-align: center; color: #333; }
 .social-icon:hover i { color: #dc3545; }
 
 /* Form Styles */
-form { display: flex; flex-direction: column; gap: 10px; }
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
 label { font-weight: bold; margin-bottom: 0; }
 input, select, button {
@@ -131,7 +138,7 @@ input:enabled, select:enabled { cursor: pointer; }
     font-size: 14px;
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* agar icon dan teks tidak dempet */
 }
 .pesan-notif-icon {font-size: 18px;}
 .notification-error { background-color: #d9534f; color: white; }
@@ -146,7 +153,7 @@ input:enabled, select:enabled { cursor: pointer; }
     font-size: 14px;
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: 8px; /* agar icon dan teks tidak dempet */
 }
 .pesan-validasi-icon {font-size: 18px;}
 .validasi-error { background-color: #d9534f; color: white; }
@@ -154,17 +161,15 @@ input:enabled, select:enabled { cursor: pointer; }
 .validasi-warning { background-color: #f0ad4e; color: black; }
 
 /* Style spinner */
-#loadingSpinner { display: none; text-align: center; padding: 20px; }
-#loadingSpinner .spinner-border { width: 3rem; height: 3rem; border-width: 0.25em; }
+#loadingSpinner { display: none; text-align: center; padding: 0.1px; }
+#loadingSpinner .spinner-border { width: 2rem; height: 2rem; border-width: 0.2em; }
 
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
 button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* ========================================== */
-/* TABEL RINGKASAN PESANAN DENGAN SCROLL FIXED */
-/* ========================================== */
+/* Tabel Ringkasan Pesanan */
 /* ========================================== */
 /* TABEL RINGKASAN PESANAN DENGAN SCROLL FIXED */
 /* ========================================== */
@@ -175,14 +180,12 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     -webkit-overflow-scrolling: touch;
     border: 1px solid #ddd;
     border-radius: 5px;
-    position: relative;
 }
 
 #orderTable {
     width: 100%;
     border-collapse: collapse;
     margin: 0;
-    table-layout: auto; /* AUTO untuk lebar otomatis */
 }
 
 /* Header yang tetap (sticky) */
@@ -200,20 +203,23 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     padding: 10px;
     border: 1px solid #ddd;
     white-space: nowrap;
-    position: sticky;
-    top: 0;
 }
 
-/* Body tabel */
+/* Body tabel dengan scroll */
 #orderTable tbody {
-    display: table;
+    display: block;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#orderTable thead, #orderTable tbody, #orderTable tfoot {
     width: 100%;
 }
 
-#orderTable tr {
+#orderTable thead tr, #orderTable tbody tr, #orderTable tfoot tr {
     display: table;
     width: 100%;
-    table-layout: auto;
+    table-layout: fixed;
 }
 
 #orderTable td {
@@ -224,18 +230,38 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     text-overflow: ellipsis;
 }
 
-/* Perataan Text Field - HAPUS LEBAR PERSENTASE */
-#orderTable td:nth-child(1) { text-align: left; }      /* Item */
-#orderTable td:nth-child(2) { text-align: left; }      /* No Stok */
-#orderTable td:nth-child(3) { text-align: left; }      /* Nama Produk */
-#orderTable td:nth-child(4) { text-align: right; }     /* Harga Eceran */
-#orderTable td:nth-child(5) { text-align: right; }     /* Diskon */
-#orderTable td:nth-child(6) { text-align: center; }    /* Jumlah */
-#orderTable td:nth-child(7) { text-align: right; }     /* Tot VP */
-#orderTable td:nth-child(8) { text-align: right; }     /* Harga */
-#orderTable td:nth-child(9) { text-align: center; }    /* Aksi */
+/* Footer yang tetap (sticky) */
+#orderTable tfoot {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+}
 
-/* Input jumlah di tabel */
+#orderTable tfoot td {
+    font-weight: bold;
+    background-color: #a5b3c0;
+}
+
+/* Perataan Text Field - TETAP seperti sebelumnya */
+#orderTable td:nth-child(1), 
+#orderTable td:nth-child(2), 
+#orderTable td:nth-child(3) {   
+    text-align: left;
+}
+
+#orderTable td:nth-child(4), 
+#orderTable td:nth-child(5), 
+#orderTable td:nth-child(6), 
+#orderTable td:nth-child(7), 
+#orderTable td:nth-child(8) { 
+    text-align: right;
+}
+
+#orderTable td:nth-child(9) {     
+    text-align: center;
+}
+
+/* Input jumlah di tabel - TETAP seperti sebelumnya */
 #orderTable .qty-input {
     width: 55px;
     height: 25px;
@@ -243,29 +269,14 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     padding: 2px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    box-sizing: border-box;
 }
 
-/* Footer */
-#orderTable tfoot {
-    position: sticky;
-    bottom: 0;
-    z-index: 50;
-    background-color: #a5b3c0;
-}
-
-#orderTable tfoot td { 
-    font-weight: bold; 
-    position: sticky;
-    bottom: 0;
-}
-
-/* Sorotan Baris */
+/* Sorotan Baris - TETAP seperti sebelumnya */
 #orderTable tbody tr:hover {
     background-color: #f8f9fa;
 }
 
-/* Delete Icon */
+/* Delete Icon - TETAP seperti sebelumnya */
 .delete-icon { 
     display: none;
     margin: 0;
@@ -297,13 +308,23 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     color: red;
 }
 
+/* Tampilkan tooltip */
+.tooltip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tabel Total */
+#orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
 /* Summary Details */
 #summaryDetails {
-    margin-top: 20px;
-    text-align: right;
+    margin-top: 20px;       /* Jarak Summery details dengan tabel */
+    text-align: right;  
     font-size: 16px;
     font-weight: bold;
-    margin: 10px 0;
+    margin: 3px 9px;        /* Jarak Summery details antar baris dan jarak sisi kanan */
 }
 
 /* Footer */
@@ -359,71 +380,185 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     cursor: pointer;
     font-weight: bold;
 }
-#setujuButton:disabled { background-color: #ccc; cursor: not-allowed; }
+#setujuButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
 
 #kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
 /* ----------------------------------*/
+/* Media Query untuk Handphone */
 @media (max-width: 768px) {
-    /* Container Utama */
-    .container { width: 100%; padding: 10px; margin: 10px auto; box-sizing: border-box; }
-    
+     /* Container Utama */
+    .container {
+        width: 100%;
+        padding: 10px;
+        margin: 10px auto;
+        box-sizing: border-box;
+    }
     /* Header */
     .header img { width: 100%; height: auto; }
 
-    /* Navbar */
-    .navbar-collapse { align-items: stretch; padding-top: 1rem; }
+    /* stretch agar item bisa membentang penuh */
+    .navbar-collapse {
+    align-items: stretch;   
+    padding-top: 1rem;
+    }
+    /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
     .navbar-collapse .mx-auto {
         margin-left: 0 !important;
         margin-right: 0 !important;
         flex-direction: row;
         margin-bottom: 1rem;
     }
-    .navbar-nav:not(.mx-auto) .nav-item { width: 100%;}
-    .navbar-nav:not(.mx-auto) .main-menu-link { width: 100%; text-align: left; }
+    /* Membuat item menu utama vertikal membentang penuh */
+    .navbar-nav:not(.mx-auto) .nav-item {
+        width: 100%;        /* Item <li> sekarang akan selebar container */
+    }
+    .navbar-nav:not(.mx-auto) .main-menu-link {
+        width: 100%;       /* Link <a> di dalamnya juga ikut membentang */
+        text-align: left;  /* Pastikan teks tetap rata kiri */
+    }
 
     /* Formulir */
-    form { display: flex; flex-direction: column; gap: 10px; }
-    label { font-size: 14px; }
-    input, select, button { font-size: 14px; padding: 8px; width: 100%; box-sizing: border-box; }
-    
+    form  { display: flex; flex-direction: column; gap: 10px;  }
+    label { font-size: 14px;}
+    input, select, button {
+        font-size: 14px;
+        padding: 8px;
+        width: 100%;
+        box-sizing: border-box;
+    }
     /* Tombol */
-    .button-group { flex-direction: column; gap: 5px; }
-    .button-group button { width: 100%; margin-bottom: 5px; }
+    .button-group {
+        flex-direction: column;  /* Tombol vertikal di handphone */
+        gap: 5px;                /* Jarak antar tombol diperkecil */
+    }
+    .button-group button {
+        width: 100%;
+        margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
+    }
 
     /* Tabel Ringkasan Pesanan - Mobile */
     .table-wrapper {
         max-height: 300px;
-        border: none;
     }
-    
+    #orderTable tbody {
+        max-height: 250px;
+    }
     #orderTable {
-        font-size: 11px;
-        min-width: 100%; /* Ubah dari px ke % */
+        font-size: 12px;
     }
-    
     #orderTable th, #orderTable td {
-        padding: 4px 6px;
+        padding: 6px 8px;
     }
-    
     #orderTable .qty-input {
         width: 45px;
-        height: 20px;
-        font-size: 11px;
-    }
-    .delete-icon .fa-times {
+        height: 22px;
         font-size: 12px;
     }
 
+    /* Perataan Text Field */
+    #orderTable td:nth-child(1), 
+    #orderTable td:nth-child(2), 
+    #orderTable td:nth-child(3) {   
+        text-align: left;
+    }
+    #orderTable td:nth-child(4), 
+    #orderTable td:nth-child(5), 
+    #orderTable td:nth-child(6), 
+    #orderTable td:nth-child(7), 
+    #orderTable td:nth-child(8) { 
+        text-align: right;
+    }
+    #orderTable td:nth-child(9) {     
+        text-align: center;
+    }
+    
+    /* Sorotan Baris */
+    #orderTable tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    /* Delete Icon */
+    .delete-icon { 
+        display: none;
+        margin: 0;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    #orderTable tbody tr:hover .delete-icon {
+        display: flex;
+    }
+    .delete-icon .fa-times {
+        color: #6c757d;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+    .delete-icon:hover {
+        background-color: #dadada;
+    }
+    .delete-icon:hover .fa-times {
+        color: red;
+    }
+    /* Edit Jumlah Item */
+    .qty-input {
+        width: 55px  !important; 
+        height: 20px !important; 
+        font-size: 12px ; 
+    } 
+   
+    /* Tabel Total */
+    #orderTable tfoot td { 
+        font-weight: bold; 
+        background-color: #a5b3c0; 
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+    }
+    .table-wrapper {
+        border: none;
+    }
+    #orderTable {
+        font-size: 12px;
+        min-width: 500px;
+    }
+    #orderTable th, #orderTable td {
+        padding: 6px 8px;
+    }
+    #orderTable .qty-input {
+        width: 45px;
+        height: 22px;
+        font-size: 12px;
+    }
+   
     /* Footer */
-    .footer { flex-direction: column; gap: 5px; font-size: 12px; text-align: left; padding: 10px; }
+    .footer {
+        flex-direction: column; /* Footer vertikal di handphone */
+        gap: 3px;               /* Jarak antar baris diperkecil */
+        font-size: 12px;
+        text-align: left;
+        padding: 10px;          /* Padding diperkecil */
+    }
 
-    /* Modal */
-    .modal-content { width: 95%; margin: 5% auto; padding: 15px; }
+    /* Modal Ketentuan dan Kebijakan */
+    .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
     .modal-content h2 { font-size: 18px; }
     .modal-content p { font-size: 14px; }
+    /* Pesan Error dan Sukses */
+    #message { font-size: 12px;}
+    /* Input dan Select yang Disabled */
+    input:disabled, select:disabled { cursor: not-allowed; }
+    /* Input dan Select yang Enabled */
+    input:enabled, select:enabled { cursor: pointer; }
 }
 </style>  
 </head>
