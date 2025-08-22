@@ -749,9 +749,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
-    document.addEventListener('DOMContentLoaded', function() {
-        const tableBody = document.querySelector('#orderTable tbody');
-        
         // Delegasi event untuk hover
         tableBody.addEventListener('mouseover', function(e) {
             if (e.target.closest('tr')) {
@@ -780,8 +777,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll('.delete-icon').forEach(icon => {
             icon.style.display = 'none';
         });
-    });
-
+    
 
     // Event listener untuk tombol close Ketentuan dan Kebijakan
         document.querySelector('.close').addEventListener('click', hideKetentuanModal);
