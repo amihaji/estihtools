@@ -253,7 +253,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* Sorotan Baris */
 #orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
 
-/* Sembunyikan Icon "X" dari FontAwesome secara default */ 
+/* Delete Icon Styles */
 .delete-icon { 
     display: none;
     margin: 0;
@@ -266,26 +266,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     justify-content: center;
     transition: background-color 0.3s ease;
 }
-
-/* Menampilkan Icon "X" dari FontAwesome saat baris disorot */
 #orderTable tbody tr:hover .delete-icon {
-    display: flex !important;  /* Gunakan flex bukan inline-block */
+    display: flex !important;
     background-color: transparent;
 }
-
-/* Icon "X" dari FontAwesome */
 .delete-icon .fa-times {
     color: #210c97;
     font-size: 16px;
     transition: color 0.3s ease;
 }
-/* Hover effect untuk icon */
 .delete-icon:hover {
     background-color: #dadada !important;
 }
 .delete-icon:hover .fa-times {
     color: red !important;
 }
+
 /* Pastikan tooltip tidak mengganggu */
 .tooltip {
     position: relative;
@@ -869,7 +865,100 @@ function updateItem() {
 // *************************
 // Fungsi untuk nambah data
 // *************************
+// *************************
+// Fungsi untuk nambah data - VERSI DIPERBAIKI
+// *************************
 function addItem() {
+    console.log("Tombol TAMBAH diklik, mode edit:", isEditMode);
+    
+    // Jika sedang mode edit, jalankan update instead
+    if (isEditMode) {
+        updateItem();
+        return;
+    }
+    
+    const mDiscountSelect = document.getElementById('discount');
+    const mProductSelect = document.getElementById('product');
+    const mQuantity = parseInt(document.getElementById('quantity').value) || 0;
+    const mShippingSelect = document.getElementById('shipping');
+    const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
+
+    // Cek validasi inputan 
+    if (!validateForm()) return;
+
+    if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
+        showNotification('warning', 'PERHATIAN : Harap lengkapi pilihan diskon, produk dan jumlah');
+        return;
+    }
+
+    callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
+        const mTableBody = document.querySelector("#orderTable tbody");
+        const mDiscount = mDiscountSelect.value;
+
+        let mPriceAfterDiscount;
+        switch (mDiscount) {
+            case "0%": mPriceAfterDiscount = mProductData.HargaEceran; break;
+            case "25%": mPriceAfterDiscount = mProductData.Member25; break;
+            case "35%": mPriceAfterDiscount = mProductData.SC35; break;
+            case "42%": mPriceAfterDiscount = mProductData.SB42; break;
+            case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
+            default: mPriceAfterDiscount = mProductData.HargaEceran;
+        }
+
+        const mHarga = Math.round(mPriceAfterDiscount * mQuantity * 100) / 100;
+        const mTotVP = Math.round(mProductData.VP * mQuantity * 100) / 100;
+
+        // HITUNG NOMOR ITEM SEBELUM menambahkan baris
+        const itemNumber = mTableBody.children.length + 1;
+
+        // Buat baris baru dengan struktur yang benar
+        const mNewRow = document.createElement('tr');
+        mNewRow.setAttribute('data-kategori', mProductData.Kategori);
+        mNewRow.setAttribute('data-vp', mProductData.VP);
+        
+        mNewRow.innerHTML = `
+            <td>${itemNumber}</td>
+            <td>${mProductSelect.value}</td>
+            <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
+            <td>${formatCurrency(mProductData.HargaEceran)}</td>
+            <td>${formatCurrency(mPriceAfterDiscount)}</td>
+            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:65px; height:20px;"></td>
+            <td>${formatCurrency(mTotVP)}</td>
+            <td>${formatCurrency(mHarga)}</td>
+            <td>
+                <span class="delete-icon" onclick="deleteItem(this)" title="Hapus item">
+                    <i class="fas fa-times"></i>
+                </span>
+            </td>
+        `;
+
+        // Tambahkan baris ke tabel
+        mTableBody.appendChild(mNewRow);
+
+        // Panggil updateTotals() setelah menambah item
+        updateTotals();
+        document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
+        document.getElementById("kirimButton").disabled = false;
+
+        disableFields();
+        
+        // Simpan ke sheet hanya jika bukan edit mode
+        if (!isEditMode) {
+            saveOrderToSheet(collectOrderData())
+                .then(() => {
+                    showNotification('success', 'SUKSES : Item berhasil ditambahkan');
+                })
+                .catch(error => {
+                    showNotification('error', 'ERROR : Gagal menyimpan ke sheet');
+                });
+        }
+        
+    }).catch(error => {
+        showNotification('error', 'ERROR : '+ error.message);
+    });
+}
+
+function BAKCUP_addItem() {
     console.log("Tombol TAMBAH diklik, mode edit:", isEditMode);
     
     // Jika sedang mode edit, jalankan update instead
@@ -1161,9 +1250,6 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
 // *********************
 // Update Seluruh Total 
 // *********************
-// *********************
-// Update Seluruh Total 
-// *********************
 function updateTotals() {
   const rows      = document.querySelectorAll('#orderTable tbody tr');
   let totalJumlah = 0;
@@ -1193,46 +1279,6 @@ function updateTotals() {
 
     totalJumlah += qty;
     totalVP += rowTotalVP;
-    totalHarga += priceAfterDiscount * qty;
-  });
-
-  // Update footer tabel
-  document.getElementById('totalJumlah').textContent = totalJumlah;
-  document.getElementById('totalVP').textContent     = formatCurrency(totalVP);
-  document.getElementById('totalHarga').textContent  = formatCurrency(totalHarga);
-
-  // Update summary
-  const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
-  const tax          = 0;
-  const grandTotal   = totalHarga + shippingCost + tax;
-  document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
-  document.getElementById('tax').textContent          = formatCurrency(tax);
-  document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
-}
-
-function BACKUP_updateTotals() {
-  const rows      = document.querySelectorAll('#orderTable tbody tr');
-  let totalJumlah = 0;
-  let totalVP     = 0;
-  let totalHarga  = 0;
-
-  rows.forEach(row => {
-    // Ambil nilai jumlah dari input
-    const qtyInput = row.querySelector('.qty-input');
-    const qty      = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
-    
-    // Ambil VP per item dari atribut data
-    const vpPerItem = parseFloat(row.getAttribute('data-vp')) || 0;
-    
-    // Ambil harga setelah diskon (hilangkan format currency)
-    const priceAfterDiscount = parseFloat(
-      row.cells[4].textContent
-        .replace(/[^\d,]/g, '')
-        .replace(',', '.')
-    ) || 0;
-
-    totalJumlah += qty;
-    totalVP += vpPerItem * qty;
     totalHarga += priceAfterDiscount * qty;
   });
 
