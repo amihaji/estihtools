@@ -345,7 +345,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
     /* stretch agar item bisa membentang penuh */
     .navbar-collapse {
-    align-items: stretch;   
+    /* align-items: stretch;*/
+    align-items: flex-end;   
     padding-top: 1rem;
     }
     /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
@@ -360,7 +361,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         width: 100%;        /* Item <li> sekarang akan selebar container */
     }
     .navbar-nav:not(.mx-auto) .main-menu-link {
-        width: 25%;        /* 100%  Link <a> di dalamnya juga ikut membentang */
+        width: 100%;        /* 100%  Link <a> di dalamnya juga ikut membentang */
         text-align: left;  /* Pastikan teks tetap rata kiri */
     }
 
