@@ -161,7 +161,7 @@ input:enabled, select:enabled { cursor: pointer; }
 .validasi-warning { background-color: #f0ad4e; color: black; }
 
 /* Style spinner */
-#loadingSpinner { display: none; text-align: center; padding: 1px; }
+#loadingSpinner { display: none; text-align: center; padding: 0.1px; }
 #loadingSpinner .spinner-border { width: 2rem; height: 2rem; border-width: 0.2em; }
 
 /* Tombol */
@@ -1127,7 +1127,56 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
 // *********************
 // Update Seluruh Total 
 // *********************
+// *********************
+// Update Seluruh Total 
+// *********************
 function updateTotals() {
+  const rows      = document.querySelectorAll('#orderTable tbody tr');
+  let totalJumlah = 0;
+  let totalVP     = 0;
+  let totalHarga  = 0;
+
+  rows.forEach(row => {
+    // Ambil nilai jumlah dari input
+    const qtyInput = row.querySelector('.qty-input');
+    const qty      = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+    
+    // Ambil VP per item dari atribut data
+    const vpPerItem = parseFloat(row.getAttribute('data-vp')) || 0;
+    
+    // Ambil harga setelah diskon (hilangkan format currency)
+    const priceAfterDiscount = parseFloat(
+      row.cells[4].textContent
+        .replace(/[^\d,]/g, '')
+        .replace(',', '.')
+    ) || 0;
+
+    // HITUNG TOTAL VP UNTUK BARIS INI
+    const rowTotalVP = vpPerItem * qty;
+    
+    // UPDATE TAMPILAN KOLOM "Tot VP" (kolom ke-7)
+    row.cells[6].textContent = formatCurrency(rowTotalVP);
+
+    totalJumlah += qty;
+    totalVP += rowTotalVP;
+    totalHarga += priceAfterDiscount * qty;
+  });
+
+  // Update footer tabel
+  document.getElementById('totalJumlah').textContent = totalJumlah;
+  document.getElementById('totalVP').textContent     = formatCurrency(totalVP);
+  document.getElementById('totalHarga').textContent  = formatCurrency(totalHarga);
+
+  // Update summary
+  const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
+  const tax          = 0;
+  const grandTotal   = totalHarga + shippingCost + tax;
+  document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
+  document.getElementById('tax').textContent          = formatCurrency(tax);
+  document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
+}
+
+function BACKUP_updateTotals() {
   const rows      = document.querySelectorAll('#orderTable tbody tr');
   let totalJumlah = 0;
   let totalVP     = 0;
