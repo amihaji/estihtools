@@ -172,72 +172,64 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* Tabel Ringkasan Pesanan */
 #orderTable {
     width: 100%;
-    max-width: 100%;             /* Maksimum lebar tabel adalah 100% dari container */
-    overflow-x: auto;            /* Tambahkan scroll horizontal jika tabel terlalu lebar */
-    border-collapse: collapse;   /* Gabungkan border sel */
+    border-collapse: collapse;
     margin-top: 5px;
     margin-bottom: 20px;
-    box-sizing: border-box;      /* Pastikan padding dan border termasuk dalam lebar */
-    table-layout: fixed;         /* Lebar kolom diatur secara proporsional */
-    border: 1px solid #ddd;    /* Tambahkan border untuk seluruh tabel */
+    table-layout: auto;    /* Ubah dari fixed ke auto */
+    min-width: 600px;      /* Lebar minimum untuk mencegah terlalu kecil */
 }
-
-/* Wrapper untuk Tabel (Agar Scroll Horizontal Bekerja) */
-.table-wrapper {
-    width: 100%;
-    overflow-x: auto;                  /* Aktifkan scroll horizontal jika tabel terlalu lebar */
-    -webkit-overflow-scrolling: touch; /* Smooth scroll di mobile */
-}
-
 #orderTable th, #orderTable td {
-    padding: 10px;
+    padding: 8px 10px;
     border: 1px solid #ddd;
-    word-wrap: break-word;       /* Memastikan teks tidak meluber */
+    white-space: nowrap;  /* Mencegah teks pindah baris */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Pengaturan kolom field tabel */
 #orderTable th {
-    background-color: #002266;   /* Warna biru tua */
-    color: white;                /* Font putih     */
-    text-align: center;          
+    background-color: #002266;
+    color: white;
+    text-align: center;
     font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
-/* Mengatur lebar kolom tabel */
-#orderTable th:nth-child(1),    /* Kolom "Item" */
-#orderTable td:nth-child(1) { width: 6ch; max-width: 6ch; }
-
-#orderTable th:nth-child(2),    /* Kolom "No Stok" */
-#orderTable td:nth-child(2) { width: 10ch;max-width: 10ch; }
-
-#orderTable th:nth-child(3),    /* Kolom "Nama Produk" */
-#orderTable td:nth-child(3) { width: 30ch; max-width: 30ch; }
-
-#orderTable td:nth-child(3) {   /* Kolom "Nama Produk" */
-    white-space: nowrap;        /* Mencegah teks pindah ke baris baru */
-    overflow: hidden;           /* Sembunyikan teks yang meluber */
-    text-overflow: ellipsis;    /* Tambahkan ellipsis (...) jika teks terlalu panjang */
-}
-
-/* Atur Lebar Kolom : Harga Eceran, Diskon, Jumlah, Tot VP, Harga, Tong Sampah */
-#orderTable td:nth-child(4) { width: 14ch; max-width: 14ch; }
-#orderTable td:nth-child(5) { width: 14ch; max-width: 14ch; }
-#orderTable td:nth-child(6) { width: 10ch; max-width: 10ch; }
-#orderTable td:nth-child(7) { width: 10ch; max-width: 10ch; }
-#orderTable td:nth-child(8) { width: 14ch; max-width: 14ch; }
-#orderTable td:nth-child(9) { width: 6ch; max-width: 6ch; }
-
-/* Perataan Text Field Kolom : Item, No Stok, Nama Produk */
-#orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) {   
+/* Perataan Text Field */
+#orderTable td:nth-child(1), 
+#orderTable td:nth-child(2), 
+#orderTable td:nth-child(3) {   
     text-align: left;
 }
-/* Perataan Text Field kolom : Harga Eceran, Diskon, Jumlah, Tot VP, Harga */
-#orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) { 
+#orderTable td:nth-child(4), 
+#orderTable td:nth-child(5), 
+#orderTable td:nth-child(6), 
+#orderTable td:nth-child(7), 
+#orderTable td:nth-child(8) { 
     text-align: right;
 }
-/* Perataan Text Field kolom : tong sampah */
 #orderTable td:nth-child(9) {     
     text-align: center;
+}
+
+/* Input jumlah di tabel */
+#orderTable .qty-input {
+    width: 55px;
+    height: 25px;
+    text-align: center;
+    padding: 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+/* Wrapper untuk Tabel */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #ddd;
+    border-radius: 5px;
 }
 
 /* Sorotan Baris */
@@ -412,28 +404,122 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         height: 20px !important; 
         font-size: 12px ; 
     } 
-    /* Tabel */
+   
+    /* Tabel Ringkasan Pesanan */
+    #orderTable {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        table-layout: auto; /* Ubah dari fixed ke auto */
+        min-width: 600px; /* Lebar minimum untuk mencegah terlalu kecil */
+    }
+    #orderTable th, #orderTable td {
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        white-space: nowrap; /* Mencegah teks pindah baris */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    /* Pengaturan kolom field tabel */
+    #orderTable th {
+        background-color: #002266;
+        color: white;
+        text-align: center;
+        font-weight: bold;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    /* Perataan Text Field */
+    #orderTable td:nth-child(1), 
+    #orderTable td:nth-child(2), 
+    #orderTable td:nth-child(3) {   
+        text-align: left;
+    }
+    #orderTable td:nth-child(4), 
+    #orderTable td:nth-child(5), 
+    #orderTable td:nth-child(6), 
+    #orderTable td:nth-child(7), 
+    #orderTable td:nth-child(8) { 
+        text-align: right;
+    }
+    #orderTable td:nth-child(9) {     
+        text-align: center;
+    }
+    /* Input jumlah di tabel */
+    #orderTable .qty-input {
+        width: 55px;
+        height: 25px;
+        text-align: center;
+        padding: 2px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+    }
+    /* Wrapper untuk Tabel */
     .table-wrapper {
         width: 100%;
         overflow-x: auto;
-        -webkit-overflow-scrolling: touch; /* Smooth scroll di mobile */
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    /* Sorotan Baris */
+    #orderTable tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    /* Delete Icon */
+    .delete-icon { 
+        display: none;
+        margin: 0;
+        cursor: pointer;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+    #orderTable tbody tr:hover .delete-icon {
+        display: flex;
+    }
+    .delete-icon .fa-times {
+        color: #6c757d;
+        font-size: 14px;
+        transition: color 0.3s ease;
+    }
+    .delete-icon:hover {
+        background-color: #dadada;
+    }
+    .delete-icon:hover .fa-times {
+        color: red;
+    }
+
+    /* Tabel Total */
+    #orderTable tfoot td { 
+        font-weight: bold; 
+        background-color: #a5b3c0; 
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+    }
+    .table-wrapper {
+        border: none;
     }
     #orderTable {
-        min-width: 100%;        /* Tabel menyesuaikan lebar layar */
+        font-size: 12px;
+        min-width: 500px;
+    }
+    #orderTable th, #orderTable td {
+        padding: 6px 8px;
+    }
+    #orderTable .qty-input {
+        width: 45px;
+        height: 22px;
         font-size: 12px;
     }
-    #orderTable th,
-    #orderTable td {
-        padding: 6px;           /* Padding diperkecil */
-    }
-    /* Ringkasan Pesanan */
-    #orderSummary {
-        margin-top: 20px;
-    }
-    #summaryDetails {
-        font-size: 12px;
-        margin: 3px 50;          /* Jarak antar baris diperkecil */
-    }
+   
     /* Footer */
     .footer {
         flex-direction: column; /* Footer vertikal di handphone */
