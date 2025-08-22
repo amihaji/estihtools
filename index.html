@@ -254,12 +254,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .delete-icon:hover .fa-times { color: red !important; }
 
 /* Tampilkan tooltip */
-.tooltip {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
+.tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; }
 
 /* Tabel Total */
 #orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
@@ -276,7 +271,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .footer {
     background-color: #002266;  
     color: white;
-    padding: 15px;
+    padding: 5px;
     margin-top: 20px;
     border-radius: 8px;
     display: flex;
@@ -344,10 +339,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .header img { width: 100%; height: auto; }
 
     /* stretch agar item bisa membentang penuh */
-    .navbar-collapse {
-    align-items:stretch;
-    padding-top: 1rem;
-    }
+    .navbar-collapse { align-items:stretch; padding-top: 1rem; }
     /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
     .navbar-collapse .mx-auto {
         margin-left: 0 !important;
@@ -359,24 +351,17 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .navbar-nav:not(.mx-auto) .nav-item { 
         width: 100%;        /* Item <li> sekarang akan selebar container */
     }
-    .navbar-nav:not(.mx-auto) .main-menu-link {
-        width: 100%;        /* 100%  Link <a> di dalamnya juga ikut membentang */
-        text-align: left;   /* Pastikan teks tetap rata kiri */
-    }
+    /* Link <a> di dalamnya juga ikut membentang  dan rata kiri */
+    .navbar-nav:not(.mx-auto) .main-menu-link { width: 100%; text-align: left; }
 
     /* Formulir */
     form  { display: flex; flex-direction: column; gap: 10px;  }
     label { font-size: 14px;}
     input, select, button { font-size: 14px; padding: 8px; width: 100%; box-sizing: border-box; }
-    /* Tombol */
-    .button-group {
-        flex-direction: column;  /* Tombol vertikal di handphone */
-        gap: 5px;                /* Jarak antar tombol diperkecil */
-    }
-    .button-group button {
-        width: 100%;
-        margin-bottom: 5px;      /* Jarak antar tombol diperkecil */
-    }
+    
+    /* Tombol Vertikal dan jarak antar tombol */
+    .button-group { flex-direction: column; gap: 5px; }
+    .button-group button { width: 100%; margin-bottom: 5px; }
 
     /* Tabel Ringkasan Pesanan */
     #orderTable {
@@ -460,11 +445,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .delete-icon:hover .fa-times { color: red; }
 
     /* Edit Jumlah Item */
-    .qty-input {
-        width: 55px  !important; 
-        height: 20px !important; 
-        font-size: 12px ; 
-    } 
+    .qty-input { width: 55px  !important; height: 20px !important; font-size: 12px ;} 
    
     /* Tabel Total */
     #orderTable tfoot td { 
@@ -480,13 +461,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     #orderTable th, #orderTable td { padding: 6px 8px; }
     #orderTable .qty-input { width: 45px; height: 22px; font-size: 12px; }
    
-    /* Summary Details */
+    /* Summary Details dan pengaturan jarak */
     #summaryDetails {
-        margin-top: 20px;       /* Jarak Summery details dengan tabel */
+        /* margin-top: 20px; */       
         text-align: right;  
         font-size: 12px;
         font-weight: bold;
-        margin: 3px 9px;        /* Jarak Summery details antar baris dan jarak sisi kanan */
+        /* margin: 3px 9px; */        
     }
 
     /* Footer */
