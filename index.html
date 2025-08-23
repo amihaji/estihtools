@@ -317,8 +317,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* @media (max-width: 768px) { */
 @media (max-width: 991.98px) {
     /* Ukuran Icon navbar toggler */
+    .navbar-toggler-icon {
+       padding: 0;    
+       border: none;  
+       background-size: 100%; /* Pastikan ikon mengisi seluruh area */
+    }
+    /* padding tombol lebih kecil */
     .navbar-toggler {
-       /* padding tombol lebih kecil */
        padding-left: 30px;   
        padding-right: 30px;
        border: 1px solid #ccc; /* Border tipis */
