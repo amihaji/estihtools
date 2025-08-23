@@ -316,8 +316,16 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* ----------------------------------*/
 /* @media (max-width: 768px) { */
 @media (max-width: 991.98px) {
+    /* Ukuran Icon navbar toggler */
     .navbar-toggler-icon {
-       border-block-end-width: 10px ;
+       width: 1.2em;  /* Ukuran lebih kecil */
+       height: 1.2em; /* Ukuran lebih kecil */
+       padding: 0;    /* Hapus padding */
+       border: none;  /* Hapus border */
+    }
+    .navbar-toggler {
+       padding: 0.25rem; /* Padding tombol lebih kecil */
+       border: 1px solid #ccc; /* Border tipis */
     }
     /* stretch agar item bisa membentang penuh */
     .navbar-collapse { align-items:stretch; padding-top: 1rem; }
