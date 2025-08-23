@@ -317,6 +317,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* @media (max-width: 768px) { */
 @media (max-width: 991.98px) {
     /* stretch agar item bisa membentang penuh */
+    .navbar-toggler-icon {
+       width: 24px; 
+       height: 24px;
+    }
     .navbar-collapse { align-items:stretch; padding-top: 1rem; }
     /* Mengatur ulang posisi ikon medsos di mobile agar tetap di atas */
     .navbar-collapse .mx-auto {
@@ -333,7 +337,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .navbar-nav:not(.mx-auto) .main-menu-link { width: 100%; text-align: left; }
 
     /* Formulir */
-    
     form  { display: flex; flex-direction: column; gap: 10px;  }
     label { font-size: 14px;}
     input, select, button { font-size: 14px; padding: 8px; width: 100%; box-sizing: border-box; }
