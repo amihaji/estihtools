@@ -311,6 +311,33 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
 #kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
+
+/* -------------------*/
+/* About Form Overlay */
+/* -------------------*/
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  display: none; /* Hidden by default */
+}
+.about-form {
+  width: 100%;
+  max-width: 350px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
 /* ----------------------------------*/
 /* Responsive Design untuk Handphone */
 /* ----------------------------------*/
@@ -674,6 +701,20 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <button id="setujuButton" disabled>SETUJU</button>
                     </div>
                 </div>
+
+                <!-- About Overlay -->
+                <div class="about-overlay" id="aboutOverlay">
+                    <div class="about-form">
+                        <h5 class="mb-2">Aplikasi EstihTools Versi 7.0</h5>
+                        <br>Copyright © 2025 <a href="https://www.beratidealku.com" class="text-black">www.beratidealku.com</a>
+                        <br>Allright Reserved
+                        <br>Simulasi Estimasi Harga Tools
+                        <div class="d-grid mt-4">
+                        <button id="btnCloseAbout" class="btn btn-primary">OK</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>  
     </div>  
@@ -878,9 +919,6 @@ function updateItem() {
 // *************************
 // Fungsi untuk nambah data
 // *************************
-// *************************
-// Fungsi untuk nambah data - VERSI DIPERBAIKI
-// *************************
 function addItem() {
     console.log("Tombol TAMBAH diklik, mode edit:", isEditMode);
     
@@ -970,85 +1008,6 @@ function addItem() {
         showNotification('error', 'ERROR : '+ error.message);
     });
 }
-
-function BAKCUP_addItem() {
-    console.log("Tombol TAMBAH diklik, mode edit:", isEditMode);
-    
-    // Jika sedang mode edit, jalankan update instead
-    if (isEditMode) {
-        updateItem();
-        return;
-    }
-    const mDiscountSelect = document.getElementById('discount');
-    const mProductSelect  = document.getElementById('product');
-    const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
-    const mShippingSelect = document.getElementById('shipping');
-    const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
-
-    // Cek validasi inputan 
-    if (!validateForm()) return;
-
-    if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
-        showNotification('warning', 'PERHATIAN : Harap lengkapi pilihan diskon, produk dan jumlah');
-        return;
-    }
-
-    callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
-        const mTableBody = document.querySelector("#orderTable tbody");
-        const mDiscount = mDiscountSelect.value;
-
-        let mPriceAfterDiscount;
-        switch (mDiscount) {
-        case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
-        case "25%": mPriceAfterDiscount = mProductData.Member25; break;
-        case "35%": mPriceAfterDiscount = mProductData.SC35; break;
-        case "42%": mPriceAfterDiscount = mProductData.SB42; break;
-        case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-        default:    mPriceAfterDiscount = mProductData.HargaEceran;
-        }
-
-        const mHarga = Math.round(mPriceAfterDiscount * mQuantity * 100) / 100;
-        const mTotVP = Math.round(mProductData.VP * mQuantity * 100) / 100;
-
-        // Simpan kategori & VP sebagai atribut row
-        const mNewRow = `
-        <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
-            <td>${mTableBody.rows.length + 1}</td>
-            <td>${mProductSelect.value}</td>
-            <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-            <td>${formatCurrency(mProductData.HargaEceran)}</td>
-            <td>${formatCurrency(mPriceAfterDiscount)}</td>
-        
-            <!-- UNTUK EDIT JUMLAH ITEM -->
-            <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:65px; height:20px;"></td>
-            <td>${formatCurrency(mTotVP)}</td>
-            <td>${formatCurrency(mHarga)}</td>
-            
-            <!-- ICON UNTUK HAPUS DATA -->
-            <td>
-                <span class="delete-icon" onclick="deleteItem(this)" title="Hapus item">
-                    <i class="fas fa-times"></i>
-                </span>
-            </td>
-        </tr>
-        `;
-
-        // Panggil updateTotals() setelah menambah item
-        updateTotals();
-        document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-        document.getElementById("kirimButton").disabled = false;
-
-        disableFields();
-        // Simpan ke sheet hanya jika bukan edit mode
-        if (!isEditMode) {
-        saveOrderToSheet(collectOrderData());
-        showNotification('success', 'SUKSES : Item berhasil ditambahkan');
-        }
-        
-    }).catch(error => {
-        showNotification('error', 'ERROR : '+ error.message );
-    });
-}  
 
 // *************************
 // Validasi inputan di Form 
@@ -1449,6 +1408,28 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
     });
 });
 
+// **********************
+// Mengupdate Baris Icon
+// *********************
+function updateRowIcons(row, mode) {
+    const icons = row.querySelectorAll('.action-icon');
+    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
+
+    if (mode === 'unlock') {
+        editIcon.classList.add('disabled');
+        aktifasiIcon.classList.add('disabled');
+        delIcon.classList.add('disabled');
+        unlockIcon.classList.add('disabled');
+        kirimIcon.classList.remove('disabled');
+    } else if (mode === 'kirim') {
+        editIcon.classList.remove('disabled');
+        aktifasiIcon.classList.remove('disabled');
+        delIcon.classList.remove('disabled');
+        unlockIcon.classList.add('disabled');
+        kirimIcon.classList.add('disabled');
+    }
+}
+
 // ********************************
 // Fungsi untuk menformat currency
 // ********************************
@@ -1582,27 +1563,34 @@ function hideKetentuanModal() {
     modal.style.display = 'none';
 }
 
-// **********************
-// Mengupdate Baris Icon
-// *********************
-function updateRowIcons(row, mode) {
-    const icons = row.querySelectorAll('.action-icon');
-    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
-
-    if (mode === 'unlock') {
-        editIcon.classList.add('disabled');
-        aktifasiIcon.classList.add('disabled');
-        delIcon.classList.add('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.remove('disabled');
-    } else if (mode === 'kirim') {
-        editIcon.classList.remove('disabled');
-        aktifasiIcon.classList.remove('disabled');
-        delIcon.classList.remove('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.add('disabled');
-    }
+// *******************
+// Fungsi Show About form
+// ****************
+function showAbout() {
+  document.getElementById('aboutOverlay').style.display = 'flex';
 }
+
+// *****************
+// Fungsi Hide About form
+// ****************
+function hideAbout() {
+  document.getElementById('aboutOverlay').style.display = 'none';
+}
+
+// *********************************
+// Fungsi Event untuk tampilan About
+// *********************************
+document.addEventListener('DOMContentLoaded', function () {
+  // Event listener untuk tombol About
+  document.querySelector('a[href="#about"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    showAbout();
+  }); 
+  // Event listener untuk tombol Close About
+  document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
+});
+
+
 </script>
 </body>
 </html>
