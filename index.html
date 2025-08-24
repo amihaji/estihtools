@@ -60,6 +60,17 @@ body {
 .header { text-align: center; margin-bottom: 20px; }
 .header img { max-width: 100%; height: auto; border-radius: 8px; }
 
+
+/*****************************/
+/* Styling untuk Menu Utama */
+/****************************/
+
+/* Untuk membuat sudut navbar mengikuti card */
+.card > header:first-child > .navbar {
+    border-top-left-radius: var(--bs-card-border-radius);
+    border-top-right-radius: var(--bs-card-border-radius);
+}
+
 /* Styling untuk Menu Utama */
 .main-menu-link {
     font-weight: 500;
@@ -73,11 +84,6 @@ body {
     background-color: #dadada;
 }
 
-/* Untuk membuat sudut navbar mengikuti card */
-.card > header:first-child > .navbar {
-    border-top-left-radius: var(--bs-card-border-radius);
-    border-top-right-radius: var(--bs-card-border-radius);
-}
 /* Judul Header dan Menu */
 .brand-title { font-size: 12px; font:bold; color: #023581; line-height: 1; }
 .brand-subtitle { font-size: 10px; color: #6c757d; line-height: 1; }
@@ -96,7 +102,9 @@ body {
 .social-icon:hover { background-color: #dadada; }
 .social-icon:hover i { color: #dc3545; }
 
+/***************/
 /* Form Styles */
+/***************/
 form {
     display: flex;
     flex-direction: column;
@@ -111,13 +119,14 @@ input, select, button {
     width: 100%;
     box-sizing: border-box;
 }
-
 /* Mengatur kursor saat field dalam keadaan disabled */
 input:disabled, select:disabled { cursor: not-allowed; }
 /* Mengatur kursor saat field dalam keadaan enabled */
 input:enabled, select:enabled { cursor: pointer; }
 
+/**************************/
 /* Notifikasi Message Box */
+/**************************/
 .notification-message {
     padding: 10px 15px;
     border-radius: 6px;
@@ -132,7 +141,9 @@ input:enabled, select:enabled { cursor: pointer; }
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
+/**********************/
 /* Pesan Validasi Box */
+/**********************/
 .validasi-message {
     padding: 10px 15px;
     border-radius: 6px;
@@ -156,7 +167,9 @@ input:enabled, select:enabled { cursor: pointer; }
 button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
 #btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
+/***************************/
 /* Tabel Ringkasan Pesanan */
+/***************************/
 #orderTable {
     width: 100%;
     border-collapse: collapse;
@@ -254,7 +267,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     margin: 3px 9px;        /* Jarak Summery details antar baris dan jarak sisi kanan */
 }
 
-/* Footer */
+/*******************/
+/* Tampilan Footer */
+/*******************/
 .footer {
     background-color: #002266;  
     color: white;
@@ -270,9 +285,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .footer a { color: white; text-decoration: none; }
 .footer a:hover { color: red; }
 
-/* -----------------------------------*/
+/**************************************/
 /* Modal Form Ketentuan dan Kebijakan */
-/*------------------------------------*/
+/**************************************/
 .modal {
     display: none;
     position: fixed;
@@ -312,9 +327,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 
-/* -------------------*/
+/**********************/
 /* About Form Overlay */
-/* -------------------*/
+/**********************/
 .about-overlay {
   position: fixed;
   top: 0;
@@ -338,9 +353,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
   text-align: center;
 }
 
-/* ----------------------------------*/
+/*************************************/
 /* Responsive Design untuk Handphone */
-/* ----------------------------------*/
+/*************************************/
 /* @media (max-width: 768px) { */
 @media (max-width: 991.98px) {
     /* Ukuran Icon navbar toggler */
@@ -1563,16 +1578,16 @@ function hideKetentuanModal() {
     modal.style.display = 'none';
 }
 
-// *******************
+// ***********************
 // Fungsi Show About form
-// ****************
+// ***********************
 function showAbout() {
   document.getElementById('aboutOverlay').style.display = 'flex';
 }
 
-// *****************
+// ***********************
 // Fungsi Hide About form
-// ****************
+// ***********************
 function hideAbout() {
   document.getElementById('aboutOverlay').style.display = 'none';
 }
