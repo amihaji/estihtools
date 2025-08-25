@@ -170,6 +170,21 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /***************************/
 /* Tabel Ringkasan Pesanan */
 /***************************/
+
+/* batas tinggi tabel sebelum muncul scroll */
+.table-container {
+  max-height: 400px;        
+  overflow-y: auto;         /* aktifkan scroll vertical */
+  border: 1px solid #ccc; /* opsional */
+}
+/* Sticky header */
+.table-container thead th {
+  position: sticky;
+  top: 0;
+  background: #f4f4f4; /* warna header */
+  z-index: 2;
+}
+
 #orderTable {
     width: 100%;
     border-collapse: collapse;
@@ -651,6 +666,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     </div>
                     <h5>Ringkasan Pesanan</h5>
                     <div class="table-wrapper">
+                        <div class="table-container">
                         <table id="orderTable">  
                             <!-- Kolom Tabel : Judul Nama Field -->
                             <thead>
@@ -682,6 +698,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                 </tr>
                             </tfoot>
                         </table>
+                        </div>
                     </div>    
                    <!-- </div> -->
 
