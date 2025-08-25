@@ -597,44 +597,62 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                    <label for="date">Tanggal:</label>
-                    <input type="date" id="date" name="date" readonly>
+                   
+                    <div class="form-group">
+                        <label for="product">Nama Produk:</label>
+                        <select id="product" name="product" required>
+                            <!-- Opsi akan diisi oleh JavaScript -->
+                        </select>
+                    </div>
 
-                    <label for="invoice">Simulasi No.:</label>
-                    <input type="text" id="invoice" name="invoice" readonly>
+                    <div class="form-group">
+                        <label for="quantity">Jumlah:</label>
+                        <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Diskon:</label>
+                        <select id="discount" name="discount" required>
+                            <!-- Opsi akan diisi oleh JavaScript -->
+                        </select>
+                    </div>
+                    <div class="form-group"> 
+                        <label for="shipping">By Pengiriman:</label>
+                        <select id="shipping" name="shipping" required>
+                            <!-- Opsi akan diisi oleh JavaScript -->
+                        </select>
+                    </div>
 
-                    <label for="distributorName">Nama Member:</label>
-                    <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-
-                    <label for="distributorPhone">No. HP Member:</label>
-                    <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-
-                    <label for="consumerName">Nama Konsumen:</label>
-                    <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-
-                    <label for="consumerPhone">No. HP Konsumen:</label>
-                    <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-
-                    <label for="consumerEmail">Email Konsumen:</label>
-                    <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
-
-                    <label for="discount">Diskon:</label>
-                    <select id="discount" name="discount" required>
-                        <!-- Opsi akan diisi oleh JavaScript -->
-                    </select>
-
-                    <label for="product">Nama Produk:</label>
-                    <select id="product" name="product" required>
-                        <!-- Opsi akan diisi oleh JavaScript -->
-                    </select>
-
-                    <label for="quantity">Jumlah:</label>
-                    <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
-
-                    <label for="shipping">By Pengiriman:</label>
-                    <select id="shipping" name="shipping" required>
-                        <!-- Opsi akan diisi oleh JavaScript -->
-                    </select>
+                    <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
+                    <div id="memberSection" style="display:none;">
+                        <div class="form-group">
+                            <label for="date">Tanggal:</label>
+                            <input type="date" id="date" name="date" readonly>
+                        </div> 
+                        <div class="form-group">
+                            <label for="invoice">Simulasi No.:</label>
+                            <input type="text" id="invoice" name="invoice" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="distributorName">Nama Member:</label>
+                            <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="distributorPhone">No. HP Member:</label>
+                            <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="consumerName">Nama Konsumen:</label>
+                            <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                        </div>
+                        <div class="form-group">
+                            <label for="consumerPhone">No. HP Konsumen:</label>
+                            <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                        </div>
+                        <div class="form-group">
+                            <label for="consumerEmail">Email Konsumen:</label>
+                            <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                        </div>
+                    </div>     
                     
                     <!-- Pesan Notifikasi -->
                     <div id="notificationBox" class="notification-message w-100 mb-2" style="display: none;">
@@ -654,7 +672,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <i class="fas fa-edit"></i> UPDATE
                         </button>
                         <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
-                        <button type="button" class="btn btn-success" id="kirimButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> KIRIM</button>
+                        <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> SUBMIT</button>
                     </div>
                 </form>
 
