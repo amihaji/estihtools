@@ -623,7 +623,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     </div>
 
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
-                    <div id="memberSection" style="display:none;">
+                    <div id="inputanSection" style="display:none; margin-top:5px;">    
                         <div class="form-group">
                             <label for="date">Tanggal:</label>
                             <input type="date" id="date" name="date" readonly>
@@ -1426,20 +1426,108 @@ function saveOrderToSheet(orderData) {
 }
 
 // *******************************************
-// Kirim (simpan terakhir ke sheet + email/WA)
+// Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
+// Fungsi Submit / Kirim
 function submitForm() {
-  const orderData = collectOrderData();
-  saveOrderToSheet(orderData).then(() => {
+    const kirimBtn = document.getElementById("kirimButton");
+
+    // Mode 1: Pertama kali ditekan → jadi "KIRIM"
+    if (kirimBtn.textContent === "Submit") {
+        // Disable semua input produk
+        document.getElementById("product").disabled = true;
+        document.getElementById("quantity").disabled = true;
+        document.getElementById("discount").disabled = true;
+        document.getElementById("shipping").disabled = true;
+        document.getElementById("btnAction").disabled = true;
+
+        // Tampilkan inputan Member & Konsumen
+        document.getElementById("inputanSection").style.display = "block";
+
+        // Ubah tombol jadi "KIRIM"
+        kirimBtn.textContent = "KIRIM";
+
+        return; // stop di sini (belum kirim ke email/wa)
+    }
+
+    // Mode 2: Jika tombol sudah berubah jadi "KIRIM"
+    if (kirimBtn.textContent === "KIRIM") {
+        // Pastikan data Member & Konsumen sudah terisi
+        const distributorName  = document.getElementById("distributorName").value.trim();
+        const distributorPhone = document.getElementById("distributorPhone").value.trim();
+        const consumerName     = document.getElementById("consumerName").value.trim();
+        const consumerPhone    = document.getElementById("consumerPhone").value.trim();
+        const consumerEmail    = document.getElementById("consumerEmail").value.trim();
+
+        // Cek validasi inputan 
+        if (!validateForm()) return;
+
+        // Jalankan proses lama kirim data (ke WA + Email + simpan PDF)
+        try {
+            const orderData = collectOrderData();
+            callAPI("sendEmail", orderData, "POST")
+                .then(res => {
+                    showNotification('success', 'SUKSES : Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.');
+                    //alert("Data berhasil terkirim ke WA & Email!");
+                    resetForm(); // reset ke awal
+                })
+                .catch(err => {
+                    console.error("Gagal kirim:", err);
+                    showNotification('error', 'ERROR : Gagal kirim data' + err.message );
+                    //alert("Gagal mengirim data!");
+                });
+        } catch (err) {
+            console.error("Error submit:", err);
+            showNotification('error', 'ERROR : Gagal submit data' + err.message );
+            //alert("Terjadi kesalahan saat mengirim!");
+        }
+    }
+}
+
+function BACKUP_submitForm() {
+    // Simpan dulu data terakhir ke Sheet
+    const orderData = collectOrderData();  
+    saveOrderToSheet(orderData).then(() => {
+        // Setelah tersimpan, disable input awal
+        document.getElementById("product").disabled = true;
+        document.getElementById("quantity").disabled = true;
+        document.getElementById("discount").disabled = true;
+        document.getElementById("shipping").disabled = true;
+        document.getElementById("btnAction").disabled = true;
+
+        // Ubah tombol Submit menjadi Kirim
+        const submitBtn = document.getElementById("kirimButton");
+        submitBtn.textContent = "KIRIM";
+        submitBtn.setAttribute("onclick", "sendFinalData()");
+
+        // Tampilkan input konsumen
+        document.getElementById("consumerSection").style.display = "block";
+        showNotification('success', 'SUKSES : Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.');
+        //showMessage("Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.", false);
+    }).catch(err => {
+        console.error("Gagal submit data:", err);
+        showNotification('error', 'ERROR : Gagal submit data' + error.message );
+        //showMessage("Gagal submit data ke sheet!", true);
+    });
+}
+
+function sendFinalData() {
+    const orderData = collectOrderData();
+
+    // Cek validasi inputan 
+    if (!validateForm()) return;
+
     callAPI("sendEmail", orderData, "POST")
-      .then(response => {
-        showNotification('success', 'SUKSES : mengirim ke WA dan email');
-        resetForm();
-      })
-      .catch(error => {
-        showNotification('error', 'ERROR : Gagal kirim' + error.message );
-      });
-  });
+        .then(response => {
+            //showMessage("Data berhasil terkirim ke WA dan Email.", false);
+            showNotification('success', 'SUKSES : Data berhasil terkirim ke WA dan Email');
+            resetForm(); // reset seperti awal
+        })
+        .catch(err => {
+            console.error("Gagal kirim:", err);
+            showNotification('error', 'ERROR : Gagal mengirim data' + err.message );
+            // showMessage("Gagal mengirim data.", true);
+        });
 }
 
 // ************************************************************
