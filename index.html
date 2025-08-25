@@ -1429,6 +1429,84 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 function submitForm() {
   const submitBtn = document.getElementById("submitButton");
+  const btnText = submitBtn.textContent.trim().toUpperCase();
+
+  if (btnText === "SUBMIT") {
+    // Kunci input awal
+    document.getElementById("product").disabled = true;
+    document.getElementById("quantity").disabled = true;
+    document.getElementById("discount").disabled = true;
+    document.getElementById("shipping").disabled = true;
+    document.getElementById("btnAdd").disabled = true;
+    document.getElementById("btnUpdate").disabled = true;
+
+    // Tampilkan inputan member & konsumen
+    document.getElementById("inputanSection").style.display = "block";
+
+    // Ubah tombol jadi KIRIM
+    submitBtn.textContent = "KIRIM";
+    return;
+  }
+
+  if (btnText === "KIRIM") {
+    if (!validateForm()) return;
+
+    const rows = document.querySelectorAll("#orderTable tbody tr");
+    const commonData = {
+      mDate: document.getElementById("date").value,
+      mInvoice: document.getElementById("invoice").value,
+      mDistributorName: document.getElementById("distributorName").value,
+      mDistributorPhone: document.getElementById("distributorPhone").value,
+      mConsumerName: document.getElementById("consumerName").value,
+      mConsumerPhone: document.getElementById("consumerPhone").value,
+      mConsumerEmail: document.getElementById("consumerEmail").value,
+      mByKirim: parseFloat(document.getElementById("shipping").value),
+      mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g,"").replace(",","."))
+    };
+
+    // Simpan semua item ke sheet
+    let savePromises = [];
+    rows.forEach((row, idx) => {
+      const cells = row.querySelectorAll("td");
+      const qtyInput = row.querySelector(".qty-input");
+
+      const orderData = {
+        ...commonData,
+        mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
+        mItem: {
+          mNoStok: cells[1].textContent,
+          mKategori: "", // kategori bisa dilengkapi kalau tersedia
+          mNamaProduk: cells[2].textContent,
+          mVp: parseFloat(cells[6].textContent.replace(/\./g,"").replace(",",".")) / parseInt(qtyInput.value),
+          mHargaEceran: parseFloat(cells[3].textContent.replace(/\./g,"").replace(",",".")),
+          mSetelahDiskon: parseFloat(cells[4].textContent.replace(/\./g,"").replace(",",".")),
+          mJumlah: parseInt(qtyInput.value),
+          mTotVP: parseFloat(cells[6].textContent.replace(/\./g,"").replace(",",".")),
+          mHarga: parseFloat(cells[7].textContent.replace(/\./g,"").replace(",",".")),
+        }
+      };
+
+      savePromises.push(callAPI("saveItem", orderData, "POST"));
+    });
+
+    Promise.all(savePromises)
+      .then(() => {
+        // Setelah semua tersimpan, baru kirim email/WA
+        const finalOrderData = collectOrderData(); 
+        return callAPI("sendEmail", finalOrderData, "POST");
+      })
+      .then(() => {
+        showNotification('success', 'SUKSES : Data tersimpan & terkirim ke WA + Email');
+        resetForm();
+      })
+      .catch(err => {
+        showNotification('error', 'ERROR : Gagal kirim data ' + err.message);
+      });
+  }
+}
+
+function BACKUP_submitForm() {
+  const submitBtn = document.getElementById("submitButton");
   const btnText = submitBtn.textContent.trim().toUpperCase(); // normalisasi
 
   if (btnText === "SUBMIT") {
@@ -1461,58 +1539,6 @@ function submitForm() {
   }
 }
 
-
-function BACKUP_submitForm() {
-    const submitBtn = document.getElementById("submitButton");
-
-    // Mode 1: Pertama kali ditekan → jadi "KIRIM"
-    if (submitBtn.textContent === "SUBMIT") {
-        // Disable semua input produk
-        document.getElementById("product").disabled = true;
-        document.getElementById("quantity").disabled = true;
-        document.getElementById("discount").disabled = true;
-        document.getElementById("shipping").disabled = true;
-        document.getElementById("btnAction").disabled = true;
-
-        // Tampilkan inputan Member & Konsumen
-        document.getElementById("inputanSection").style.display = "block";
-
-        // Ubah tombol jadi "KIRIM"
-        submitBtn.textContent = "KIRIM";
-
-        return; // stop di sini (belum kirim ke email/wa)
-    }
-
-    // Mode 2: Jika tombol sudah berubah jadi "KIRIM"
-    if (submitBtn.textContent === "KIRIM") {
-        // Pastikan data Member & Konsumen sudah terisi
-        const distributorName  = document.getElementById("distributorName").value.trim();
-        const distributorPhone = document.getElementById("distributorPhone").value.trim();
-        const consumerName     = document.getElementById("consumerName").value.trim();
-        const consumerPhone    = document.getElementById("consumerPhone").value.trim();
-        const consumerEmail    = document.getElementById("consumerEmail").value.trim();
-
-        // Cek validasi inputan 
-        if (!validateForm()) return;
-
-        // Jalankan proses lama kirim data (ke WA + Email + simpan PDF)
-        try {
-            const orderData = collectOrderData();
-            callAPI("sendEmail", orderData, "POST")
-                .then(res => {
-                    showNotification('success', 'SUKSES : Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.');
-                    resetForm(); // reset ke awal
-                })
-                .catch(err => {
-                    console.error("Gagal kirim:", err);
-                    showNotification('error', 'ERROR : Gagal kirim data' + err.message );
-                });
-        } catch (err) {
-            console.error("Error submit:", err);
-            showNotification('error', 'ERROR : Gagal submit data' + err.message );
-        }
-    }
-}
 
 
 // ************************************************************
