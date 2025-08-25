@@ -982,9 +982,6 @@ function addItem() {
     const mShippingSelect = document.getElementById('shipping');
     const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
     
-    // Cek validasi inputan 
-    // if (!validateForm()) return;
-
     // Validasi hanya input awal
     if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
         showNotification('warning', 'PERHATIAN : Harap lengkapi pilihan Produk, Jumlah, Diskon dan By Pengiriman');
