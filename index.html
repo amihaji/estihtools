@@ -798,7 +798,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbxex45gVUqgwuVZCX-pKDA1V4XaGBSa1f1pjNy-sCLvGUs0R0ftB8cl3I-QeTweYESD/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbxZnisxned5jwA9EGzX5V7rdqrBfIdPCJ8O37GLqVziWWjmQeOCT_8pp7j2B_jsE99N/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -1379,7 +1379,57 @@ function deleteItem(icon) {
 // ************************************
 // Kumpulkan data tabel ke object order
 // ************************************ 
+// Kumpulkan semua data order (produk + konsumen) untuk dikirim ke GAS
 function collectOrderData() {
+  const mTableBody = document.querySelector("#orderTable tbody");
+  const rows = mTableBody.querySelectorAll("tr");
+
+  // --- Ambil produk ---
+  const items = [];
+  rows.forEach((row, index) => {
+    const cells = row.querySelectorAll("td");
+    if (cells.length > 0) {
+      items.push({
+        mNoItem: index + 1,
+        mNoStok: cells[1].textContent.trim(),
+        mNamaProduk: cells[2].textContent.trim(),
+        mHargaEceran: parseCurrency(cells[3].textContent),
+        mSetelahDiskon: parseCurrency(cells[4].textContent),
+        mJumlah: parseInt(row.querySelector(".qty-input").value),
+        mTotVP: parseCurrency(cells[6].textContent),
+        mHarga: parseCurrency(cells[7].textContent)
+      });
+    }
+  });
+
+  // --- Ambil data konsumen ---
+  const mOrderData = {
+    mDate: document.getElementById("date").value,
+    mInvoice: document.getElementById("invoice").value,
+    mDistributorName: document.getElementById("distributorName").value,
+    mDistributorPhone: document.getElementById("distributorPhone").value,
+    mConsumerName: document.getElementById("consumerName").value,
+    mConsumerPhone: document.getElementById("consumerPhone").value,
+    mConsumerEmail: document.getElementById("consumerEmail").value,
+    mDiskon: document.getElementById("discount").options[
+      document.getElementById("discount").selectedIndex
+    ]?.text || "",
+    mByKirim: parseFloat(document.getElementById("shipping").value || 0),
+    mPajak: parseCurrency(document.getElementById("tax").textContent),
+    mTotalPrice: parseCurrency(document.getElementById("totalPrice").textContent),
+    items: items
+  };
+
+  return mOrderData;
+}
+
+// Helper untuk parsing angka dari string "Rp. 1.500.000"
+function parseCurrency(str) {
+  if (!str) return 0;
+  return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
+}
+
+function BACKUP_collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
