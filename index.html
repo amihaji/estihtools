@@ -1427,8 +1427,42 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-// Fungsi Submit / Kirim
 function submitForm() {
+  const submitBtn = document.getElementById("submitButton");
+  const btnText = submitBtn.textContent.trim().toUpperCase(); // normalisasi
+
+  if (btnText === "SUBMIT") {
+    // matikan input awal
+    document.getElementById("product").disabled = true;
+    document.getElementById("quantity").disabled = true;
+    document.getElementById("discount").disabled = true;
+    document.getElementById("shipping").disabled = true;
+    document.getElementById("btnAdd").disabled = true;
+    document.getElementById("btnUpdate").disabled = true;
+
+    // tampilkan inputan tambahan
+    document.getElementById("inputanSection").style.display = "block";
+
+    // ubah tombol jadi KIRIM
+    submitBtn.textContent = "KIRIM";
+    return;
+  }
+
+  if (btnText === "KIRIM") {
+    if (!validateForm()) return;
+
+    const orderData = collectOrderData();
+    callAPI("sendEmail", orderData, "POST")
+      .then(() => {
+        showNotification('success','SUKSES : Data berhasil terkirim ke WA dan Email');
+        resetForm();
+      })
+      .catch(err => showNotification('error','ERROR : Gagal kirim data ' + err.message));
+  }
+}
+
+
+function BACKUP_submitForm() {
     const submitBtn = document.getElementById("submitButton");
 
     // Mode 1: Pertama kali ditekan → jadi "KIRIM"
@@ -1480,32 +1514,6 @@ function submitForm() {
     }
 }
 
-function BACKUP_submitForm() {
-    // Simpan dulu data terakhir ke Sheet
-    const orderData = collectOrderData();  
-    saveOrderToSheet(orderData).then(() => {
-        // Setelah tersimpan, disable input awal
-        document.getElementById("product").disabled = true;
-        document.getElementById("quantity").disabled = true;
-        document.getElementById("discount").disabled = true;
-        document.getElementById("shipping").disabled = true;
-        document.getElementById("btnAction").disabled = true;
-
-        // Ubah tombol Submit menjadi Kirim
-        const submitBtn = document.getElementById("submitButton");
-        submitBtn.textContent = "KIRIM";
-        submitBtn.setAttribute("onclick", "sendFinalData()");
-
-        // Tampilkan input konsumen
-        document.getElementById("consumerSection").style.display = "block";
-        showNotification('success', 'SUKSES : Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.');
-        //showMessage("Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.", false);
-    }).catch(err => {
-        console.error("Gagal submit data:", err);
-        showNotification('error', 'ERROR : Gagal submit data' + error.message );
-        //showMessage("Gagal submit data ke sheet!", true);
-    });
-}
 
 // ************************************************************
 // Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
