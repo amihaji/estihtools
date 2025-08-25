@@ -983,7 +983,7 @@ function addItem() {
     const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
 
     // Cek validasi inputan 
-    if (!validateForm()) return;
+    // if (!validateForm()) return;
 
     if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
         showNotification('warning', 'PERHATIAN : Harap lengkapi pilihan diskon, produk dan jumlah');
@@ -1094,10 +1094,7 @@ function validateForm() {
         showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
         return false;
     }
-    if (!qtyPattern.test(quantity)) {
-        showNotifValidasi("warning", " WARNING : Jumlah item harus 1-3 digit angka.");
-        return false;
-    }
+ 
     return true;
 }
 
