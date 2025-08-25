@@ -338,7 +338,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 #setujuButton:disabled { background-color: #ccc; cursor: not-allowed; }
 
-#kirimButton[disabled] { opacity: 0.6; cursor: not-allowed; }
+#submitButton[disabled] { opacity: 0.6; cursor: not-allowed; }
 
 
 /**********************/
@@ -1035,7 +1035,7 @@ function addItem() {
         // Panggil updateTotals() setelah menambah item
         updateTotals();
         document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-        document.getElementById("kirimButton").disabled = false;
+        document.getElementById("submitButton").disabled = false;
 
         disableFields();
         
@@ -1129,7 +1129,7 @@ function resetForm() {
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
     // Nonaktifkan tombol "KIRIM" saat form direset
-    document.getElementById("kirimButton").disabled = true;
+    document.getElementById("submitButton").disabled = true;
 
     // Enable semua field kecuali Tanggal dan Invoice
     enableFields();
@@ -1429,10 +1429,10 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // Fungsi Submit / Kirim
 function submitForm() {
-    const kirimBtn = document.getElementById("kirimButton");
+    const submitBtn = document.getElementById("submitButton");
 
     // Mode 1: Pertama kali ditekan → jadi "KIRIM"
-    if (kirimBtn.textContent === "Submit") {
+    if (submitBtn.textContent === "SUBMIT") {
         // Disable semua input produk
         document.getElementById("product").disabled = true;
         document.getElementById("quantity").disabled = true;
@@ -1444,13 +1444,13 @@ function submitForm() {
         document.getElementById("inputanSection").style.display = "block";
 
         // Ubah tombol jadi "KIRIM"
-        kirimBtn.textContent = "KIRIM";
+        submitBtn.textContent = "KIRIM";
 
         return; // stop di sini (belum kirim ke email/wa)
     }
 
     // Mode 2: Jika tombol sudah berubah jadi "KIRIM"
-    if (kirimBtn.textContent === "KIRIM") {
+    if (submitBtn.textContent === "KIRIM") {
         // Pastikan data Member & Konsumen sudah terisi
         const distributorName  = document.getElementById("distributorName").value.trim();
         const distributorPhone = document.getElementById("distributorPhone").value.trim();
@@ -1467,18 +1467,15 @@ function submitForm() {
             callAPI("sendEmail", orderData, "POST")
                 .then(res => {
                     showNotification('success', 'SUKSES : Data item berhasil disubmit. Silakan lengkapi data konsumen lalu tekan KIRIM.');
-                    //alert("Data berhasil terkirim ke WA & Email!");
                     resetForm(); // reset ke awal
                 })
                 .catch(err => {
                     console.error("Gagal kirim:", err);
                     showNotification('error', 'ERROR : Gagal kirim data' + err.message );
-                    //alert("Gagal mengirim data!");
                 });
         } catch (err) {
             console.error("Error submit:", err);
             showNotification('error', 'ERROR : Gagal submit data' + err.message );
-            //alert("Terjadi kesalahan saat mengirim!");
         }
     }
 }
@@ -1495,7 +1492,7 @@ function BACKUP_submitForm() {
         document.getElementById("btnAction").disabled = true;
 
         // Ubah tombol Submit menjadi Kirim
-        const submitBtn = document.getElementById("kirimButton");
+        const submitBtn = document.getElementById("submitButton");
         submitBtn.textContent = "KIRIM";
         submitBtn.setAttribute("onclick", "sendFinalData()");
 
@@ -1508,25 +1505,6 @@ function BACKUP_submitForm() {
         showNotification('error', 'ERROR : Gagal submit data' + error.message );
         //showMessage("Gagal submit data ke sheet!", true);
     });
-}
-
-function sendFinalData() {
-    const orderData = collectOrderData();
-
-    // Cek validasi inputan 
-    if (!validateForm()) return;
-
-    callAPI("sendEmail", orderData, "POST")
-        .then(response => {
-            //showMessage("Data berhasil terkirim ke WA dan Email.", false);
-            showNotification('success', 'SUKSES : Data berhasil terkirim ke WA dan Email');
-            resetForm(); // reset seperti awal
-        })
-        .catch(err => {
-            console.error("Gagal kirim:", err);
-            showNotification('error', 'ERROR : Gagal mengirim data' + err.message );
-            // showMessage("Gagal mengirim data.", true);
-        });
 }
 
 // ************************************************************
