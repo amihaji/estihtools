@@ -985,8 +985,9 @@ function addItem() {
     // Cek validasi inputan 
     // if (!validateForm()) return;
 
-    if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
-        showNotification('warning', 'PERHATIAN : Harap lengkapi pilihan diskon, produk dan jumlah');
+    // Cek Validasi input awal
+    if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
+        alert("Harap lengkapi pilihan Produk, Jumlah, Diskon, dan By Pengiriman sebelum menambah item.");
         return;
     }
 
