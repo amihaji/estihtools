@@ -665,16 +665,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     </div>                    
 
                     <!-- Tampilan tombol -->
-                    <!--
-                    <div class="button-group"> 
-                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
-                                                <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
-                            <i class="fas fa-edit"></i> UPDATE
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
-                        <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> SUBMIT</button>
-                    </div>
-                   -->
                     <div class="button-group"> 
                         <!-- Tambah -->
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
@@ -1392,12 +1382,14 @@ function collectOrderData() {
       items.push({
         mNoItem: index + 1,
         mNoStok: cells[1].textContent.trim(),
-        mNamaProduk: cells[2].textContent.trim(),
-        mHargaEceran: parseCurrency(cells[3].textContent),
-        mSetelahDiskon: parseCurrency(cells[4].textContent),
+        mKategori : cells[2].textContent.trim(),
+        mNamaProduk: cells[3].textContent.trim(),
+        mVP: parseCurrency(cells[4].textContent),
+        mHargaEceran: parseCurrency(cells[5].textContent),
+        mSetelahDiskon: parseCurrency(cells[6].textContent),
         mJumlah: parseInt(row.querySelector(".qty-input").value),
-        mTotVP: parseCurrency(cells[6].textContent),
-        mHarga: parseCurrency(cells[7].textContent)
+        mTotVP: parseCurrency(cells[8].textContent),
+        mHarga: parseCurrency(cells[9].textContent)
       });
     }
   });
@@ -1558,13 +1550,6 @@ async function kirimData() {
     alert("Terjadi kesalahan saat mengirim.");
   }
 }
-
-//===================
-
-
-
-
-
 
 // ************************************************************
 // Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
