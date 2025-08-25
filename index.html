@@ -665,15 +665,38 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     </div>                    
 
                     <!-- Tampilan tombol -->
+                    <!--
                     <div class="button-group"> 
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()"><i class="fas fa-save"></i> TAMBAH</button>
-                        <!-- Tombol "Update" akan nampak jika "jumlah item" diedit -->
-                        <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
+                                                <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
                             <i class="fas fa-edit"></i> UPDATE
                         </button>
                         <button type="button" class="btn btn-primary" onclick="resetForm()"><i class="fas fa-rotate-left"></i> RESET</button>
                         <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled><i class="fas fa-paper-plane"></i> SUBMIT</button>
                     </div>
+                   -->
+                    <div class="button-group"> 
+                        <!-- Tambah -->
+                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
+                            <i class="fas fa-save"></i> TAMBAH
+                        </button>
+                        <!-- Update -->
+                        <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
+                            <i class="fas fa-edit"></i> UPDATE
+                        </button>
+                        <!-- Reset -->
+                        <button type="button" class="btn btn-primary" onclick="resetForm()">
+                            <i class="fas fa-rotate-left"></i> RESET
+                        </button>
+                        <!-- Submit -->
+                        <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled>
+                            <i class="fas fa-paper-plane"></i> SUBMIT
+                        </button>
+                        <!-- Kirim -->
+                        <button type="button" class="btn btn-danger" id="kirimButton" onclick="kirimData()" style="display:none;">
+                            <i class="fas fa-share-square"></i> KIRIM
+                        </button>
+                    </div>  
                 </form>
 
                 <div id="orderSummary">
@@ -775,7 +798,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbxc78KgYG92K5GIueNKHA_uVehB_msqTxQqVc4FbqSpZ74AZIHPw2Iqq5zfa3Qc-4I-/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbxex45gVUqgwuVZCX-pKDA1V4XaGBSa1f1pjNy-sCLvGUs0R0ftB8cl3I-QeTweYESD/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -1424,120 +1447,72 @@ function saveOrderToSheet(orderData) {
     });
 }
 
+//======================
+// === MODE UPDATE ===
+function enableUpdateMode(row) {
+  document.getElementById("btnAdd").style.display = "none";
+  document.getElementById("btnUpdate").style.display = "inline-block";
+  document.getElementById("btnUpdate").disabled = false;
+  // simpan index row yang sedang diedit
+  window.editRowIndex = row.rowIndex - 1;
+}
+
+function disableUpdateMode() {
+  document.getElementById("btnAdd").style.display = "inline-block";
+  document.getElementById("btnUpdate").style.display = "none";
+  document.getElementById("btnUpdate").disabled = true;
+  window.editRowIndex = null;
+}
+
+
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
 function submitForm() {
-  const submitBtn = document.getElementById("submitButton");
-  const btnText = submitBtn.textContent.trim().toUpperCase();
-
-  if (btnText === "SUBMIT") {
-    // Kunci input awal
-    document.getElementById("product").disabled = true;
-    document.getElementById("quantity").disabled = true;
-    document.getElementById("discount").disabled = true;
-    document.getElementById("shipping").disabled = true;
-    document.getElementById("btnAdd").disabled = true;
-    document.getElementById("btnUpdate").disabled = true;
-
-    // Tampilkan inputan member & konsumen
-    document.getElementById("inputanSection").style.display = "block";
-
-    // Ubah tombol jadi KIRIM
-    submitBtn.textContent = "KIRIM";
+  const tableBody = document.querySelector("#orderTable tbody");
+  if (tableBody.rows.length === 0) {
+    alert("Harap masukkan minimal 1 produk sebelum submit.");
     return;
   }
 
-  if (btnText === "KIRIM") {
-    if (!validateForm()) return;
+  // Disable input produk
+  document.getElementById("product").disabled = true;
+  document.getElementById("quantity").disabled = true;
+  document.getElementById("discount").disabled = true;
+  document.getElementById("shipping").disabled = true;
+  document.getElementById("btnAdd").disabled = true;
+  document.getElementById("btnUpdate").disabled = true;
 
-    const rows = document.querySelectorAll("#orderTable tbody tr");
-    const commonData = {
-      mDate: document.getElementById("date").value,
-      mInvoice: document.getElementById("invoice").value,
-      mDistributorName: document.getElementById("distributorName").value,
-      mDistributorPhone: document.getElementById("distributorPhone").value,
-      mConsumerName: document.getElementById("consumerName").value,
-      mConsumerPhone: document.getElementById("consumerPhone").value,
-      mConsumerEmail: document.getElementById("consumerEmail").value,
-      mByKirim: parseFloat(document.getElementById("shipping").value),
-      mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g,"").replace(",","."))
-    };
+  // Ubah tombol
+  document.getElementById("submitButton").style.display = "none";
+  document.getElementById("kirimButton").style.display = "inline-block";
 
-    // Simpan semua item ke sheet
-    let savePromises = [];
-    rows.forEach((row, idx) => {
-      const cells = row.querySelectorAll("td");
-      const qtyInput = row.querySelector(".qty-input");
+  // Tampilkan inputan konsumen
+  document.getElementById("inputanSection").style.display = "block";
+}
 
-      const orderData = {
-        ...commonData,
-        mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
-        mItem: {
-          mNoStok: cells[1].textContent,
-          mKategori: "", // kategori bisa dilengkapi kalau tersedia
-          mNamaProduk: cells[2].textContent,
-          mVp: parseFloat(cells[6].textContent.replace(/\./g,"").replace(",",".")) / parseInt(qtyInput.value),
-          mHargaEceran: parseFloat(cells[3].textContent.replace(/\./g,"").replace(",",".")),
-          mSetelahDiskon: parseFloat(cells[4].textContent.replace(/\./g,"").replace(",",".")),
-          mJumlah: parseInt(qtyInput.value),
-          mTotVP: parseFloat(cells[6].textContent.replace(/\./g,"").replace(",",".")),
-          mHarga: parseFloat(cells[7].textContent.replace(/\./g,"").replace(",",".")),
-        }
-      };
+// === KIRIM ===
+async function kirimData() {
+  try {
+    const mOrderData = collectOrderData(); // sudah ada di script
+    const res = await callAPI("sendEmail", mOrderData, "POST");
 
-      savePromises.push(callAPI("saveItem", orderData, "POST"));
-    });
-
-    Promise.all(savePromises)
-      .then(() => {
-        // Setelah semua tersimpan, baru kirim email/WA
-        const finalOrderData = collectOrderData(); 
-        return callAPI("sendEmail", finalOrderData, "POST");
-      })
-      .then(() => {
-        showNotification('success', 'SUKSES : Data tersimpan & terkirim ke WA + Email');
-        resetForm();
-      })
-      .catch(err => {
-        showNotification('error', 'ERROR : Gagal kirim data ' + err.message);
-      });
+    if (res.status === "error") {
+      alert("Gagal kirim: " + res.message);
+    } else {
+      alert("Berhasil terkirim ke WA & Email.");
+      resetForm(); // kembalikan form ke kondisi awal
+    }
+  } catch (err) {
+    console.error("Gagal kirim:", err);
+    alert("Terjadi kesalahan saat mengirim.");
   }
 }
 
-function BACKUP_submitForm() {
-  const submitBtn = document.getElementById("submitButton");
-  const btnText = submitBtn.textContent.trim().toUpperCase(); // normalisasi
+//===================
 
-  if (btnText === "SUBMIT") {
-    // matikan input awal
-    document.getElementById("product").disabled = true;
-    document.getElementById("quantity").disabled = true;
-    document.getElementById("discount").disabled = true;
-    document.getElementById("shipping").disabled = true;
-    document.getElementById("btnAdd").disabled = true;
-    document.getElementById("btnUpdate").disabled = true;
 
-    // tampilkan inputan tambahan
-    document.getElementById("inputanSection").style.display = "block";
 
-    // ubah tombol jadi KIRIM
-    submitBtn.textContent = "KIRIM";
-    return;
-  }
-
-  if (btnText === "KIRIM") {
-    if (!validateForm()) return;
-
-    const orderData = collectOrderData();
-    callAPI("sendEmail", orderData, "POST")
-      .then(() => {
-        showNotification('success','SUKSES : Data berhasil terkirim ke WA dan Email');
-        resetForm();
-      })
-      .catch(err => showNotification('error','ERROR : Gagal kirim data ' + err.message));
-  }
-}
 
 
 
