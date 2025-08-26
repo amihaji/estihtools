@@ -1042,9 +1042,10 @@ function addItem() {
         //   </td>
         // `;
          
+        // <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}"> 
         mNewRow,innerHTML = `
-        <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
             <td>${mTableBody.rows.length + 1}</td>
+            <td>${itemNumber}</td>
             <td>${mProductSelect.value}</td>
             <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
             <td>${formatCurrency(mProductData.HargaEceran)}</td>
@@ -1057,7 +1058,6 @@ function addItem() {
                     <i class="fas fa-times"></i>
                 </span>
             </td>
-        </tr>
         `;
 
         // Tambahkan baris ke tabel
