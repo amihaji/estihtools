@@ -830,6 +830,57 @@ async function callAPI(action, params = {}) {
 }
 
 // **********************************************
+// Fungsi untuk memanggil pilihan dropdown field
+// **********************************************
+function loadOptions() {
+    // Untuk GET, kita bisa membuat URL dengan parameter
+    fetch(`${API_URL}?action=getDiscounts`).then(res => res.json()).then(mDiscounts => {
+    // ... (logika mengisi dropdown diskon Anda di sini) ...
+        const discountSelect     = document.getElementById('discount');
+        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+        mDiscounts.forEach(discount => {
+            const option       = document.createElement('option');
+            option.value       = discount.Diskon;
+            option.textContent = discount.Level;
+            discountSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat diskon:", err);
+        showNotification('error', 'ERROR : memuat data diskon');
+    });
+  
+    fetch(`${API_URL}?action=getProducts`).then(res => res.json()).then(mProducts => {
+    // ... (logika mengisi dropdown produk Anda di sini) ...
+    const productSelect     = document.getElementById('product');
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        mProducts.forEach(product => {
+            const option       = document.createElement('option');
+            option.value       = product.NoStok;
+            option.textContent = product.NamaProduk;
+            productSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat produk:", err);
+        showNotification('error', 'ERROR : memuat data produk');
+    });
+    
+    fetch(`${API_URL}?action=getShippingOptions`).then(res => res.json()).then(mShippingOptions => {
+    // ... (logika mengisi dropdown pengiriman Anda di sini) ...
+    const shippingSelect     = document.getElementById('shipping');
+            shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+            mShippingOptions.forEach(shipping => {
+                const option       = document.createElement('option');
+                option.value       = shipping.Biaya;
+                option.textContent = shipping.JenisPengiriman;
+                shippingSelect.appendChild(option);
+            });
+        }).catch(err => {
+            console.error("Gagal memuat pengiriman:", err);
+            showNotification('error', 'ERROR : Memuat data pengiriman');
+    });
+}
+
+// **********************************************
 // Inisialisasi saat halaman sudah load sempurna
 // **********************************************
 document.addEventListener("DOMContentLoaded", function() {
@@ -1115,8 +1166,7 @@ function validateForm() {
         showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
         return false;
     }
- 
-    return true;
+     return true;
 }
 
 // **************************
@@ -1212,58 +1262,6 @@ function enableFields() {
     fieldsToEnable.forEach(fieldId => {
         const field    = document.getElementById(fieldId);
         field.disabled = false;
-    });
-}
-
-// **********************************************
-// Fungsi untuk memanggil pilihan dropdown field
-// **********************************************
-function loadOptions() {
-    // Untuk GET, kita bisa membuat URL dengan parameter
-    fetch(`${API_URL}?action=getDiscounts`).then(res => res.json()).then(mDiscounts => {
-    // ... (logika mengisi dropdown diskon Anda di sini) ...
-    
-        const discountSelect     = document.getElementById('discount');
-        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
-        mDiscounts.forEach(discount => {
-            const option       = document.createElement('option');
-            option.value       = discount.Diskon;
-            option.textContent = discount.Level;
-            discountSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat diskon:", err);
-        showNotification('error', 'ERROR : memuat data diskon');
-    });
-  
-    fetch(`${API_URL}?action=getProducts`).then(res => res.json()).then(mProducts => {
-    // ... (logika mengisi dropdown produk Anda di sini) ...
-    const productSelect     = document.getElementById('product');
-        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        mProducts.forEach(product => {
-            const option       = document.createElement('option');
-            option.value       = product.NoStok;
-            option.textContent = product.NamaProduk;
-            productSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat produk:", err);
-        showNotification('error', 'ERROR : memuat data produk');
-    });
-    
-    fetch(`${API_URL}?action=getShippingOptions`).then(res => res.json()).then(mShippingOptions => {
-    // ... (logika mengisi dropdown pengiriman Anda di sini) ...
-    const shippingSelect     = document.getElementById('shipping');
-            shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
-            mShippingOptions.forEach(shipping => {
-                const option       = document.createElement('option');
-                option.value       = shipping.Biaya;
-                option.textContent = shipping.JenisPengiriman;
-                shippingSelect.appendChild(option);
-            });
-        }).catch(err => {
-            console.error("Gagal memuat pengiriman:", err);
-            showNotification('error', 'ERROR : Memuat data pengiriman');
     });
 }
 
