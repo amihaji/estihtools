@@ -666,24 +666,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
                     <!-- Tampilan tombol -->
                     <div class="button-group"> 
-                        <!-- Tambah -->
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
                             <i class="fas fa-save"></i> TAMBAH
                         </button>
-                        <!-- Update -->
+                        <!-- Tombol UPDATE tampil jika mengedit jumlah item -->
                         <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
                             <i class="fas fa-edit"></i> UPDATE
                         </button>
-                        <!-- Reset -->
                         <button type="button" class="btn btn-primary" onclick="resetForm()">
                             <i class="fas fa-rotate-left"></i> RESET
                         </button>
-                        <!-- Submit -->
-                        <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled>
+                        <!-- Menekan Tombol UPDATE, maka data tersimpan di sheet "DataInput" dan Tampil tombol KIRIM -->
+                        <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
                             <i class="fas fa-paper-plane"></i> SUBMIT
                         </button>
-                        <!-- Kirim -->
-                        <button type="button" class="btn btn-danger" id="kirimButton" onclick="kirimData()" style="display:none;">
+                        <!-- Tombol KIRIM tampil jika menekan tombol SUBMIT -->
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
                             <i class="fas fa-share-square"></i> KIRIM
                         </button>
                     </div>  
@@ -936,6 +934,24 @@ function enableUpdateMode() {
     isEditMode = true;
 }
 
+//======================
+// === MODE UPDATE ===
+function BACKUP_enableUpdateMode(row) {
+  document.getElementById("btnAdd").style.display = "none";
+  document.getElementById("btnUpdate").style.display = "inline-block";
+  document.getElementById("btnUpdate").disabled = false;
+  // simpan index row yang sedang diedit
+  window.editRowIndex = row.rowIndex - 1;
+}
+
+function BACKUP_disableUpdateMode() {
+  document.getElementById("btnAdd").style.display = "inline-block";
+  document.getElementById("btnUpdate").style.display = "none";
+  document.getElementById("btnUpdate").disabled = true;
+  window.editRowIndex = null;
+}
+
+
 // ***********************************
 // Fungsi Untuk mereset ke Mode Tambah
 // ***********************************
@@ -966,15 +982,15 @@ function updateItem() {
     }
     
     // Simpan perubahan ke sheet
-    const orderData = collectOrderData();
-    saveOrderToSheet(orderData).then(() => {
-        showNotification('success', 'SUKSES : Data berhasil tersimpan');
+    //const orderData = collectOrderData();
+    //saveOrderToSheet(orderData).then(() => {
+    //    showNotification('success', 'SUKSES : Data berhasil tersimpan');
         resetEditMode();
-    })
-    .catch(error => {
-        console.error("Gagal menyimpan perubahan:", error);
-        showNotification('error', 'ERROR : Gagal menyimpan perubahan');
-    });
+    //})
+    //.catch(error => {
+    //    console.error("Gagal menyimpan perubahan:", error);
+    //    showNotification('error', 'ERROR : Gagal menyimpan perubahan');
+    //});
 }
 
 // *************************
@@ -1447,22 +1463,7 @@ function saveOrderToSheet(orderData) {
     });
 }
 
-//======================
-// === MODE UPDATE ===
-function enableUpdateMode(row) {
-  document.getElementById("btnAdd").style.display = "none";
-  document.getElementById("btnUpdate").style.display = "inline-block";
-  document.getElementById("btnUpdate").disabled = false;
-  // simpan index row yang sedang diedit
-  window.editRowIndex = row.rowIndex - 1;
-}
 
-function disableUpdateMode() {
-  document.getElementById("btnAdd").style.display = "inline-block";
-  document.getElementById("btnUpdate").style.display = "none";
-  document.getElementById("btnUpdate").disabled = true;
-  window.editRowIndex = null;
-}
 
 
 // *******************************************
