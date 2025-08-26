@@ -787,7 +787,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbztAbuMebqZTaLjDlvaM92-Nkg2dMpg9QCarF-LYaRJpuoOhkgRcg2IUNxN6lekiXJH/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbylok5TucDbe86YkjKCngo0iW7vSJv7Hfn_eb3QU4nm04xEyzwik_4So_4DVwTkzNlrIA/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -796,7 +796,7 @@ document.querySelector('#orderTable tbody').replaceWith(document.querySelector('
 // **********************************************
 // Fungsi untuk koneksi dengan Google Apps Script 
 // **********************************************
-function callAPI(action, params = {}, method = "GET") {
+function BACKUP_callAPI(action, params = {}, method = "GET") {
   const url = API_URL;
 
   if (method === "GET") {
@@ -816,6 +816,41 @@ function callAPI(action, params = {}, method = "GET") {
     // NOTE: tidak bisa pakai res.json() karena no-cors
   }
 }
+
+// FUNGSI INTI UNTUK KOMUNIKASI DENGAN GOOGLE SCRIPT
+async function callAPI(action, params = {}) {
+  // Tampilkan spinner setiap kali API dipanggil
+  document.getElementById('loadingSpinner').style.display = 'block';
+
+  try {
+    const payload = { action, ...params };
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      // Hapus 'mode: "no-cors"' agar kita bisa membaca respons
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8", 
+      },
+      body: JSON.stringify(payload),
+      redirect: "follow"
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    document.getElementById('loadingSpinner').style.display = 'none'; // Sembunyikan spinner setelah sukses
+    return result;
+
+  } catch (error) {
+    document.getElementById('loadingSpinner').style.display = 'none'; // Sembunyikan spinner jika error
+    console.error("Gagal memanggil API:", error);
+    // Lemparkan error agar bisa ditangkap oleh fungsi pemanggil
+    throw error; 
+  }
+}
+
 
 // **********************************************
 // Inisialisasi saat halaman sudah load sempurna
@@ -1207,6 +1242,55 @@ function enableFields() {
 // Fungsi untuk memanggil pilihan dropdown field
 // **********************************************
 function loadOptions() {
+    // Untuk GET, kita bisa membuat URL dengan parameter
+    fetch(`${API_URL}?action=getDiscounts`).then(res => res.json()).then(mDiscounts => {
+    // ... (logika mengisi dropdown diskon Anda di sini) ...
+    
+        const discountSelect     = document.getElementById('discount');
+        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
+        mDiscounts.forEach(discount => {
+            const option       = document.createElement('option');
+            option.value       = discount.Diskon;
+            option.textContent = discount.Level;
+            discountSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat diskon:", err);
+        showNotification('error', 'ERROR : memuat data diskon');
+    });
+  
+    fetch(`${API_URL}?action=getProducts`).then(res => res.json()).then(mProducts => {
+    // ... (logika mengisi dropdown produk Anda di sini) ...
+    const productSelect     = document.getElementById('product');
+        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
+        mProducts.forEach(product => {
+            const option       = document.createElement('option');
+            option.value       = product.NoStok;
+            option.textContent = product.NamaProduk;
+            productSelect.appendChild(option);
+        });
+    }).catch(err => {
+        console.error("Gagal memuat produk:", err);
+        showNotification('error', 'ERROR : memuat data produk');
+    });
+    
+    fetch(`${API_URL}?action=getShippingOptions`).then(res => res.json()).then(mShippingOptions => {
+    // ... (logika mengisi dropdown pengiriman Anda di sini) ...
+    const shippingSelect     = document.getElementById('shipping');
+            shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
+            mShippingOptions.forEach(shipping => {
+                const option       = document.createElement('option');
+                option.value       = shipping.Biaya;
+                option.textContent = shipping.JenisPengiriman;
+                shippingSelect.appendChild(option);
+            });
+        }).catch(err => {
+            console.error("Gagal memuat pengiriman:", err);
+            showNotification('error', 'ERROR : Memuat data pengiriman');
+    });
+}
+
+function BACKUP_loadOptions() {
     // Load Pilihan Diskon
     callAPI("getDiscounts").then(mDiscounts => {
         const discountSelect     = document.getElementById('discount');
@@ -1474,60 +1558,61 @@ function disableUpdateMode() {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-// === Tahap 1: SUBMIT ===
-function submitForm() {
-  const mOrderData = collectOrderData();
+// FUNGSI SUBMIT (SEKARANG MENGGUNAKAN callAPI YANG BENAR)
+async function submitForm() {
+  const orderData = collectOrderData();
+  if (orderData.items.length === 0) {
+    showNotification('warning', 'PERHATIAN: Tambahkan minimal satu produk.');
+    return;
+  }
 
-  // simpan ke DataInput (hanya data produk)
-  callAPI("saveOrder", mOrderData, "POST")
-    .then(res => {
-      console.log("Submit berhasil:", res);
+  try {
+    const response = await callAPI("saveOrder", orderData);
+    console.log("Submit berhasil:", response);
 
-      // Disable input produk
+    if (response && response.status === "success") {
+      showNotification('success', 'SUKSES: Data pesanan tersimpan. Silakan isi data konsumen.');
+      
+      // Alur setelah submit sukses
       document.getElementById("product").disabled = true;
       document.getElementById("quantity").disabled = true;
-      document.getElementById("discount").disabled = true;
-      document.getElementById("shipping").disabled = true;
       document.getElementById("btnAdd").disabled = true;
-      document.getElementById("btnUpdate").disabled = true;
-
-      // Toggle tombol
       document.getElementById("submitButton").style.display = "none";
       document.getElementById("kirimButton").style.display = "inline-block";
-
-      // Tampilkan inputan konsumen
       document.getElementById("inputanSection").style.display = "block";
-    })
-    .catch(err => {
-      console.error("Error submit:", err);
-      alert("Gagal submit: " + err.message);
-    });
+    } else {
+      // Menangani error yang dikirim dari Google Script
+      throw new Error(response.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+  } catch (error) {
+    showNotification('error', 'ERROR saat menyimpan: ' + error.message);
+  }
 }
 
-// === Tahap 2: KIRIM ===
-function kirimData() {
-  const mOrderData = collectOrderData(); // sudah termasuk data konsumen
+// FUNGSI KIRIM (SEKARANG MENGGUNAKAN callAPI YANG BENAR)
+async function kirimData() {
+  const orderData = collectOrderData();
+  if (!orderData.mDistributorName || !orderData.mDistributorPhone) {
+      showNotifValidasi('warning', 'WARNING: Nama dan No. HP Member wajib diisi.');
+      return;
+  }
+  
+  try {
+    const response = await callAPI("sendEmail", orderData);
+    console.log("Kirim berhasil:", response);
 
-  callAPI("sendEmail", mOrderData, "POST")
-    .then(res => {
-      console.log("Kirim berhasil:", res);
-
-      alert("Data berhasil tersimpan & terkirim ke WA dan Email!");
-
-      // Reset form ke awal
+    if (response && response.status === "success") {
+      alert("Berhasil! Data telah disimpan dan dikirim ke Email/WA.");
       resetForm();
-
-      // Toggle tombol
-      document.getElementById("kirimButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "inline-block";
-      document.getElementById("inputanSection").style.display = "none";
-    })
-    .catch(err => {
-      console.error("Error kirim:", err);
-      alert("Gagal kirim: " + err.message);
-    });
+    } else {
+      throw new Error(response.message || 'Terjadi kesalahan yang tidak diketahui.');
+    }
+  } catch (error) {
+    showNotification('error', 'ERROR saat mengirim: ' + error.message);
+  }
 }
 
+ 
 // ************************************************************
 // Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
 // ************************************************************
