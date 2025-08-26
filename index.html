@@ -987,8 +987,9 @@ function addItem() {
   const mShippingSelect = document.getElementById('shipping');
   const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
 
-  if (!mDiscountSelect.value || !mProductSelect.value || mQuantity <= 0) {
-    alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
+  if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
+    showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah, Diskon dan Pengiriman');
+    //alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
     return;
   }
 
@@ -1059,9 +1060,11 @@ function addItem() {
 
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
-    showMessage("Item berhasil ditambahkan!", false);
+    showNotification('success', 'SUKSES : Item berhasil di tambah');
+    //showMessage("Item berhasil ditambahkan!", false);
   }).catch(error => {
-    showMessage("Error: " + error.message, true);
+     showNotification('error', 'ERROR : '+ error.message);
+    //showMessage("Error: " + error.message, true);
   });
 }
 
