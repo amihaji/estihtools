@@ -937,24 +937,6 @@ function enableUpdateMode() {
     btnUpdate.disabled      = true;
 }
 
-//======================
-// === MODE UPDATE ===
-function BACKUP_enableUpdateMode(row) {
-  document.getElementById("btnAdd").style.display = "none";
-  document.getElementById("btnUpdate").style.display = "inline-block";
-  document.getElementById("btnUpdate").disabled = false;
-  // simpan index row yang sedang diedit
-  window.editRowIndex = row.rowIndex - 1;
-}
-
-function BACKUP_disableUpdateMode() {
-  document.getElementById("btnAdd").style.display = "inline-block";
-  document.getElementById("btnUpdate").style.display = "none";
-  document.getElementById("btnUpdate").disabled = true;
-  window.editRowIndex = null;
-}
-
-
 // ***********************************
 // Fungsi Untuk mereset ke Mode Tambah
 // ***********************************
@@ -983,17 +965,7 @@ function updateItem() {
         showNotification('warning', 'PERHATIAN : Tidak ada perubahan yg disimpan'); 
         return;
     }
-    
-    // Simpan perubahan ke sheet
-    //const orderData = collectOrderData();
-    //saveOrderToSheet(orderData).then(() => {
-    //    showNotification('success', 'SUKSES : Data berhasil tersimpan');
-        resetEditMode();
-    //})
-    //.catch(error => {
-    //    console.error("Gagal menyimpan perubahan:", error);
-    //    showNotification('error', 'ERROR : Gagal menyimpan perubahan');
-    //});
+    resetEditMode();
 }
 
 // *************************
@@ -1080,10 +1052,8 @@ function addItem() {
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
     showNotification('success', 'SUKSES : Item berhasil di tambah');
-    //showMessage("Item berhasil ditambahkan!", false);
   }).catch(error => {
      showNotification('error', 'ERROR : '+ error.message);
-    //showMessage("Error: " + error.message, true);
   });
 }
 
@@ -1368,14 +1338,6 @@ function deleteItem(icon) {
   // Update tampilan
   updateItemNumbers();
   updateTotals();
-  
-  // Hapus dari sheet
-  callAPI("deleteItemFromSheet", { noStok: noStok }, "POST")
-    .then(() => {
-      // Simpan perubahan setelah penghapusan
-      saveOrderToSheet(collectOrderData());
-    })
-    .catch(error => console.error("Gagal menghapus:", error));
 }
 
 // ************************************
@@ -1444,7 +1406,6 @@ function parseCurrency(str) {
   return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
 }
 
-
 // *****************************
 // Untuk menyimpan data ke sheet
 // *****************************
@@ -1465,9 +1426,6 @@ function saveOrderToSheet(orderData) {
       document.getElementById('loadingSpinner').style.display = 'none';
     });
 }
-
-
-
 
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
@@ -1502,7 +1460,9 @@ function submitForm() {
     });
 }
 
-// === Tahap 2: KIRIM ===
+// **************************************************
+// Mengirim data ke sheet DataInput dan DataKonsumen
+// **************************************************
 function kirimData() {
   // Validasi form sebelum mengirim
   if (!validateForm()) {
