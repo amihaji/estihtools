@@ -788,8 +788,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // URL Web App Google Apps Script 
 // *******************************
 const API_URL      = "https://script.google.com/macros/s/AKfycbxoHGWeCcK-vQXKMifQkb4Dh0MsGz_5IKl06g7FOxmmcexLjwRRKrRpwGFMHvjF-U1Z9A/exec";
-let isEditMode     = false;     // Untuk mendefenisikan mode Edit
-let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
+let isEditMode     = false;      // Untuk mendefenisikan mode Edit
+let currentEditRow = null;       // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
 document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
 
