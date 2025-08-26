@@ -788,7 +788,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbywIe7lWoo6RbgUIy6b-AKj2_gJYaRBiCN8nUpjyLhouBhTcarNauMpQRZxf9pyvRD9/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbyR1NpPAZLkORpIMNIQiFUqhReWdellfZtm4aA7TL0bv-Tir1Sb8fHJjxXgVVejsBJU/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -1507,17 +1507,27 @@ function submitForm() {
 
 // === Tahap 2: KIRIM ===
 function kirimData() {
-  const mOrderData = collectOrderData(); // sudah termasuk data konsumen
+  // Validasi form sebelum mengirim
+  if (!validateForm()) {
+    showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+    return;
+  }
 
-  callAPI("sendEmail", mOrderData, "POST")
-    .then(res => {
-      console.log("Kirim berhasil:", res);
-
-      alert("Data berhasil tersimpan & terkirim ke WA dan Email!");
-
-      // Reset form ke awal
+  const mOrderData = collectOrderData();
+  
+  // Tampilkan loading spinner
+  document.getElementById('loadingSpinner').style.display = 'block';
+  
+  callAPI("kirimData", mOrderData, "POST")
+    .then(response => {
+      // Karena mode no-cors, kita tidak bisa mendapatkan response JSON
+      // Jadi kita asumsikan berhasil jika tidak ada error
+      console.log("Kirim berhasil");
+      showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
+      
+      // Reset form
       resetForm();
-
+      
       // Toggle tombol
       document.getElementById("kirimButton").style.display = "none";
       document.getElementById("submitButton").style.display = "inline-block";
@@ -1525,7 +1535,11 @@ function kirimData() {
     })
     .catch(err => {
       console.error("Error kirim:", err);
-      alert("Gagal kirim: " + err.message);
+      showNotification('error', 'ERROR: Gagal mengirim data');
+    })
+    .finally(() => {
+      // Sembunyikan loading spinner
+      document.getElementById('loadingSpinner').style.display = 'none';
     });
 }
 
