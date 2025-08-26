@@ -788,7 +788,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbxZnisxned5jwA9EGzX5V7rdqrBfIdPCJ8O37GLqVziWWjmQeOCT_8pp7j2B_jsE99N/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbztAbuMebqZTaLjDlvaM92-Nkg2dMpg9QCarF-LYaRJpuoOhkgRcg2IUNxN6lekiXJH/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -1370,7 +1370,7 @@ function deleteItem(icon) {
 // Kumpulkan data tabel ke object order
 // ************************************ 
 // Kumpulkan semua data order (produk + konsumen) untuk dikirim ke GAS
-function collectOrderData() { 
+function collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
@@ -1379,16 +1379,16 @@ function collectOrderData() {
     const mNoItem        = idx + 1;
     const mNoStok        = row.cells[1].textContent.trim();
     const mNamaProduk    = row.cells[2].textContent.trim();
-    const mHargaEceran   = parseCurrency(row.cells[3].textContent);
-    const mSetelahDiskon = parseCurrency(row.cells[4].textContent);
-    const mJumlah        = parseInt(row.querySelector(".qty-input").value) || 0;
-    const mTotVP         = mJumlah * (parseFloat(row.getAttribute("data-vp")) || 0);
-    const mHarga         = mJumlah * mSetelahDiskon;
+    const mHargaEceran   = parseFloat(row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
+    const mSetelahDiskon = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, "")) || 0;
+    const mJumlah        = parseInt(row.querySelector("input").value) || 0;
+    const mTotVP         = parseFloat(row.cells[6].textContent.replace(/[^\d]/g, "")) || 0;
+    const mHarga         = parseFloat(row.cells[7].textContent.replace(/[^\d]/g, "")) || 0;
     const mKategori      = row.getAttribute("data-kategori") || "";
     const mVp            = parseFloat(row.getAttribute("data-vp")) || 0;
 
     items.push({
-      mNoItem, 
+      mNoItem,
       mNoStok,
       mKategori,
       mNamaProduk,
@@ -1402,17 +1402,26 @@ function collectOrderData() {
   });
 
   return {
+    // info invoice
     mDate: document.getElementById("date").value,
     mInvoice: document.getElementById("invoice").value,
-    mDistributorName: document.getElementById("distributorName").value,
-    mDistributorPhone: document.getElementById("distributorPhone").value,
-    mConsumerName: document.getElementById("consumerName").value,
-    mConsumerPhone: document.getElementById("consumerPhone").value,
-    mConsumerEmail: document.getElementById("consumerEmail").value,
+
+    // info distributor (member)
+    mDistributorName: document.getElementById("distributorName").value || "",
+    mDistributorPhone: document.getElementById("distributorPhone").value || "",
+
+    // info konsumen (akan kosong saat SUBMIT, terisi saat KIRIM)
+    mConsumerName: document.getElementById("consumerName").value || "",
+    mConsumerPhone: document.getElementById("consumerPhone").value || "",
+    mConsumerEmail: document.getElementById("consumerEmail").value || "",
+
+    // info order
     mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
     mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-    mPajak: parseCurrency(document.getElementById("tax").textContent),
-    mTotalPrice: parseCurrency(document.getElementById("totalPrice").textContent),
+    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
+    mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/[^\d]/g, "")) || 0,
+
+    // detail item produk
     items
   };
 }
@@ -1423,52 +1432,6 @@ function parseCurrency(str) {
   return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
 }
 
-function BACKUP_collectOrderData() {
-  const mTableBody = document.querySelector("#orderTable tbody");
-  const rows = mTableBody.querySelectorAll("tr");
-
-  const items = [];
-  rows.forEach((row, idx) => {
-    const mNoItem        = idx + 1;
-    const mNoStok        = row.cells[1].textContent;
-    const mNamaProduk    = row.cells[2].textContent;
-    const mHargaEceran   = parseFloat(row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
-    const mSetelahDiskon = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, "")) || 0;
-    const mJumlah        = parseInt(row.querySelector("input").value) || 0;
-    const mTotVP         = mJumlah * (parseFloat(row.getAttribute("data-vp")) || 0);
-    const mHarga         = mJumlah * mSetelahDiskon;
-    const mKategori      = row.getAttribute("data-kategori") || "";
-    const mVp            = parseFloat(row.getAttribute("data-vp")) || 0;
-
-    items.push({
-      mNoItem, 
-      mNoStok,
-      mKategori,
-      mNamaProduk,
-      mVp,
-      mHargaEceran,
-      mSetelahDiskon,
-      mJumlah,
-      mTotVP,
-      mHarga
-    });
-  });
-
-  return {
-    mDate: document.getElementById("date").value,
-    mInvoice: document.getElementById("invoice").value,
-    mDistributorName: document.getElementById("distributorName").value,
-    mDistributorPhone: document.getElementById("distributorPhone").value,
-    mConsumerName: document.getElementById("consumerName").value,
-    mConsumerPhone: document.getElementById("consumerPhone").value,
-    mConsumerEmail: document.getElementById("consumerEmail").value,
-    mDiskon: document.getElementById("discount").options[document.getElementById("discount").selectedIndex].text,
-    mByKirim: parseFloat(document.getElementById("shipping").value) || 0,
-    mPajak: parseFloat(document.getElementById("tax").textContent.replace(/[^\d]/g, "")) || 0,
-    mTotalPrice: parseFloat(document.getElementById("totalPrice").textContent.replace(/[^\d]/g, "")) || 0,
-    items
-  };
-}
 
 // *****************************
 // Untuk menyimpan data ke sheet
@@ -1512,45 +1475,58 @@ function disableUpdateMode() {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
+// === Tahap 1: SUBMIT ===
 function submitForm() {
-  const tableBody = document.querySelector("#orderTable tbody");
-  if (tableBody.rows.length === 0) {
-    alert("Harap masukkan minimal 1 produk sebelum submit.");
-    return;
-  }
+  const mOrderData = collectOrderData();
 
-  // Disable input produk
-  document.getElementById("product").disabled = true;
-  document.getElementById("quantity").disabled = true;
-  document.getElementById("discount").disabled = true;
-  document.getElementById("shipping").disabled = true;
-  document.getElementById("btnAdd").disabled = true;
-  document.getElementById("btnUpdate").disabled = true;
+  // simpan ke DataInput (hanya data produk)
+  callAPI("saveOrder", mOrderData, "POST")
+    .then(res => {
+      console.log("Submit berhasil:", res);
 
-  // Ubah tombol
-  document.getElementById("submitButton").style.display = "none";
-  document.getElementById("kirimButton").style.display = "inline-block";
+      // Disable input produk
+      document.getElementById("product").disabled = true;
+      document.getElementById("quantity").disabled = true;
+      document.getElementById("discount").disabled = true;
+      document.getElementById("shipping").disabled = true;
+      document.getElementById("btnAdd").disabled = true;
+      document.getElementById("btnUpdate").disabled = true;
 
-  // Tampilkan inputan konsumen
-  document.getElementById("inputanSection").style.display = "block";
+      // Toggle tombol
+      document.getElementById("submitButton").style.display = "none";
+      document.getElementById("kirimButton").style.display = "inline-block";
+
+      // Tampilkan inputan konsumen
+      document.getElementById("inputanSection").style.display = "block";
+    })
+    .catch(err => {
+      console.error("Error submit:", err);
+      alert("Gagal submit: " + err.message);
+    });
 }
 
-// === KIRIM ===
-async function kirimData() {
-  try {
-    const mOrderData = collectOrderData(); // sudah ada di script
-    const res = await callAPI("sendEmail", mOrderData, "POST");
+// === Tahap 2: KIRIM ===
+function kirimData() {
+  const mOrderData = collectOrderData(); // sudah termasuk data konsumen
 
-    if (res.status === "error") {
-      alert("Gagal kirim: " + res.message);
-    } else {
-      alert("Berhasil terkirim ke WA & Email.");
-      resetForm(); // kembalikan form ke kondisi awal
-    }
-  } catch (err) {
-    console.error("Gagal kirim:", err);
-    alert("Terjadi kesalahan saat mengirim.");
-  }
+  callAPI("sendEmail", mOrderData, "POST")
+    .then(res => {
+      console.log("Kirim berhasil:", res);
+
+      alert("Data berhasil tersimpan & terkirim ke WA dan Email!");
+
+      // Reset form ke awal
+      resetForm();
+
+      // Toggle tombol
+      document.getElementById("kirimButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "inline-block";
+      document.getElementById("inputanSection").style.display = "none";
+    })
+    .catch(err => {
+      console.error("Error kirim:", err);
+      alert("Gagal kirim: " + err.message);
+    });
 }
 
 // ************************************************************
