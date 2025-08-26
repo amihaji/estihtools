@@ -1179,12 +1179,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Fungsi untuk DISABLE field-field
 // ********************************
 function disableFields() {
-    //const fieldsToDisable = [
-    //    'distributorName', 'distributorPhone', 'consumerName', 'consumerPhone', 'consumerEmail', 'discount', 'shipping'];
-
-    const fieldsToDisable = [
-        'discount', 'shipping'];
-
+   const fieldsToDisable = ['discount', 'shipping'];
     fieldsToDisable.forEach(fieldId => {
         const field    = document.getElementById(fieldId);
         field.disabled = true;
@@ -1195,9 +1190,7 @@ function disableFields() {
 // Fungsi untuk ENABLE field-field
 // ********************************
 function enableFields() {
-    const fieldsToEnable = [
-        'discount', 'shipping'];
-
+    const fieldsToEnable = ['product','quantity','discount','shipping'];
     fieldsToEnable.forEach(fieldId => {
         const field    = document.getElementById(fieldId);
         field.disabled = false;
