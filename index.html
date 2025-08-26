@@ -1388,13 +1388,24 @@ function deleteItem(icon) {
 // Kumpulkan data tabel ke object order
 // ************************************ 
 // Kumpulkan semua data order (produk + konsumen) untuk dikirim ke GAS
-function BACKUP_collectOrderData() {
+function collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
   // --- Ambil produk ---
   const items = [];
   rows.forEach((row, index) => {
+    const mNoItem        = idx + 1;
+    const mNoStok        = row.cells[1].textContent;
+    const mNamaProduk    = row.cells[2].textContent;
+    const mHargaEceran   = parseFloat(row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
+    const mSetelahDiskon = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, "")) || 0;
+    const mJumlah        = parseInt(row.querySelector("input").value) || 0;
+    const mTotVP         = mJumlah * (parseFloat(row.getAttribute("data-vp")) || 0);
+    const mHarga         = mJumlah * mSetelahDiskon;
+    const mKategori      = row.getAttribute("data-kategori") || "";
+    const mVp            = parseFloat(row.getAttribute("data-vp")) || 0;
+
     const cells = row.querySelectorAll("td");
     if (cells.length > 0) {
       items.push({
@@ -1436,7 +1447,7 @@ function parseCurrency(str) {
   return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
 }
 
-function collectOrderData() {
+function BACKUP_collectOrderData() {
   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
