@@ -787,7 +787,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbyanE39wWMrXV3zn0Of9dKb3UFyaeLdjuFEpZPmAiFLR5swKds5zRaUz98DtBjiugiL1g/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbzu0mYMetY_ffnOROAjKSA-Qa94jpFbsIAySQsCrFRTRs1QL2U_n1wAIOcNh80ITukfMQ/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -796,28 +796,6 @@ document.querySelector('#orderTable tbody').replaceWith(document.querySelector('
 // **********************************************
 // Fungsi untuk koneksi dengan Google Apps Script 
 // **********************************************
-function BACKUP_callAPI(action, params = {}, method = "GET") {
-  const url = API_URL;
-
-  if (method === "GET") {
-    const requestUrl = new URL(url);
-    requestUrl.searchParams.append("action", action);
-    Object.keys(params).forEach(key => requestUrl.searchParams.append(key, params[key]));
-    return fetch(requestUrl).then(res => res.json());
-  } else {
-    // POST pakai no-cors → biar lolos blokir CORS GAS
-    const payload = JSON.stringify({ action, ...params });
-    return fetch(url, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: payload
-    });
-    // NOTE: tidak bisa pakai res.json() karena no-cors
-  }
-}
-
-// FUNGSI INTI UNTUK KOMUNIKASI DENGAN GOOGLE SCRIPT
 async function callAPI(action, params = {}) {
   // Tampilkan spinner setiap kali API dipanggil
   document.getElementById('loadingSpinner').style.display = 'block';
