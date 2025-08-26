@@ -799,10 +799,8 @@ document.querySelector('#orderTable tbody').replaceWith(document.querySelector('
 async function callAPI(action, params = {}) {
   // Tampilkan spinner setiap kali API dipanggil
   document.getElementById('loadingSpinner').style.display = 'block';
-
   try {
     const payload = { action, ...params };
-
     const response = await fetch(API_URL, {
       method: "POST",
       // Hapus 'mode: "no-cors"' agar kita bisa membaca respons
