@@ -594,26 +594,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <h4>SIMULASI ESTIMASI HARGA</h4>
                 </div>
                 <!-- Form Pesanan Barang -->        
-                <form id="orderForm" class="form-control">
+                <form id="orderForm">
                     <i class="fas fa-cart-plus mt-2 mb-2"> Data Produk</i>
-
                     <div>
                         <label for="date">Tanggal:</label>
                         <input type="date" id="date" name="date" readonly>
                     </div> 
-                    
                     <div>
                         <label for="invoice">Simulasi No.:</label>
                         <input type="text" id="invoice" name="invoice" readonly>
                     </div>
-
                     <div>
                         <label for="product">Nama Produk:</label>
                         <select id="product" name="product" required>
                             <!-- Opsi akan diisi oleh JavaScript -->
                         </select>
                     </div>
-
                     <div>
                         <label for="quantity">Jumlah:</label>
                         <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
@@ -636,7 +632,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <div>
                             <i class="fas fa-users"> Data Personal</i>
                         </div>  
-                        <div class="form-control mt-4 mb-2" style="border:#b4b4b4; border-style:solid; border-width:0.2px; border-radius:4px; padding:20px;">    
+                        <div class="form-control mt-4 mb-4">
+                        <!-- 
+                        <div class="form-control mt-4 mb-2" style="border:#b4b4b4; border-style:solid; border-width:0.2px; border-radius:4px; padding:20px;">   
+                        -->
                            <div>
                                 <label for="distributorName">Nama Member:</label>
                                 <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
