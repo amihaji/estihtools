@@ -173,8 +173,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* batas tinggi tabel sebelum muncul scroll */
 .table-container {
   max-height: 400px;        
-  overflow-y: auto;         /* aktifkan scroll vertical */
-  border: 1px solid #ccc; /* opsional */
+  overflow-y: auto;           /* aktifkan scroll vertical */
+  border: 0.2px solid #ccc; /* opsional */
 }
 /* Sticky header */
 .table-container thead th {
@@ -633,14 +633,18 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <i class="fas fa-users"> Data Personal</i>
                         </div>  
                         <div class="form-control mt-2">
+                            
                             <div>
-                                <label for="distributorName">Nama Member:</label>
-                                <input class="mb-2" type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+                                <div>
+                                    <label for="distributorName">Nama Member:</label>
+                                    <input class="mb-2" type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+                                </div>
+                                <div>
+                                    <label for="distributorPhone">No. HP Member:</label>
+                                    <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                                </div>
                             </div>
-                            <div>
-                                <label for="distributorPhone">No. HP Member:</label>
-                                <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                            </div>
+                        
                             <div>
                                 <label for="consumerName">Nama Konsumen:</label>
                                 <input class="mb-2" type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
