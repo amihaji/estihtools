@@ -634,29 +634,31 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     </div>
 
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
-                    <div id="inputanSection" style="display:none; margin-top:5px; border:#b4b4b4; border-style:solid; border-width:0.2px; border-radius:4px; padding:10px;">    
-                        <div>
-                            <i class="fas fa-users mt-4 mb-2"> Data Personal</i>
-                        </div>  
-                        <div class="form-group">
-                            <label for="distributorName">Nama Member:</label>
-                            <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="distributorPhone">No. HP Member:</label>
-                            <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerName">Nama Konsumen:</label>
-                            <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerPhone">No. HP Konsumen:</label>
-                            <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerEmail">Email Konsumen:</label>
-                            <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                    <div id="inputanSection" style="display:none; margin-top:5px;">    
+                        <div style="border:#b4b4b4; border-style:solid; border-width:0.2px; border-radius:4px; padding:20px;">    
+                            <div>
+                                <i class="fas fa-users mt-4 mb-2"> Data Personal</i>
+                            </div>  
+                            <div class="form-group">
+                                <label for="distributorName">Nama Member:</label>
+                                <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="distributorPhone">No. HP Member:</label>
+                                <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="consumerName">Nama Konsumen:</label>
+                                <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                            </div>
+                            <div class="form-group">
+                                <label for="consumerPhone">No. HP Konsumen:</label>
+                                <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                            </div>
+                            <div class="form-group">
+                                <label for="consumerEmail">Email Konsumen:</label>
+                                <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                            </div>
                         </div>
                     </div>     
                 
