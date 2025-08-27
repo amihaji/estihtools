@@ -643,10 +643,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                 <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
                             </div>
                              -->
-                            <div class="input-group mb-2">
-                                <span class="input-group-text">Nama Member</span>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
                                 <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
-                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
+                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
                             </div>
                             <div>
                                 <label for="consumerName">Nama Konsumen:</label>
