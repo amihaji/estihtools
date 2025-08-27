@@ -174,7 +174,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .table-container {
   max-height: 400px;        
   overflow-y: auto;           /* aktifkan scroll vertical */
-  border: 0.2px solid #ccc; /* opsional */
+  /*border: 0.2px solid #ccc; /* opsional */
 }
 /* Sticky header */
 .table-container thead th {
@@ -212,21 +212,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 
 /* Perataan Text Field */
-#orderTable td:nth-child(1), 
-#orderTable td:nth-child(2), 
-#orderTable td:nth-child(3) {   
-    text-align: left;
-}
-#orderTable td:nth-child(4), 
-#orderTable td:nth-child(5), 
-#orderTable td:nth-child(6), 
-#orderTable td:nth-child(7), 
-#orderTable td:nth-child(8) { 
-    text-align: right;
-}
-#orderTable td:nth-child(9) {     
-    text-align: center;
-}
+#orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; }
+#orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) {text-align: right;}
+#orderTable td:nth-child(9) { text-align: center;}
 
 /* Input jumlah di tabel */
 #orderTable .qty-input {
