@@ -596,11 +596,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
                     <i class="fas fa-cart-plus mt-2 mb-2"> Data Produk</i>
-                    <div>
+                    <div class="input-group mt-2">
                         <span class="input-group-text">Tanggal</span>
                         <input type="date" id="date" name="date" readonly>
                     </div> 
-                    <div>
+                    <div class="input-group mt-2">
                         <span class="input-group-text">No Simulasi</span>
                         <input type="text" id="invoice" name="invoice" readonly>
                     </div>
@@ -615,13 +615,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
                     </div>
                     <div class="input-group mt-2">
-                        <label for="discount">Diskon:</label>
+                        <span for="discount">Diskon</span>
                         <select id="discount" class="form-control" name="discount" required>
                            <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
                     </div>
                     <div class="input-group mt-2"> 
-                        <label for="shipping">By Pengiriman:</label>
+                        <span for="shipping">By Pengiriman:</span>
                         <select id="shipping" class="form-control" name="shipping" required>
                             <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
