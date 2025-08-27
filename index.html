@@ -597,33 +597,33 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 <form id="orderForm">
                     <i class="fas fa-cart-plus mt-2 mb-2"> Data Produk</i>
                     <div>
-                        <label for="date">Tanggal:</label>
+                        <span class="input-group-text">Tanggal</span>
                         <input type="date" id="date" name="date" readonly>
                     </div> 
                     <div>
-                        <label for="invoice">Simulasi No.:</label>
+                        <span class="input-group-text">No Simulasi</span>
                         <input type="text" id="invoice" name="invoice" readonly>
                     </div>
-                    <div>
-                        <label for="product">Nama Produk:</label>
-                        <select id="product" name="product" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                    <div class="input-group mt-2">
+                        <span class="input-group-text">Nama Produk</span>
+                        <select id="product" class="form-control" name="product" required>
+                           <!-- Opsi akan diisi oleh JavaScript -->
                         </select>
                     </div>
-                    <div>
-                        <label for="quantity">Jumlah:</label>
-                        <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                    <div class="input-group mt-2">
+                        <span class="input-group-text">Jumlah</span>
+                        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
                     </div>
-                    <div>
+                    <div class="input-group mt-2">
                         <label for="discount">Diskon:</label>
-                        <select id="discount" name="discount" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                        <select id="discount" class="form-control" name="discount" required>
+                           <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
                     </div>
-                    <div> 
+                    <div class="input-group mt-2"> 
                         <label for="shipping">By Pengiriman:</label>
-                        <select id="shipping" name="shipping" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                        <select id="shipping" class="form-control" name="shipping" required>
+                            <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
                     </div>
 
@@ -633,28 +633,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <i class="fas fa-user-friends"> Data Personal</i>
                         </div>  
                         <div class="form-control mt-2">
-                            <!--  
-                            <div class="input-group">
-                                <label for="distributorName">Nama Member:</label>
-                                <input class="mb-2" type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-                            </div>
-                            <div>
-                                <label for="distributorPhone">No. HP Member:</label>
-                                <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                            </div>
-                            <div>
-                                <label for="consumerName">Nama Konsumen:</label>
-                                <input class="mb-2" type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-                            </div>
-                            <div>
-                                <label for="consumerPhone">No. HP Konsumen:</label>
-                                <input class="mb-2" type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-                            </div>
-                            <div>
-                                <label for="consumerEmail">Email Konsumen:</label>
-                                <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
-                            </div>
-                             -->
                             <div class="input-group mt-2">
                                 <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
                                 <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >

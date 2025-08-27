@@ -1,9 +1,9 @@
 <!--------------------------------------------------------------------------------------------------------------------- 
 * EstiH Tools Versi 7.0
 * Aplikasi untuk pemesanan produk web base
-* File index.Html         : script html, CSS, jscript
-* File emailTemplate.html : script html
-* File code.gs            : script google script
+* File index.Html         : script html, CSS, jscript ditempatkan di GITHUB
+* File emailTemplate.html : script html ditempatkan di google sheet
+* File code.gs            : script google script ditempatkan di google script
 *
 * Worksheet : EstiHTools
 * Sheet : DataInput : untuk menyimpan data inputan dari form
@@ -31,6 +31,7 @@
 *   - Sorotan pointer pindah baris item maka icon "X", tersembunyi 
 *   - Jika kursor pindah ke Inputan, maka sorotan pointer juga tersembunyi dari tabel "Form Ringkasan Pesanan"
 -------------------------------------------------------------------------------------------------------------------------->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +59,6 @@ body {
 /* Header dengan Gambar */
 .header { text-align: center; margin-bottom: 20px; }
 .header img { max-width: 100%; height: auto; border-radius: 8px; }
-
 
 /*****************************/
 /* Styling untuk Menu Utama */
@@ -173,8 +173,8 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* batas tinggi tabel sebelum muncul scroll */
 .table-container {
   max-height: 400px;        
-  overflow-y: auto;         /* aktifkan scroll vertical */
-  border: 1px solid #ccc; /* opsional */
+  overflow-y: auto;           /* aktifkan scroll vertical */
+  border: 0.2px solid #ccc; /* opsional */
 }
 /* Sticky header */
 .table-container thead th {
@@ -338,7 +338,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #setujuButton:disabled { background-color: #ccc; cursor: not-allowed; }
 
 #submitButton[disabled] { opacity: 0.6; cursor: not-allowed; }
-
 
 /**********************/
 /* About Form Overlay */
@@ -596,25 +595,32 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                   
-                    <div class="form-group">
+                    <i class="fas fa-cart-plus mt-2 mb-2"> Data Produk</i>
+                    <div>
+                        <label for="date">Tanggal:</label>
+                        <input type="date" id="date" name="date" readonly>
+                    </div> 
+                    <div>
+                        <label for="invoice">Simulasi No.:</label>
+                        <input type="text" id="invoice" name="invoice" readonly>
+                    </div>
+                    <div>
                         <label for="product">Nama Produk:</label>
                         <select id="product" name="product" required>
                             <!-- Opsi akan diisi oleh JavaScript -->
                         </select>
                     </div>
-
-                    <div class="form-group">
+                    <div>
                         <label for="quantity">Jumlah:</label>
                         <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
                     </div>
-                    <div class="form-group">
+                    <div>
                         <label for="discount">Diskon:</label>
                         <select id="discount" name="discount" required>
                             <!-- Opsi akan diisi oleh JavaScript -->
                         </select>
                     </div>
-                    <div class="form-group"> 
+                    <div> 
                         <label for="shipping">By Pengiriman:</label>
                         <select id="shipping" name="shipping" required>
                             <!-- Opsi akan diisi oleh JavaScript -->
@@ -623,33 +629,52 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
                     <div id="inputanSection" style="display:none; margin-top:5px;">    
-                        <div class="form-group">
-                            <label for="date">Tanggal:</label>
-                            <input type="date" id="date" name="date" readonly>
-                        </div> 
-                        <div class="form-group">
-                            <label for="invoice">Simulasi No.:</label>
-                            <input type="text" id="invoice" name="invoice" readonly>
-                        </div>
-                        <div class="form-group">
-                            <label for="distributorName">Nama Member:</label>
-                            <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="distributorPhone">No. HP Member:</label>
-                            <input type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerName">Nama Konsumen:</label>
-                            <input type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerPhone">No. HP Konsumen:</label>
-                            <input type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-                        </div>
-                        <div class="form-group">
-                            <label for="consumerEmail">Email Konsumen:</label>
-                            <input type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                        <div>
+                            <i class="fas fa-user-friends"> Data Personal</i>
+                        </div>  
+                        <div class="form-control mt-2">
+                            <!--  
+                            <div class="input-group">
+                                <label for="distributorName">Nama Member:</label>
+                                <input class="mb-2" type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
+                            </div>
+                            <div>
+                                <label for="distributorPhone">No. HP Member:</label>
+                                <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div>
+                                <label for="consumerName">Nama Konsumen:</label>
+                                <input class="mb-2" type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                            </div>
+                            <div>
+                                <label for="consumerPhone">No. HP Konsumen:</label>
+                                <input class="mb-2" type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                            </div>
+                            <div>
+                                <label for="consumerEmail">Email Konsumen:</label>
+                                <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                            </div>
+                             -->
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square"></i></span>
+                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="far fa-user-circle"></i></span>
+                                <input type="text" class="form-control" id="consumerName" name="consumerName" placeholder="Input nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
+                                <input type="number" class="form-control" id="consumerPhone" name="consumerPhone" placeholder="Input WA konsumen tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                            </div>
+                            <div class="input-group mt-2 mb-2">
+                                <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
+                                <input type="email" class="form-control" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim hasil ke email konsumen (optional)" maxlength="25">
+                            </div>
                         </div>
                     </div>     
                 
@@ -665,24 +690,22 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
                     <!-- Tampilan tombol -->
                     <div class="button-group"> 
-                        <!-- Tambah -->
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
                             <i class="fas fa-save"></i> TAMBAH
                         </button>
-                        <!-- Update -->
+                        <!-- Tombol UPDATE tampil jika mengedit jumlah item -->
                         <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
                             <i class="fas fa-edit"></i> UPDATE
                         </button>
-                        <!-- Reset -->
                         <button type="button" class="btn btn-primary" onclick="resetForm()">
                             <i class="fas fa-rotate-left"></i> RESET
                         </button>
-                        <!-- Submit -->
-                        <button type="button" class="btn btn-success" id="submitButton" onclick="submitForm()" disabled>
+                        <!-- Menekan Tombol UPDATE, maka data tersimpan di sheet "DataInput" dan Tampil tombol KIRIM -->
+                        <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
                             <i class="fas fa-paper-plane"></i> SUBMIT
                         </button>
-                        <!-- Kirim -->
-                        <button type="button" class="btn btn-danger" id="kirimButton" onclick="kirimData()" style="display:none;">
+                        <!-- Tombol KIRIM tampil jika menekan tombol SUBMIT -->
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
                             <i class="fas fa-share-square"></i> KIRIM
                         </button>
                     </div>  
@@ -787,45 +810,33 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbzyxmNF3D8tg8oAXtE-LD2oq9YGHsFx6mqawkJOV2KjXIUnUq7AElwjJkQn-AAtwz0T_A/exec";
-let isEditMode     = false;      // Untuk mendefenisikan mode Edit
-let currentEditRow = null;       // Untuk menyimpan referensi row yang sedang diedit
+const API_URL      = "https://script.google.com/macros/s/AKfycbyR1NpPAZLkORpIMNIQiFUqhReWdellfZtm4aA7TL0bv-Tir1Sb8fHJjxXgVVejsBJU/exec";
+let isEditMode     = false;     // Untuk mendefenisikan mode Edit
+let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
 document.querySelector('#orderTable tbody').replaceWith(document.querySelector('#orderTable tbody').cloneNode(true));
 
 // **********************************************
 // Fungsi untuk koneksi dengan Google Apps Script 
 // **********************************************
-async function callAPI(action, params = {}) {
-  // Tampilkan spinner setiap kali API dipanggil
-  document.getElementById('loadingSpinner').style.display = 'block';
+function callAPI(action, params = {}, method = "GET") {
+  const url = API_URL;
 
-  try {
-    const payload = { action, ...params };
-
-    const response = await fetch(API_URL, {
+  if (method === "GET") {
+    const requestUrl = new URL(url);
+    requestUrl.searchParams.append("action", action);
+    Object.keys(params).forEach(key => requestUrl.searchParams.append(key, params[key]));
+    return fetch(requestUrl).then(res => res.json());
+  } else {
+    // POST pakai no-cors → biar lolos blokir CORS GAS
+    const payload = JSON.stringify({ action, ...params });
+    return fetch(url, {
       method: "POST",
-      // Hapus 'mode: "no-cors"' agar kita bisa membaca respons
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8", 
-      },
-      body: JSON.stringify(payload),
-      redirect: "follow"
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: payload
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    
-    const result = await response.json();
-    document.getElementById('loadingSpinner').style.display = 'none'; // Sembunyikan spinner setelah sukses
-    return result;
-
-  } catch (error) {
-    document.getElementById('loadingSpinner').style.display = 'none'; // Sembunyikan spinner jika error
-    console.error("Gagal memanggil API:", error);
-    // Lemparkan error agar bisa ditangkap oleh fungsi pemanggil
-    throw error; 
+    // NOTE: tidak bisa pakai res.json() karena no-cors
   }
 }
 
@@ -945,6 +956,9 @@ function enableUpdateMode() {
         btnUpdate.disabled      = false;
     }
     isEditMode = true;
+    btnAdd.style.display    = 'block';
+    btnUpdate.style.display = 'none';
+    btnUpdate.disabled      = true;
 }
 
 // ***********************************
@@ -975,17 +989,7 @@ function updateItem() {
         showNotification('warning', 'PERHATIAN : Tidak ada perubahan yg disimpan'); 
         return;
     }
-    
-    // Simpan perubahan ke sheet
-    const orderData = collectOrderData();
-    saveOrderToSheet(orderData).then(() => {
-        showNotification('success', 'SUKSES : Data berhasil tersimpan');
-        resetEditMode();
-    })
-    .catch(error => {
-        console.error("Gagal menyimpan perubahan:", error);
-        showNotification('error', 'ERROR : Gagal menyimpan perubahan');
-    });
+    resetEditMode();
 }
 
 // *************************
@@ -1000,7 +1004,6 @@ function addItem() {
 
   if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
     showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah, Diskon dan Pengiriman');
-    //alert("Harap lengkapi pilihan diskon, produk, dan jumlah.");
     return;
   }
 
@@ -1072,10 +1075,8 @@ function addItem() {
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
     showNotification('success', 'SUKSES : Item berhasil di tambah');
-    //showMessage("Item berhasil ditambahkan!", false);
   }).catch(error => {
      showNotification('error', 'ERROR : '+ error.message);
-    //showMessage("Error: " + error.message, true);
   });
 }
 
@@ -1190,12 +1191,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Fungsi untuk DISABLE field-field
 // ********************************
 function disableFields() {
-    //const fieldsToDisable = [
-    //    'distributorName', 'distributorPhone', 'consumerName', 'consumerPhone', 'consumerEmail', 'discount', 'shipping'];
-
-    const fieldsToDisable = [
-        'discount', 'shipping'];
-
+   const fieldsToDisable = ['discount', 'shipping'];
     fieldsToDisable.forEach(fieldId => {
         const field    = document.getElementById(fieldId);
         field.disabled = true;
@@ -1206,9 +1202,7 @@ function disableFields() {
 // Fungsi untuk ENABLE field-field
 // ********************************
 function enableFields() {
-    const fieldsToEnable = [
-        'discount', 'shipping'];
-
+    const fieldsToEnable = ['product','quantity','discount','shipping'];
     fieldsToEnable.forEach(fieldId => {
         const field    = document.getElementById(fieldId);
         field.disabled = false;
@@ -1219,55 +1213,6 @@ function enableFields() {
 // Fungsi untuk memanggil pilihan dropdown field
 // **********************************************
 function loadOptions() {
-    // Untuk GET, kita bisa membuat URL dengan parameter
-    fetch(`${API_URL}?action=getDiscounts`).then(res => res.json()).then(mDiscounts => {
-    // ... (logika mengisi dropdown diskon Anda di sini) ...
-    
-        const discountSelect     = document.getElementById('discount');
-        discountSelect.innerHTML = '<option value="">Pilih Level Diskon</option>';
-        mDiscounts.forEach(discount => {
-            const option       = document.createElement('option');
-            option.value       = discount.Diskon;
-            option.textContent = discount.Level;
-            discountSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat diskon:", err);
-        showNotification('error', 'ERROR : memuat data diskon');
-    });
-  
-    fetch(`${API_URL}?action=getProducts`).then(res => res.json()).then(mProducts => {
-    // ... (logika mengisi dropdown produk Anda di sini) ...
-    const productSelect     = document.getElementById('product');
-        productSelect.innerHTML = '<option value="">Pilih Nama Produk</option>';
-        mProducts.forEach(product => {
-            const option       = document.createElement('option');
-            option.value       = product.NoStok;
-            option.textContent = product.NamaProduk;
-            productSelect.appendChild(option);
-        });
-    }).catch(err => {
-        console.error("Gagal memuat produk:", err);
-        showNotification('error', 'ERROR : memuat data produk');
-    });
-    
-    fetch(`${API_URL}?action=getShippingOptions`).then(res => res.json()).then(mShippingOptions => {
-    // ... (logika mengisi dropdown pengiriman Anda di sini) ...
-    const shippingSelect     = document.getElementById('shipping');
-            shippingSelect.innerHTML = '<option value="">Pilih Jenis Pengiriman</option>';
-            mShippingOptions.forEach(shipping => {
-                const option       = document.createElement('option');
-                option.value       = shipping.Biaya;
-                option.textContent = shipping.JenisPengiriman;
-                shippingSelect.appendChild(option);
-            });
-        }).catch(err => {
-            console.error("Gagal memuat pengiriman:", err);
-            showNotification('error', 'ERROR : Memuat data pengiriman');
-    });
-}
-
-function BACKUP_loadOptions() {
     // Load Pilihan Diskon
     callAPI("getDiscounts").then(mDiscounts => {
         const discountSelect     = document.getElementById('discount');
@@ -1416,14 +1361,6 @@ function deleteItem(icon) {
   // Update tampilan
   updateItemNumbers();
   updateTotals();
-  
-  // Hapus dari sheet
-  callAPI("deleteItemFromSheet", { noStok: noStok }, "POST")
-    .then(() => {
-      // Simpan perubahan setelah penghapusan
-      saveOrderToSheet(collectOrderData());
-    })
-    .catch(error => console.error("Gagal menghapus:", error));
 }
 
 // ************************************
@@ -1492,7 +1429,6 @@ function parseCurrency(str) {
   return parseFloat(str.replace(/[^0-9,-]/g, "").replace(",", "."));
 }
 
-
 // *****************************
 // Untuk menyimpan data ke sheet
 // *****************************
@@ -1514,82 +1450,79 @@ function saveOrderToSheet(orderData) {
     });
 }
 
-//======================
-// === MODE UPDATE ===
-function enableUpdateMode(row) {
-  document.getElementById("btnAdd").style.display = "none";
-  document.getElementById("btnUpdate").style.display = "inline-block";
-  document.getElementById("btnUpdate").disabled = false;
-  // simpan index row yang sedang diedit
-  window.editRowIndex = row.rowIndex - 1;
-}
-
-function disableUpdateMode() {
-  document.getElementById("btnAdd").style.display = "inline-block";
-  document.getElementById("btnUpdate").style.display = "none";
-  document.getElementById("btnUpdate").disabled = true;
-  window.editRowIndex = null;
-}
-
-
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-// FUNGSI SUBMIT (SEKARANG MENGGUNAKAN callAPI YANG BENAR)
-async function submitForm() {
-  const orderData = collectOrderData();
-  if (orderData.items.length === 0) {
-    showNotification('warning', 'PERHATIAN: Tambahkan minimal satu produk.');
+// === Tahap 1: SUBMIT ===
+function submitForm() {
+  const mOrderData = collectOrderData();
+
+  // simpan ke DataInput (hanya data produk)
+  callAPI("saveOrder", mOrderData, "POST")
+    .then(res => {
+      console.log("Submit berhasil:", res);
+
+      // Disable input produk
+      document.getElementById("product").disabled = true;
+      document.getElementById("quantity").disabled = true;
+      document.getElementById("discount").disabled = true;
+      document.getElementById("shipping").disabled = true;
+      document.getElementById("btnAdd").disabled = true;
+      document.getElementById("btnUpdate").disabled = true;
+
+      // Toggle tombol
+      document.getElementById("submitButton").style.display = "none";
+      document.getElementById("kirimButton").style.display = "inline-block";
+
+      // Tampilkan inputan konsumen
+      document.getElementById("inputanSection").style.display = "block";
+    })
+    .catch(err => {
+      console.error("Error submit:", err);
+      alert("Gagal submit: " + err.message);
+    });
+}
+
+// **************************************************
+// Mengirim data ke sheet DataInput dan DataKonsumen
+// **************************************************
+function kirimData() {
+  // Validasi form sebelum mengirim
+  if (!validateForm()) {
+    showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
     return;
   }
 
-  try {
-    const response = await callAPI("saveOrder", orderData);
-    console.log("Submit berhasil:", response);
-
-    if (response && response.status === "success") {
-      showNotification('success', 'SUKSES: Data pesanan tersimpan. Silakan isi data konsumen.');
-      
-      // Alur setelah submit sukses
-      document.getElementById("product").disabled = true;
-      document.getElementById("quantity").disabled = true;
-      document.getElementById("btnAdd").disabled = true;
-      document.getElementById("submitButton").style.display = "none";
-      document.getElementById("kirimButton").style.display = "inline-block";
-      document.getElementById("inputanSection").style.display = "block";
-    } else {
-      // Menangani error yang dikirim dari Google Script
-      throw new Error(response.message || 'Terjadi kesalahan yang tidak diketahui.');
-    }
-  } catch (error) {
-    showNotification('error', 'ERROR saat menyimpan: ' + error.message);
-  }
-}
-
-// FUNGSI KIRIM (SEKARANG MENGGUNAKAN callAPI YANG BENAR)
-async function kirimData() {
-  const orderData = collectOrderData();
-  if (!orderData.mDistributorName || !orderData.mDistributorPhone) {
-      showNotifValidasi('warning', 'WARNING: Nama dan No. HP Member wajib diisi.');
-      return;
-  }
+  const mOrderData = collectOrderData();
   
-  try {
-    const response = await callAPI("sendEmail", orderData);
-    console.log("Kirim berhasil:", response);
-
-    if (response && response.status === "success") {
-      alert("Berhasil! Data telah disimpan dan dikirim ke Email/WA.");
+  // Tampilkan loading spinner
+  document.getElementById('loadingSpinner').style.display = 'block';
+  
+  callAPI("kirimData", mOrderData, "POST")
+    .then(response => {
+      // Karena mode no-cors, kita tidak bisa mendapatkan response JSON
+      // Jadi kita asumsikan berhasil jika tidak ada error
+      console.log("Kirim berhasil");
+      showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
+      
+      // Reset form
       resetForm();
-    } else {
-      throw new Error(response.message || 'Terjadi kesalahan yang tidak diketahui.');
-    }
-  } catch (error) {
-    showNotification('error', 'ERROR saat mengirim: ' + error.message);
-  }
+      
+      // Toggle tombol
+      document.getElementById("kirimButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "inline-block";
+      document.getElementById("inputanSection").style.display = "none";
+    })
+    .catch(err => {
+      console.error("Error kirim:", err);
+      showNotification('error', 'ERROR: Gagal mengirim data');
+    })
+    .finally(() => {
+      // Sembunyikan loading spinner
+      document.getElementById('loadingSpinner').style.display = 'none';
+    });
 }
 
- 
 // ************************************************************
 // Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
 // ************************************************************
@@ -1783,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Event listener untuk tombol Close About
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
 });
+
 
 </script>
 </body>
