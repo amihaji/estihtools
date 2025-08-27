@@ -642,15 +642,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                 <label for="distributorPhone">No. HP Member:</label>
                                 <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
                             </div>
-                             -->
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
-                                <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
-                            </div>
-                            <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-phone-alt"></i></span>
-                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                            </div>
                             <div>
                                 <label for="consumerName">Nama Konsumen:</label>
                                 <input class="mb-2" type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
@@ -662,6 +653,27 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <div>
                                 <label for="consumerEmail">Email Konsumen:</label>
                                 <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
+                            </div>
+                             -->
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square"></i></span>
+                                <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                                <input type="text" class="form-control" id="consumerName" name="consumerName" placeholder="Input nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-phone-square-alt"></i></span>
+                                <input type="number" class="form-control" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
+                            </div>
+                            <div class="input-group mt-2">
+                                <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
+                                <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim hasil ke email (optional)" maxlength="25" >
                             </div>
                         </div>
                     </div>     
