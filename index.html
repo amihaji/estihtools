@@ -1442,35 +1442,6 @@ function submitForm() {
   showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
 }
 
-function BACKUP_submitForm() {
-  const mOrderData = collectOrderData();
-
-  // simpan ke DataInput (hanya data produk)
-  callAPI("saveOrder", mOrderData, "POST")
-    .then(res => {
-      console.log("Submit berhasil:", res);
-
-      // Disable input produk
-      document.getElementById("product").disabled = true;
-      document.getElementById("quantity").disabled = true;
-      document.getElementById("discount").disabled = true;
-      document.getElementById("shipping").disabled = true;
-      document.getElementById("btnAdd").disabled = true;
-      document.getElementById("btnUpdate").disabled = true;
-
-      // Toggle tombol
-      document.getElementById("submitButton").style.display = "none";
-      document.getElementById("kirimButton").style.display = "inline-block";
-
-      // Tampilkan inputan konsumen
-      document.getElementById("inputanSection").style.display = "block";
-    })
-    .catch(err => {
-      console.error("Error submit:", err);
-      alert("Gagal submit: " + err.message);
-    });
-}
-
 // **************************************************
 // Mengirim data ke sheet DataInput dan DataKonsumen
 // **************************************************
@@ -1488,43 +1459,6 @@ function kirimData() {
   
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
-      console.log("Kirim berhasil");
-      showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
-      
-      // Reset form
-      resetForm();
-      
-      // Toggle tombol
-      document.getElementById("kirimButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "inline-block";
-      document.getElementById("inputanSection").style.display = "none";
-    })
-    .catch(err => {
-      console.error("Error kirim:", err);
-      showNotification('error', 'ERROR: Gagal mengirim data');
-    })
-    .finally(() => {
-      // Sembunyikan loading spinner
-      document.getElementById('loadingSpinner').style.display = 'none';
-    });
-}
-
-function BACKUP_kirimData() {
-  // Validasi form sebelum mengirim
-  if (!validateForm()) {
-    showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
-    return;
-  }
-
-  const mOrderData = collectOrderData();
-  
-  // Tampilkan loading spinner
-  document.getElementById('loadingSpinner').style.display = 'block';
-  
-  callAPI("kirimData", mOrderData, "POST")
-    .then(response => {
-      // Karena mode no-cors, kita tidak bisa mendapatkan response JSON
-      // Jadi kita asumsikan berhasil jika tidak ada error
       console.log("Kirim berhasil");
       showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
       
@@ -1739,7 +1673,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Event listener untuk tombol Close About
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
 });
-
 
 </script>
 </body>
