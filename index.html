@@ -597,7 +597,18 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                   
+                    <i class="fas fa-cart-plus"></i> DATA PRODUK
+
+                    <div class="form-group">
+                        <label for="date">Tanggal:</label>
+                        <input type="date" id="date" name="date" readonly>
+                    </div> 
+                    
+                    <div class="form-group">
+                        <label for="invoice">Simulasi No.:</label>
+                        <input type="text" id="invoice" name="invoice" readonly>
+                    </div>
+
                     <div class="form-group">
                         <label for="product">Nama Produk:</label>
                         <select id="product" name="product" required>
@@ -624,14 +635,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
                     <div id="inputanSection" style="display:none; margin-top:5px;">    
-                        <div class="form-group">
-                            <label for="date">Tanggal:</label>
-                            <input type="date" id="date" name="date" readonly>
-                        </div> 
-                        <div class="form-group">
-                            <label for="invoice">Simulasi No.:</label>
-                            <input type="text" id="invoice" name="invoice" readonly>
-                        </div>
+                        <div>
+                            <i class="fas fa-users"></i> DATA PERSONAL
+                        </div>  
                         <div class="form-group">
                             <label for="distributorName">Nama Member:</label>
                             <input type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
