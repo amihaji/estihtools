@@ -776,7 +776,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbyR1NpPAZLkORpIMNIQiFUqhReWdellfZtm4aA7TL0bv-Tir1Sb8fHJjxXgVVejsBJU/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbyFo4kyAFBA-8XdRpUJL7F79Zo8B12678B_VLrgo7pHM-iRJYuQ9tNMLWCsIncmBz1Y/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -1421,6 +1421,28 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // === Tahap 1: SUBMIT ===
 function submitForm() {
+  // Hanya mengubah tampilan, tidak menyimpan data
+  console.log("Submit clicked - preparing for final submission");
+
+  // Disable input produk
+  document.getElementById("product").disabled = true;
+  document.getElementById("quantity").disabled = true;
+  document.getElementById("discount").disabled = true;
+  document.getElementById("shipping").disabled = true;
+  document.getElementById("btnAdd").disabled = true;
+  document.getElementById("btnUpdate").disabled = true;
+
+  // Toggle tombol
+  document.getElementById("submitButton").style.display = "none";
+  document.getElementById("kirimButton").style.display = "inline-block";
+
+  // Tampilkan inputan konsumen
+  document.getElementById("inputanSection").style.display = "block";
+  
+  showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
+}
+
+function BACKUP_submitForm() {
   const mOrderData = collectOrderData();
 
   // simpan ke DataInput (hanya data produk)
@@ -1453,6 +1475,41 @@ function submitForm() {
 // Mengirim data ke sheet DataInput dan DataKonsumen
 // **************************************************
 function kirimData() {
+  // Validasi form sebelum mengirim
+  if (!validateForm()) {
+    showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+    return;
+  }
+
+  const mOrderData = collectOrderData();
+  
+  // Tampilkan loading spinner
+  document.getElementById('loadingSpinner').style.display = 'block';
+  
+  callAPI("kirimData", mOrderData, "POST")
+    .then(response => {
+      console.log("Kirim berhasil");
+      showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
+      
+      // Reset form
+      resetForm();
+      
+      // Toggle tombol
+      document.getElementById("kirimButton").style.display = "none";
+      document.getElementById("submitButton").style.display = "inline-block";
+      document.getElementById("inputanSection").style.display = "none";
+    })
+    .catch(err => {
+      console.error("Error kirim:", err);
+      showNotification('error', 'ERROR: Gagal mengirim data');
+    })
+    .finally(() => {
+      // Sembunyikan loading spinner
+      document.getElementById('loadingSpinner').style.display = 'none';
+    });
+}
+
+function BACKUP_kirimData() {
   // Validasi form sebelum mengirim
   if (!validateForm()) {
     showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
