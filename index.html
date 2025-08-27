@@ -630,7 +630,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
                     <div id="inputanSection" style="display:none; margin-top:5px;">    
                         <div>
-                            <i class="fas fa-users"> Data Personal</i>
+                            <i class="fas fa-user-friends"> Data Personal</i>
                         </div>  
                         <div class="form-control mt-2">
                             <!--  
@@ -656,7 +656,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             </div>
                              -->
                             <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-user-alt"></i></span>
+                                <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
                                 <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
                             </div>
                             <div class="input-group mt-2">
@@ -664,7 +664,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                                 <input type="number" class="form-control" id="distributorPhone" name="distributorPhone" placeholder="Input WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
                             </div>
                             <div class="input-group mt-2">
-                                <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                                <span class="input-group-text"><i class="far fa-user-circle"></i></span>
                                 <input type="text" class="form-control" id="consumerName" name="consumerName" placeholder="Input nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
                             </div>
                             <div class="input-group mt-2">
@@ -673,7 +673,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             </div>
                             <div class="input-group mt-2">
                                 <span class="input-group-text"><i class="fas fa-envelope-square"></i></span>
-                                <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim hasil ke email (optional)" maxlength="25" >
+                                <input type="email" class="form-control" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim hasil ke email (optional)" maxlength="25">
                             </div>
                         </div>
                     </div>     
