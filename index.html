@@ -253,14 +253,10 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 /* Saat baris tabel di-hover → tampilkan ikon abu-abu */
 #orderTable tbody tr:hover .delete-icon { visibility: visible; opacity: 1; }
-/* Saat ikon di-hover → ubah warna */
-.delete-icon:hover { 
-    background-color: #d3d3d3;  /* lingkaran abu-abu */
-    color: #dc3545;             /* merah */
-    cursor: pointer;
-}
-/* Warna abu-abu untuk icon */
-.delete-icon .fa-times { color: #4208c9 !important; font-size: 16px; transition: all 0.3s ease; }
+/* Saat ikon di-hover → ubah warna dan lingkaran abu-abu */
+.delete-icon:hover { background-color: #d3d3d3; cursor: pointer; }
+/* Warna Merah Ikon */
+.delete-icon .fa-times { color: #dc3545 !important; font-size: 16px; transition: all 0.3s ease; }
 
 /* Sorotan Baris record pada tabel */
 #orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
