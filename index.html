@@ -233,10 +233,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     border: 1px solid #ddd;
 }
 
-/* Sorotan Baris */
-#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
-
-/* Delete Icon Styles */
+/* *********************
+/* Delete Icon Styles  *
+/* *********************/
 .delete-icon { 
     display: none;
     margin: 0;
@@ -247,15 +246,45 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
+    background-color: transparent;
 }
-#orderTable tbody tr:hover .delete-icon { display: flex !important; background-color: transparent; }
-.delete-icon .fa-times { color: #b6b6b6; font-size: 16px; transition: color 0.3s ease; }
-.delete-icon:hover { background-color: #dadada !important; }
+/* Tampilkan icon X saat baris dihover */
+#orderTable tbody tr:hover .delete-icon { display: flex; background-color: transparent; }
+/* Style default icon X (warna abu-abu) */
+.delete-icon .fa-times { color: #b6b6b6; font-size: 16px; transition: all 0.3s ease; }
+/* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
+.delete-icon:hover { background-color: #f0f0f0 !important; }
 .delete-icon:hover .fa-times { color: red !important; }
 
-/* Tampilkan tooltip */
-.tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+/* Pastikan tooltip tidak mengganggu */
+.tooltip { 
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 80px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -40px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+}
+.tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
+/* Sorotan Baris */
+#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
 
 /* Tabel Total */
 #orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
@@ -776,7 +805,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbzmNofNGCfue_JmRbCFPc9En25R22guQ2yQkadiA0wTcYX6MDg5kXXpnhHWRnSDswE1/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbyzaD-IhDrZtZ1_qwkn0tWRVVbEwCP5yzOQdTT_C-RJ2MfaKoIwCgufRNsADTufFJ3v/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -878,7 +907,12 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener('DOMContentLoaded', function() {
     const tableBody = document.querySelector('#orderTable tbody');
     
-    // Delegasi event untuk hover
+    // Pastikan icon tersembunyi saat load awal
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
+
+    // Delegasi event untuk hover pada baris
     tableBody.addEventListener('mouseover', function(e) {
         if (e.target.closest('tr')) {
             const row = e.target.closest('tr');
@@ -902,9 +936,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Pastikan icon tersembunyi saat load awal
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
+    // Pastikan icon tersembunyi saat kursor meninggalkan tabel
+    tableBody.addEventListener('mouseleave', function() {
+        document.querySelectorAll('.delete-icon').forEach(icon => {
+            icon.style.display = 'none';
+        });
     });
 });
 
@@ -995,9 +1031,9 @@ function addItem() {
 
     // Simpan nilai asli VP dan harga dalam atribut data
     const mNewRow = `
-      <tr data-kategori="${mProductData.Kategori}" 
-          data-vp-asli="${mProductData.VP}" 
-          data-harga-setelah-diskon="${mPriceAfterDiscount}">
+    <tr data-kategori="${mProductData.Kategori}" 
+        data-vp-asli="${mProductData.VP}" 
+        data-harga-setelah-diskon="${mPriceAfterDiscount}">
         <td>${mTableBody.rows.length + 1}</td>
         <td>${mProductSelect.value}</td>
         <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
@@ -1007,12 +1043,12 @@ function addItem() {
         <td data-vp-nilai="${mTotVP}">${formatCurrency(mTotVP)}</td>
         <td data-harga-nilai="${mHarga}">${formatCurrency(mHarga)}</td>
         <td class="tooltip">
-          <span class="delete-icon" onclick="deleteItem(this)">
+        <span class="delete-icon" onclick="deleteItem(this)">
             <i class="fas fa-times"></i>
-          </span>
-          <span class="tooltiptext">Hapus</span>
+            <span class="tooltiptext">Hapus Item</span>
+        </span>
         </td>
-      </tr>
+    </tr>
     `;
 
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
