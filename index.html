@@ -1158,6 +1158,79 @@ function addItem() {
   });
 }
 
+// ************************************************************
+// Fungsi untuk mengatur tampilan icon delete
+// ************************************************************
+function setupDeleteIcons() {
+    const tableBody = document.querySelector('#orderTable tbody');
+    
+    if (!tableBody) return;
+    
+    // Pastikan semua icon tersembunyi saat awal
+    hideAllDeleteIcons();
+    
+    // Event ketika mouse masuk ke baris
+    tableBody.addEventListener('mouseenter', function(e) {
+        const row = e.target.closest('tr');
+        if (row) {
+            const deleteIcon = row.querySelector('.delete-icon');
+            if (deleteIcon) {
+                deleteIcon.style.display = 'flex';
+            }
+        }
+    }, true);
+    
+    // Event ketika mouse keluar dari baris
+    tableBody.addEventListener('mouseleave', function(e) {
+        const row = e.target.closest('tr');
+        if (row) {
+            const deleteIcon = row.querySelector('.delete-icon');
+            if (deleteIcon && !deleteIcon.matches(':hover')) {
+                deleteIcon.style.display = 'none';
+            }
+        }
+    }, true);
+    
+    // Event ketika mouse keluar dari icon
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.addEventListener('mouseleave', function() {
+            this.style.display = 'none';
+        });
+    });
+}
+
+// Sembunyikan semua icon delete
+function hideAllDeleteIcons() {
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
+}
+
+// *******************
+// Fungsi Delete Item 
+// *******************
+function deleteItem(icon) {
+    const row = icon.closest('tr');
+    const noStok = row.cells[1].textContent.trim();
+    const invoice = document.getElementById('invoice').value;
+    
+    // Hapus dari tampilan
+    row.remove();
+    
+    // Update tampilan
+    updateItemNumbers();
+    updateTotals();
+    
+    // Hapus dari sheet (opsional)
+    callAPI("deleteItem", { noStok: noStok, invoice: invoice }, "POST")
+        .then(response => {
+            showNotification('success', 'Item berhasil dihapus');
+        })
+        .catch(error => {
+            showNotification('error', 'Gagal menghapus item: ' + error.message);
+        });
+}
+
 // *********************
 // Update Seluruh Total 
 // *********************
