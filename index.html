@@ -232,47 +232,61 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     -webkit-overflow-scrolling: touch;
     border: 1px solid #ddd;
 }
-/* *********************
-/* Delete Icon Styles  *
-/* *********************/
-.delete-icon { 
-    display: none !important; /* Pastikan tersembunyi secara default */
-    margin: 0;
-    cursor: pointer;
+
+
+/* **********************************
+/* Delete Icon Styles               *
+/* *********************************/
+/* icon delete tersembunyi secara default */
+#orderTable tbody tr .delete-icon {
+    display: none !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Tampilkan icon delete saat baris dihover */
+#orderTable tbody tr:hover .delete-icon {
+    display: flex !important;
+    opacity: 1;
+}
+
+/* Style untuk icon delete */
+.delete-icon {
     width: 24px;
     height: 24px;
     border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
     transition: all 0.3s ease;
     background-color: transparent;
-}
-/* Tampilkan icon X saat baris dihover */
-#orderTable tbody tr:hover .delete-icon { 
-    display: flex !important; /* Force tampil saat hover */
-    background-color: transparent;
-}
-/* Style default icon X (warna abu-abu) */
-.delete-icon .fa-times { 
-    color: #b6b6b6 !important; /* Warna abu-abu */
-    font-size: 16px; 
-    transition: all 0.3s ease;
-}
-/* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
-.delete-icon:hover { 
-    background-color: #f0f0f0 !important; /* Abu-abu muda */
-}
-.delete-icon:hover .fa-times { 
-    color: red !important; /* Warna merah */
 }
 
-/* Pastikan tooltip tidak mengganggu */
+/* Warna abu-abu untuk icon */
+.delete-icon .fa-times {
+    color: #b6b6b6 !important;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+/* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
+.delete-icon:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.delete-icon:hover .fa-times {
+    color: red !important;
+}
+
+/* Tooltip */
 .tooltip {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 }
+
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 80px;
@@ -290,6 +304,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     transition: opacity 0.3s;
     font-size: 12px;
 }
+
 .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
@@ -1162,49 +1177,60 @@ function addItem() {
 // Fungsi untuk mengatur tampilan icon delete
 // ************************************************************
 function setupDeleteIcons() {
-    const tableBody = document.querySelector('#orderTable tbody');
-    
-    if (!tableBody) return;
-    
-    // Pastikan semua icon tersembunyi saat awal
-    hideAllDeleteIcons();
-    
-    // Event ketika mouse masuk ke baris
-    tableBody.addEventListener('mouseenter', function(e) {
-        const row = e.target.closest('tr');
-        if (row) {
-            const deleteIcon = row.querySelector('.delete-icon');
-            if (deleteIcon) {
-                deleteIcon.style.display = 'flex';
-            }
-        }
-    }, true);
-    
-    // Event ketika mouse keluar dari baris
-    tableBody.addEventListener('mouseleave', function(e) {
-        const row = e.target.closest('tr');
-        if (row) {
-            const deleteIcon = row.querySelector('.delete-icon');
-            if (deleteIcon && !deleteIcon.matches(':hover')) {
-                deleteIcon.style.display = 'none';
-            }
-        }
-    }, true);
-    
-    // Event ketika mouse keluar dari icon
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.addEventListener('mouseleave', function() {
-            this.style.display = 'none';
-        });
-    });
-}
-
-// Sembunyikan semua icon delete
-function hideAllDeleteIcons() {
+    // Sembunyikan semua icon delete
     document.querySelectorAll('.delete-icon').forEach(icon => {
         icon.style.display = 'none';
     });
+    
+    const tableBody = document.querySelector('#orderTable tbody');
+    if (!tableBody) return;
+    
+    // Hapus event listener lama jika ada
+    tableBody.removeEventListener('mouseover', handleRowHover);
+    tableBody.removeEventListener('mouseout', handleRowLeave);
+    
+    // Tambahkan event listener baru
+    tableBody.addEventListener('mouseover', handleRowHover);
+    tableBody.addEventListener('mouseout', handleRowLeave);
 }
+
+// Handler untuk ketika mouse berada di atas baris
+function handleRowHover(e) {
+    const row = e.target.closest('tr');
+    if (row) {
+        const deleteIcon = row.querySelector('.delete-icon');
+        if (deleteIcon) {
+            deleteIcon.style.display = 'flex';
+        }
+    }
+}
+
+// Handler untuk ketika mouse meninggalkan baris
+function handleRowLeave(e) {
+    const row = e.target.closest('tr');
+    if (row) {
+        const deleteIcon = row.querySelector('.delete-icon');
+        if (deleteIcon && !deleteIcon.matches(':hover')) {
+            deleteIcon.style.display = 'none';
+        }
+    }
+}
+
+// Handler untuk ketika mouse meninggalkan icon
+document.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('delete-icon') || 
+        e.target.closest('.delete-icon')) {
+        // Biarkan icon tetap terlihat
+        return;
+    }
+    
+    // Sembunyikan semua icon yang tidak dihover
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        if (!icon.matches(':hover')) {
+            icon.style.display = 'none';
+        }
+    });
+});
 
 // *******************
 // Fungsi Delete Item 
@@ -1212,7 +1238,6 @@ function hideAllDeleteIcons() {
 function deleteItem(icon) {
     const row = icon.closest('tr');
     const noStok = row.cells[1].textContent.trim();
-    const invoice = document.getElementById('invoice').value;
     
     // Hapus dari tampilan
     row.remove();
@@ -1221,14 +1246,22 @@ function deleteItem(icon) {
     updateItemNumbers();
     updateTotals();
     
-    // Hapus dari sheet (opsional)
+    // Hapus dari sheet
+    const invoice = document.getElementById("invoice").value;
     callAPI("deleteItem", { noStok: noStok, invoice: invoice }, "POST")
         .then(response => {
             showNotification('success', 'Item berhasil dihapus');
         })
         .catch(error => {
-            showNotification('error', 'Gagal menghapus item: ' + error.message);
+            showNotification('error', 'Gagal menghapus item');
         });
+}
+
+// Sembunyikan semua icon delete
+function hideAllDeleteIcons() {
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
 }
 
 // *********************
