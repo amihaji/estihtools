@@ -509,41 +509,33 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     /* Sorotan Baris */
     #orderTable tbody tr:hover { background-color: #f8f9fa; }
   
-    /* Default: ikon X tersembunyi */
+    /*************************
+    /* Pengaturan ikon "X"   */
+    /*************************/
     .delete-icon {
-        visibility: hidden;   /* hidden, bukan display:none */
-        opacity: 0;
-        transition: all 0.2s ease;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;        /* selalu flex, tapi invisible */
-        align-items: center;
+        display: inline-flex;
         justify-content: center;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        color: #6c757d;          /* abu-abu default */
         background-color: transparent;
+        text-decoration: none;
+        visibility: hidden;      /* sembunyi default */
+        opacity: 0;              /* transparan default */
+        transition: all 0.2s ease-in-out;
     }
-
-    /* Warna default X (abu-abu) */
-    .delete-icon .fa-times {
-        color: #b6b6b6;
-        font-size: 16px;
-        pointer-events: none;  /* supaya warna abu-abu dianggap non-aktif */
-        transition: color 0.2s ease, background-color 0.2s ease;
-    }
-
-    /* Saat baris di-hover → tampilkan X abu-abu */
+    /* Saat baris tabel di-hover → tampilkan ikon */
     #orderTable tbody tr:hover .delete-icon {
         visibility: visible;
         opacity: 1;
     }
-
-    /* Saat ikon X di-hover → ubah jadi merah + lingkaran abu-abu */
+    /* Saat ikon di-hover → ubah warna */
     .delete-icon:hover {
-        background-color: #e0e0e0;  /* lingkaran abu-abu */
-    }
-    .delete-icon:hover .fa-times {
-        color: red;
-        pointer-events: auto;       /* aktif saat benar-benar di-hover */
+        background-color: #d3d3d3;   /* abu-abu muda sebagai lingkaran */
+        color: #dc3545;              /* merah */
+        cursor: pointer;
     }
 
     /* Tooltip */
@@ -1113,7 +1105,7 @@ function addItem() {
         <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
         <td data-vp-nilai="${mTotVP}">${formatCurrency(mTotVP)}</td>
         <td data-harga-nilai="${mHarga}">${formatCurrency(mHarga)}</td>
-        <td class="tooltip">
+        <td class="text-center">
           <span class="delete-icon" onclick="deleteItem(this)">
             <i class="fas fa-times"></i>
             <span class="tooltiptext">Hapus Item</span>
