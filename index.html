@@ -494,12 +494,11 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     /* Sorotan Baris */
     #orderTable tbody tr:hover { background-color: #f8f9fa; }
 
-
-    /************************
+   /************************
     /* Delete Icon Styles  */
     /***********************/
     .delete-icon { 
-        display: none !important;
+        display: none; /* Sembunyi secara default */
         margin: 0;
         cursor: pointer;
         width: 24px;
@@ -510,28 +509,36 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         transition: all 0.3s ease;
         background-color: transparent;
     }
+
+    /* Tampilkan icon X saat baris dihover */
     #orderTable tbody tr:hover .delete-icon { 
-        display: flex !important;
-        background-color: transparent;
+        display: flex; /* Tampilkan saat hover baris */
     }
+
+    /* Style default icon X (warna abu-abu) */
     .delete-icon .fa-times { 
-        color: #b6b6b6 !important;
+        color: #b6b6b6; /* Warna abu-abu */
         font-size: 16px; 
         transition: all 0.3s ease;
     }
+
+    /* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
     .delete-icon:hover { 
-        background-color: #f0f0f0 !important;
-    }
-    .delete-icon:hover .fa-times { 
-        color: red !important;
+        background-color: #f0f0f0; /* Abu-abu muda */
     }
 
+    .delete-icon:hover .fa-times { 
+        color: red; /* Warna merah */
+    }
+
+    /* Tooltip */
     .tooltip {
         position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
     }
+
     .tooltip .tooltiptext {
         visibility: hidden;
         width: 80px;
@@ -549,6 +556,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         transition: opacity 0.3s;
         font-size: 12px;
     }
+
     .tooltip:hover .tooltiptext {
         visibility: visible;
         opacity: 1;
@@ -905,7 +913,8 @@ document.addEventListener("DOMContentLoaded", function() {
     mDateField.disabled    = true;
     mInvoiceField.disabled = true;
 
-    loadOptions();  // Load Dropdown Options
+    loadOptions();       // Load Dropdown Options
+    setupDeleteIcons();  // Setup icon delete
 
     // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
@@ -1110,7 +1119,11 @@ function addItem() {
     updateTotals();
 
     // Setup ulang event listeners untuk icon delete
-    setupDeleteIcons();
+    //setupDeleteIcons();
+   
+    // Setup ulang icon delete untuk row yang baru ditambahkan
+    setTimeout(setupDeleteIcons, 100)
+   
 
     // kirim per item ke sheet
     const mOrderData = {
@@ -1417,76 +1430,6 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-// *******************
-// Fungsi Delete Item 
-// *******************
-function deleteItem(icon) {
-  const row = icon.closest('tr');
-  const noStok = row.cells[1].textContent.trim();
-  
-  // Hapus dari tampilan
-  row.remove();
-  
-  // Update tampilan
-  updateItemNumbers();
-  updateTotals();
-  
-  // Hapus dari sheet
-  const invoice = document.getElementById("invoice").value;
-  callAPI("deleteItem", { noStok: noStok, invoice: invoice }, "POST")
-    .then(response => {
-      showNotification('success', 'SUKSES : Item berhasil dihapus');
-    })
-    .catch(error => {
-      showNotification('error', 'ERROR : Gagal menghapus item');
-    });
-}
-
-// ************************************************************
-// Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
-// ************************************************************
-function setupDeleteIcons() {
-    const tableBody = document.querySelector('#orderTable tbody');
-    
-    // Pastikan icon tersembunyi saat load awal
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
-    });
-
-    // Delegasi event untuk hover pada baris
-    tableBody.addEventListener('mouseover', function(e) {
-        if (e.target.closest('tr')) {
-            const row = e.target.closest('tr');
-            const deleteIcon = row.querySelector('.delete-icon');
-            if (deleteIcon) {
-                deleteIcon.style.display = 'flex';
-            }
-        }
-    });
-
-    tableBody.addEventListener('mouseout', function(e) {
-        if (e.target.closest('tr')) {
-            const row = e.target.closest('tr');
-            const deleteIcon = row.querySelector('.delete-icon');
-            if (deleteIcon) {
-                // Tunggu sebentar sebelum menyembunyikan
-                setTimeout(() => {
-                    if (!deleteIcon.matches(':hover')) {
-                        deleteIcon.style.display = 'none';
-                    }
-                }, 100);
-            }
-        }
-    });
-
-    // Pastikan icon tersembunyi saat kursor meninggalkan icon
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.addEventListener('mouseleave', function() {
-            this.style.display = 'none';
-        });
-    });
-}
-
 // ************************************
 // Kumpulkan data tabel ke object order
 // ************************************ 
@@ -1653,28 +1596,6 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
         row.querySelector('.delete-icon').style.display = 'none';
     });
 });
-
-// **********************
-// Mengupdate Baris Icon
-// *********************
-function BACKUP_updateRowIcons(row, mode) {
-    const icons = row.querySelectorAll('.action-icon');
-    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
-
-    if (mode === 'unlock') {
-        editIcon.classList.add('disabled');
-        aktifasiIcon.classList.add('disabled');
-        delIcon.classList.add('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.remove('disabled');
-    } else if (mode === 'kirim') {
-        editIcon.classList.remove('disabled');
-        aktifasiIcon.classList.remove('disabled');
-        delIcon.classList.remove('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.add('disabled');
-    }
-}
 
 // ********************************
 // Fungsi untuk menformat currency
