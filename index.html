@@ -235,22 +235,32 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 /* *******************************
 /* Style untuk icon delete      */
 /* ******************************/
+
+/* Default: ikon X tersembunyi */
 .delete-icon {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
+    display: inline-flex;
     justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    align-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
     background-color: transparent;
+    color: #6c757d;        /* abu-abu default */
+    text-decoration: none;
+    visibility: hidden;    /* sembunyi default */
+    opacity: 0;            /* transparan default */
+    transition: all 0.2s ease-in-out;
+}
+/* Saat baris tabel di-hover → tampilkan ikon abu-abu */
+#orderTable tbody tr:hover .delete-icon { visibility: visible; opacity: 1; }
+/* Saat ikon di-hover → ubah warna */
+.delete-icon:hover { 
+    background-color: #d3d3d3;  /* lingkaran abu-abu */
+    color: #dc3545;             /* merah */
+    cursor: pointer;
 }
 /* Warna abu-abu untuk icon */
 .delete-icon .fa-times { color: #b6b6b6 !important; font-size: 16px; transition: all 0.3s ease; }
-/* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
-.delete-icon:hover { background-color: #f0f0f0 !important; }
-.delete-icon:hover .fa-times { color: red !important; }
 
 /* Sorotan Baris record pada tabel */
 #orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
