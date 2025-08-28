@@ -173,7 +173,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .table-container {
   max-height: 400px;        
   overflow-y: auto;           /* aktifkan scroll vertical */
-  /*border: 0.2px solid #ccc; /* opsional */
 }
 /* Sticky header */
 .table-container thead th {
@@ -255,8 +254,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 #orderTable tbody tr:hover .delete-icon { visibility: visible; opacity: 1; }
 /* Saat ikon di-hover → ubah warna dan lingkaran abu-abu */
 .delete-icon:hover { color: #dc3545 !important; background-color: #d3d3d3; cursor: pointer; }
-/* Warna Merah Ikon */
-/* .delete-icon .fa-times { color: #d3d3d3 !important; font-size: 16px; transition: all 0.3s ease; }
 
 /* Sorotan Baris record pada tabel */
 #orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
@@ -421,21 +418,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         z-index: 10;
     }
     /* Perataan Text Field */
-    #orderTable td:nth-child(1), 
-    #orderTable td:nth-child(2), 
-    #orderTable td:nth-child(3) {   
-        text-align: left;
-    }
-    #orderTable td:nth-child(4), 
-    #orderTable td:nth-child(5), 
-    #orderTable td:nth-child(6), 
-    #orderTable td:nth-child(7), 
-    #orderTable td:nth-child(8) { 
-        text-align: right;
-    }
-    #orderTable td:nth-child(9) {     
-        text-align: center;
-    }
+    #orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; }
+    #orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) { text-align: right; }
+    #orderTable td:nth-child(9) { text-align: center; }
 
     /* Input jumlah di tabel */
     #orderTable .qty-input {
@@ -475,13 +460,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     #orderTable .qty-input { width: 45px; height: 22px; font-size: 12px; }
    
     /* Summary Details dan pengaturan jarak */
-    #summaryDetails {
-        /* margin-top: 20px; */       
-        text-align: right;  
-        font-size: 12px;
-        font-weight: bold;
-        /* margin: 3px 9px; */        
-    }
+    #summaryDetails { text-align: right; font-size: 12px; font-weight: bold; }
 
     /* Footer */
     .footer {
@@ -496,8 +475,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     .modal-content { width: 90%; margin: 10% auto; padding: 15px; }
     .modal-content h2 { font-size: 18px; }
     .modal-content p { font-size: 14px; }
-    /* Pesan Error dan Sukses */
-    /*#message { font-size: 12px;}
     /* Input dan Select yang Disabled */
     input:disabled, select:disabled { cursor: not-allowed; }
     /* Input dan Select yang Enabled */
@@ -662,7 +639,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!-- Tampilan Spinner -->
                     <div id="loadingSpinner" class="text-center my-3 mt-0 mb-0">
                         <div class="spinner-border text-primary"></div>
-                        <!-- <p class="mt-2">Memproses data...</p> -->
                     </div>
                     <h5>Ringkasan Pesanan</h5>
                     <div class="table-wrapper">
@@ -700,8 +676,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         </table>
                         </div>
                     </div>    
-                   <!-- </div> -->
-
+                  
                     <!-- Baris untuk By Pengiriman, Pajak, Total Harga (rata kanan di bawah kolom Harga) -->
                     <div id="summaryDetails">
                         <div>By Pengiriman : <span id="shippingCost">0,00</span></div>
@@ -819,9 +794,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 
                 row.cells[7].textContent = formatCurrency(price * qty);
                 updateTotals();
-                
-                // Aktifkan mode UPDATE
-                //enableUpdateMode();
+              
             }
         });
     } else {
@@ -852,56 +825,6 @@ document.addEventListener("DOMContentLoaded", function() {
     console.log("Aplikasi siap digunakan");
     isEditMode = false;
 });
-
-// ****************************************
-// Fungsi untuk Enable/Disable Update mode
-// ****************************************
-function BACKUP_enableUpdateMode() {
-    console.log("Mengaktifkan mode UPDATE");
-    const btnAdd    = document.getElementById('btnAdd');
-    const btnUpdate = document.getElementById('btnUpdate');
-    
-    if (btnAdd && btnUpdate) {
-        btnAdd.style.display    = 'none';
-        btnUpdate.style.display = 'block';
-        btnUpdate.disabled      = false;
-    }
-    isEditMode = true;
-    btnAdd.style.display    = 'block';
-    btnUpdate.style.display = 'none';
-    btnUpdate.disabled      = true;
-}
-
-// ***********************************
-// Fungsi Untuk mereset ke Mode Tambah
-// ***********************************
-function BACKUP_resetEditMode() {
-    console.log("Mereset mode ke TAMBAH");
-    const btnAdd    = document.getElementById('btnAdd');
-    const btnUpdate = document.getElementById('btnUpdate');
-    
-    if (btnAdd && btnUpdate) {
-        btnAdd.style.display    = 'block';
-        btnAdd.disabled         = false;
-        btnUpdate.style.display = 'none';
-        btnUpdate.disabled      = true;
-    }
-    isEditMode     = false;
-    currentEditRow = null;
-}
-
-// ****************************************
-// Fungsi untuk Update Item (TOMBOL UPDATE)
-// ****************************************
-function BACKUP_updateItem() {
-    console.log("Tombol UPDATE diklik");
-    
-    if (!isEditMode) {
-        showNotification('warning', 'PERHATIAN : Tidak ada perubahan yg disimpan'); 
-        return;
-    }
-    resetEditMode();
-}
 
 // *************************
 // Fungsi untuk nambah data
@@ -1110,7 +1033,6 @@ function validateForm() {
         showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
         return false;
     }
- 
     return true;
 }
 
@@ -1147,16 +1069,15 @@ function resetForm() {
     document.getElementById('tax').textContent           = formatCurrency(0);
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
-    // Nonaktifkan tombol "KIRIM" saat form direset
-    document.getElementById("submitButton").disabled = true;
+    // saat form direset
+    document.getElementById("submitButton").disabled = true;   // Nonaktifkan tombol "submit" 
+    document.getElementById("btnAdd").disabled       = false;  // Aktifkan tombol "Tambah" 
 
     // Enable semua field kecuali Tanggal dan Invoice
     enableFields();
 
     // Pastikan kembali ke mode TAMBAH
-    //resetEditMode();
     showNotification('success', 'SUKSES : Form telah direset');
-    
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
 }
 
@@ -1271,7 +1192,6 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
     if (!isEditMode) {
       isEditMode = true;
       currentEditRow = row;
-      //document.getElementById('btnUpdate').disabled = false;
     }
   }
 });
@@ -1297,7 +1217,7 @@ function updateItemNumbers() {
 // Kumpulkan data tabel ke object order
 // ************************************ 
 function collectOrderData() {
-   const mTableBody = document.querySelector("#orderTable tbody");
+  const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
   const items = [];
@@ -1393,20 +1313,18 @@ function submitForm() {
   console.log("Submit clicked - preparing for final submission");
 
   // Disable input produk
-  document.getElementById("product").disabled = true;
+  document.getElementById("product").disabled  = true;
   document.getElementById("quantity").disabled = true;
   document.getElementById("discount").disabled = true;
   document.getElementById("shipping").disabled = true;
-  document.getElementById("btnAdd").disabled = true;
-  //document.getElementById("btnUpdate").disabled = true;
-
+  document.getElementById("btnAdd").disabled   = true;
+ 
   // Toggle tombol
   document.getElementById("submitButton").style.display = "none";
   document.getElementById("kirimButton").style.display = "inline-block";
 
   // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
-  
   showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
 }
 
@@ -1434,8 +1352,8 @@ function kirimData() {
       resetForm();
       
       // Toggle tombol
-      document.getElementById("kirimButton").style.display = "none";
-      document.getElementById("submitButton").style.display = "inline-block";
+      document.getElementById("kirimButton").style.display    = "none";
+      document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
     })
     .catch(err => {
