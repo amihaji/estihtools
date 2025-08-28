@@ -164,7 +164,6 @@ input:enabled, select:enabled { cursor: pointer; }
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
 button { border: none; cursor: pointer; flex: 1; transition: background-color 0.3s; font-weight: bold; }
-#btnUpdate:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /***************************/
 /* Tabel Ringkasan Pesanan */
@@ -233,15 +232,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     border: 1px solid #ddd;
 }
 
-/* *********************************
-/* Delete Icon Styles              *
-/* *********************************/
-/* icon delete tersembunyi secara default */
-#orderTable tbody tr .delete-icon { display: none !important; opacity: 0; transition: opacity 0.3s ease; }
-/* Tampilkan icon delete saat baris dihover */
-#orderTable tbody tr:hover .delete-icon { display: flex !important; opacity: 1; }
-
-/* Style untuk icon delete */
+/* *******************************
+/* Style untuk icon delete      */
+/* ******************************/
 .delete-icon {
     width: 24px;
     height: 24px;
@@ -475,44 +468,13 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         opacity: 0;              /* transparan default */
         transition: all 0.2s ease-in-out;
     }
-    /* Saat baris tabel di-hover → tampilkan ikon */
-    #orderTable tbody tr:hover .delete-icon {
-        visibility: visible;
-        opacity: 1;
-    }
+ 
     /* Saat ikon di-hover → ubah warna */
     .delete-icon:hover {
         background-color: #d3d3d3;   /* abu-abu muda sebagai lingkaran */
         color: #dc3545;              /* merah */
         cursor: pointer;
     }
-
-    /* Tooltip */
-    .tooltip {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 80px;
-        background-color: #555;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%;
-        left: 50%;
-        margin-left: -40px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 12px;
-    }
-    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
     /* Edit Jumlah Item */
     .qty-input { width: 55px  !important; height: 20px !important; font-size: 12px ;} 
@@ -702,14 +664,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
                             <i class="fas fa-save"></i> TAMBAH
                         </button>
-                        <!-- Tombol UPDATE tampil jika mengedit jumlah item -->
-                        <button type="button" class="btn btn-warning" id="btnUpdate" onclick="updateItem()" disabled style="display: none;">
-                            <i class="fas fa-edit"></i> UPDATE
-                        </button>
                         <button type="button" class="btn btn-primary" onclick="resetForm()">
                             <i class="fas fa-rotate-left"></i> RESET
                         </button>
-                        <!-- Menekan Tombol UPDATE, maka data tersimpan di sheet "DataInput" dan Tampil tombol KIRIM -->
                         <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
                             <i class="fas fa-paper-plane"></i> SUBMIT
                         </button>
@@ -866,7 +823,6 @@ document.addEventListener("DOMContentLoaded", function() {
     mInvoiceField.disabled = true;
 
     loadOptions();       // Load Dropdown Options
-    setupDeleteIcons();  // Setup icon delete
 
     // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
@@ -884,7 +840,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 updateTotals();
                 
                 // Aktifkan mode UPDATE
-                enableUpdateMode();
+                //enableUpdateMode();
             }
         });
     } else {
@@ -916,53 +872,10 @@ document.addEventListener("DOMContentLoaded", function() {
     isEditMode = false;
 });
 
-// ************************************************************
-// Fungsi untuk menampilkan/menyembunyikan icon "X" saat hover
-// ************************************************************
-document.addEventListener('DOMContentLoaded', function() {
-    const tableBody = document.querySelector('#orderTable tbody');
-    
-    // Pastikan icon tersembunyi saat load awal
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
-    });
-
-    // Delegasi event untuk hover pada baris
-    tableBody.addEventListener('mouseover', function(e) {
-        if (e.target.closest('tr')) {
-            const row = e.target.closest('tr');
-            const deleteIcon = row.querySelector('.delete-icon');
-            if (deleteIcon) {
-                deleteIcon.style.display = 'flex';
-            }
-        }
-    });
-
-    tableBody.addEventListener('mouseout', function(e) {
-        if (e.target.closest('tr')) {
-            const row = e.target.closest('tr');
-            // Hanya sembunyikan jika tidak sedang di-hover iconnya langsung
-            if (!e.relatedTarget || !e.relatedTarget.closest('.delete-icon')) {
-                const deleteIcon = row.querySelector('.delete-icon');
-                if (deleteIcon && !deleteIcon.matches(':hover')) {
-                    deleteIcon.style.display = 'none';
-                }
-            }
-        }
-    });
-
-    // Pastikan icon tersembunyi saat kursor meninggalkan tabel
-    tableBody.addEventListener('mouseleave', function() {
-        document.querySelectorAll('.delete-icon').forEach(icon => {
-            icon.style.display = 'none';
-        });
-    });
-});
-
 // ****************************************
 // Fungsi untuk Enable/Disable Update mode
 // ****************************************
-function enableUpdateMode() {
+function BACKUP_enableUpdateMode() {
     console.log("Mengaktifkan mode UPDATE");
     const btnAdd    = document.getElementById('btnAdd');
     const btnUpdate = document.getElementById('btnUpdate');
@@ -981,7 +894,7 @@ function enableUpdateMode() {
 // ***********************************
 // Fungsi Untuk mereset ke Mode Tambah
 // ***********************************
-function resetEditMode() {
+function BACKUP_resetEditMode() {
     console.log("Mereset mode ke TAMBAH");
     const btnAdd    = document.getElementById('btnAdd');
     const btnUpdate = document.getElementById('btnUpdate');
@@ -999,7 +912,7 @@ function resetEditMode() {
 // ****************************************
 // Fungsi untuk Update Item (TOMBOL UPDATE)
 // ****************************************
-function updateItem() {
+function BACKUP_updateItem() {
     console.log("Tombol UPDATE diklik");
     
     if (!isEditMode) {
@@ -1068,14 +981,7 @@ function addItem() {
 
     // Perbarui total setelah menambahkan item
     updateTotals();
-
-    // Setup ulang event listeners untuk icon delete
-    //setupDeleteIcons();
-   
-    // Setup ulang icon delete untuk row yang baru ditambahkan
-    setTimeout(setupDeleteIcons, 100)
-   
-
+ 
     // kirim per item ke sheet
     const mOrderData = {
       mDate: document.getElementById("date").value,
@@ -1109,65 +1015,6 @@ function addItem() {
   });
 }
 
-// ************************************************************
-// Fungsi untuk mengatur tampilan icon delete
-// ************************************************************
-function setupDeleteIcons() {
-    // Sembunyikan semua icon delete
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
-    });
-    
-    const tableBody = document.querySelector('#orderTable tbody');
-    if (!tableBody) return;
-    
-    // Hapus event listener lama jika ada
-    tableBody.removeEventListener('mouseover', handleRowHover);
-    tableBody.removeEventListener('mouseout', handleRowLeave);
-    
-    // Tambahkan event listener baru
-    tableBody.addEventListener('mouseover', handleRowHover);
-    tableBody.addEventListener('mouseout', handleRowLeave);
-}
-
-// Handler untuk ketika mouse berada di atas baris
-function handleRowHover(e) {
-    const row = e.target.closest('tr');
-    if (row) {
-        const deleteIcon = row.querySelector('.delete-icon');
-        if (deleteIcon) {
-            deleteIcon.style.display = 'flex';
-        }
-    }
-}
-
-// Handler untuk ketika mouse meninggalkan baris
-function handleRowLeave(e) {
-    const row = e.target.closest('tr');
-    if (row) {
-        const deleteIcon = row.querySelector('.delete-icon');
-        if (deleteIcon && !deleteIcon.matches(':hover')) {
-            deleteIcon.style.display = 'none';
-        }
-    }
-}
-
-// Handler untuk ketika mouse meninggalkan icon
-document.addEventListener('mouseover', function(e) {
-    if (e.target.classList.contains('delete-icon') || 
-        e.target.closest('.delete-icon')) {
-        // Biarkan icon tetap terlihat
-        return;
-    }
-    
-    // Sembunyikan semua icon yang tidak dihover
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        if (!icon.matches(':hover')) {
-            icon.style.display = 'none';
-        }
-    });
-});
-
 // *******************
 // Fungsi Delete Item 
 // *******************
@@ -1191,13 +1038,6 @@ function deleteItem(icon) {
         .catch(error => {
             showNotification('error', 'Gagal menghapus item');
         });
-}
-
-// Sembunyikan semua icon delete
-function hideAllDeleteIcons() {
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
-    });
 }
 
 // *********************
@@ -1333,7 +1173,7 @@ function resetForm() {
     enableFields();
 
     // Pastikan kembali ke mode TAMBAH
-    resetEditMode();
+    //resetEditMode();
     showNotification('success', 'SUKSES : Form telah direset');
     
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
@@ -1450,7 +1290,7 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
     if (!isEditMode) {
       isEditMode = true;
       currentEditRow = row;
-      document.getElementById('btnUpdate').disabled = false;
+      //document.getElementById('btnUpdate').disabled = false;
     }
   }
 });
@@ -1577,7 +1417,7 @@ function submitForm() {
   document.getElementById("discount").disabled = true;
   document.getElementById("shipping").disabled = true;
   document.getElementById("btnAdd").disabled = true;
-  document.getElementById("btnUpdate").disabled = true;
+  //document.getElementById("btnUpdate").disabled = true;
 
   // Toggle tombol
   document.getElementById("submitButton").style.display = "none";

@@ -174,7 +174,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 .table-container {
   max-height: 400px;        
   overflow-y: auto;           /* aktifkan scroll vertical */
-  border: 0.2px solid #ccc; /* opsional */
+  /*border: 0.2px solid #ccc; /* opsional */
 }
 /* Sticky header */
 .table-container thead th {
@@ -212,21 +212,9 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 }
 
 /* Perataan Text Field */
-#orderTable td:nth-child(1), 
-#orderTable td:nth-child(2), 
-#orderTable td:nth-child(3) {   
-    text-align: left;
-}
-#orderTable td:nth-child(4), 
-#orderTable td:nth-child(5), 
-#orderTable td:nth-child(6), 
-#orderTable td:nth-child(7), 
-#orderTable td:nth-child(8) { 
-    text-align: right;
-}
-#orderTable td:nth-child(9) {     
-    text-align: center;
-}
+#orderTable td:nth-child(1), td:nth-child(2), td:nth-child(3) { text-align: left; }
+#orderTable td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8) {text-align: right;}
+#orderTable td:nth-child(9) { text-align: center;}
 
 /* Input jumlah di tabel */
 #orderTable .qty-input {
@@ -245,29 +233,28 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     border: 1px solid #ddd;
 }
 
-/* Sorotan Baris */
-#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
-
-/* Delete Icon Styles */
-.delete-icon { 
-    display: none;
-    margin: 0;
-    cursor: pointer;
+/* *******************************
+/* Style untuk icon delete      */
+/* ******************************/
+.delete-icon {
     width: 24px;
     height: 24px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: transparent;
 }
-#orderTable tbody tr:hover .delete-icon { display: flex !important; background-color: transparent; }
-.delete-icon .fa-times { color: #b6b6b6; font-size: 16px; transition: color 0.3s ease; }
-.delete-icon:hover { background-color: #dadada !important; }
+/* Warna abu-abu untuk icon */
+.delete-icon .fa-times { color: #b6b6b6 !important; font-size: 16px; transition: all 0.3s ease; }
+/* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
+.delete-icon:hover { background-color: #f0f0f0 !important; }
 .delete-icon:hover .fa-times { color: red !important; }
 
-/* Tampilkan tooltip */
-.tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+/* Sorotan Baris record pada tabel */
+#orderTable tbody tr:hover { background-color: #f7f7f7; color: black; }
 
 /* Tabel Total */
 #orderTable tfoot td { font-weight: bold; background-color: #bebebe; }  /* Warna Abu-abu */
@@ -464,24 +451,31 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     }
     /* Sorotan Baris */
     #orderTable tbody tr:hover { background-color: #f8f9fa; }
-
-    /* Delete Icon */
-    .delete-icon { 
-        display: none;
-        margin: 0;
-        cursor: pointer;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
+  
+    /*************************
+    /* Pengaturan ikon "X"   */
+    /*************************/
+    .delete-icon {
+        display: inline-flex;
         justify-content: center;
-        transition: all 0.3s ease;
+        align-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        color: #6c757d;          /* abu-abu default */
+        background-color: transparent;
+        text-decoration: none;
+        visibility: hidden;      /* sembunyi default */
+        opacity: 0;              /* transparan default */
+        transition: all 0.2s ease-in-out;
     }
-    #orderTable tbody tr:hover .delete-icon { display: flex;}
-    .delete-icon .fa-times { color: #6c757d; font-size: 14px; transition: color 0.3s ease; }
-    .delete-icon:hover { background-color: #dadada; }
-    .delete-icon:hover .fa-times { color: red; }
+ 
+    /* Saat ikon di-hover → ubah warna */
+    .delete-icon:hover {
+        background-color: #d3d3d3;   /* abu-abu muda sebagai lingkaran */
+        color: #dc3545;              /* merah */
+        cursor: pointer;
+    }
 
     /* Edit Jumlah Item */
     .qty-input { width: 55px  !important; height: 20px !important; font-size: 12px ;} 
@@ -595,35 +589,35 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                 </div>
                 <!-- Form Pesanan Barang -->        
                 <form id="orderForm">
-                    <i class="fas fa-cart-plus mt-2 mb-2"> Data Produk</i>
-                    <div>
-                        <label for="date">Tanggal:</label>
-                        <input type="date" id="date" name="date" readonly>
+                    <i class="fas fa-cart-plus mt-2"> Data Produk</i>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Tanggal </span>
+                        <input type="date" class="form-control" id="date" name="date" readonly>
                     </div> 
-                    <div>
-                        <label for="invoice">Simulasi No.:</label>
-                        <input type="text" id="invoice" name="invoice" readonly>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Nomor  </span>
+                        <input type="text" class="form-control" id="invoice" name="invoice" readonly>
                     </div>
-                    <div>
-                        <label for="product">Nama Produk:</label>
-                        <select id="product" name="product" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Produk  </span>
+                        <select id="product" class="form-control form-select" name="product" required>
+                           <!-- Opsi akan diisi oleh JavaScript -->
                         </select>
                     </div>
-                    <div>
-                        <label for="quantity">Jumlah:</label>
-                        <input type="number" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Jumlah  </span>
+                        <input type="number" class="form-control" id="quantity" placeholder="Masukkan jumlah item produk (wajib isi)" name="quantity" min="1" max="99" required>
                     </div>
-                    <div>
-                        <label for="discount">Diskon:</label>
-                        <select id="discount" name="discount" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                    <div class="input-group mt-1">
+                        <span class="input-group-text">Diskon  </span>
+                        <select id="discount" class="form-control form-select" name="discount" required>
+                           <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
                     </div>
-                    <div> 
-                        <label for="shipping">By Pengiriman:</label>
-                        <select id="shipping" name="shipping" required>
-                            <!-- Opsi akan diisi oleh JavaScript -->
+                    <div class="input-group mt-1"> 
+                        <span class="input-group-text">By Kirim</span>
+                        <select id="shipping" class="form-control form-select" name="shipping" required>
+                            <!-- Opsi akan diisi oleh JavaScript --> 
                         </select>
                     </div>
 
@@ -633,28 +627,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                             <i class="fas fa-user-friends"> Data Personal</i>
                         </div>  
                         <div class="form-control mt-2">
-                            <!--  
-                            <div class="input-group">
-                                <label for="distributorName">Nama Member:</label>
-                                <input class="mb-2" type="text" id="distributorName" name="distributorName" placeholder="Masukkan nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required>
-                            </div>
-                            <div>
-                                <label for="distributorPhone">No. HP Member:</label>
-                                <input class="mb-2" type="number" id="distributorPhone" name="distributorPhone" placeholder="Input No WA tanpa diawali angka 0, untuk kirim hasil ke WA (wajib isi)" maxlength="14" required>
-                            </div>
-                            <div>
-                                <label for="consumerName">Nama Konsumen:</label>
-                                <input class="mb-2" type="text" id="consumerName" name="consumerName" placeholder="Masukkan nama konsumen (optional)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+">
-                            </div>
-                            <div>
-                                <label for="consumerPhone">No. HP Konsumen:</label>
-                                <input class="mb-2" type="number" id="consumerPhone" name="consumerPhone" placeholder="Input No WA tanpa diawali angka 0, jika ingin kirim hasil ke WA (optional)" maxlength="14">
-                            </div>
-                            <div>
-                                <label for="consumerEmail">Email Konsumen:</label>
-                                <input class="mb-2" type="email" id="consumerEmail" name="consumerEmail" placeholder="Input jika ingin kirim  hasil ke email (optional)" maxlength="25" >
-                            </div>
-                             -->
                             <div class="input-group mt-2">
                                 <span class="input-group-text"><i class="fas fa-user-circle"></i></span>
                                 <input type="text" class="form-control" id="distributorName" name="distributorName" placeholder="Input nama member (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" pattern="[A-Za-z ]+" required >
@@ -810,7 +782,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 // *******************************
 // URL Web App Google Apps Script 
 // *******************************
-const API_URL      = "https://script.google.com/macros/s/AKfycbyR1NpPAZLkORpIMNIQiFUqhReWdellfZtm4aA7TL0bv-Tir1Sb8fHJjxXgVVejsBJU/exec";
+const API_URL      = "https://script.google.com/macros/s/AKfycbxeGzRbFDJjU6NgpFt5OEjmDoMXtkUzIYIRHKQCbJOjhwJbECBKapMmP3KWpOScLjqk/exec";
 let isEditMode     = false;     // Untuk mendefenisikan mode Edit
 let currentEditRow = null;      // Untuk menyimpan referensi row yang sedang diedit
 // Untuk memastikan tidak ada event listener ganda
@@ -856,7 +828,8 @@ document.addEventListener("DOMContentLoaded", function() {
     mDateField.disabled    = true;
     mInvoiceField.disabled = true;
 
-    loadOptions();  // Load Dropdown Options
+    loadOptions();       // Load Dropdown Options
+    setupDeleteIcons();  // Setup icon delete
 
     // Event listener untuk edit jumlah item
     const tableBody = document.querySelector('#orderTable tbody');
@@ -912,7 +885,12 @@ document.addEventListener("DOMContentLoaded", function() {
 document.addEventListener('DOMContentLoaded', function() {
     const tableBody = document.querySelector('#orderTable tbody');
     
-    // Delegasi event untuk hover
+    // Pastikan icon tersembunyi saat load awal
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
+
+    // Delegasi event untuk hover pada baris
     tableBody.addEventListener('mouseover', function(e) {
         if (e.target.closest('tr')) {
             const row = e.target.closest('tr');
@@ -936,9 +914,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Pastikan icon tersembunyi saat load awal
-    document.querySelectorAll('.delete-icon').forEach(icon => {
-        icon.style.display = 'none';
+    // Pastikan icon tersembunyi saat kursor meninggalkan tabel
+    tableBody.addEventListener('mouseleave', function() {
+        document.querySelectorAll('.delete-icon').forEach(icon => {
+            icon.style.display = 'none';
+        });
     });
 });
 
@@ -997,8 +977,8 @@ function updateItem() {
 // *************************
 function addItem() {
   const mDiscountSelect = document.getElementById('discount');
-  const mProductSelect  = document.getElementById('product');
-  const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
+  const mProductSelect = document.getElementById('product');
+  const mQuantity = parseInt(document.getElementById('quantity').value) || 0;
   const mShippingSelect = document.getElementById('shipping');
   const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
 
@@ -1013,39 +993,51 @@ function addItem() {
 
     let mPriceAfterDiscount;
     switch (mDiscount) {
-      case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
+      case "0%": mPriceAfterDiscount = mProductData.HargaEceran; break;
       case "25%": mPriceAfterDiscount = mProductData.Member25; break;
       case "35%": mPriceAfterDiscount = mProductData.SC35; break;
       case "42%": mPriceAfterDiscount = mProductData.SB42; break;
       case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-      default:    mPriceAfterDiscount = mProductData.HargaEceran;
+      default: mPriceAfterDiscount = mProductData.HargaEceran;
     }
 
     const mHarga = mPriceAfterDiscount * mQuantity;
     const mTotVP = mProductData.VP * mQuantity;
 
-    // tambahkan atribut data-kategori dan data-vp ke <tr>
+    // tambahkan atribut data-kategori, data-vp, dan data-harga ke <tr>
     const mNewRow = `
-      <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
+      <tr data-kategori="${mProductData.Kategori}" 
+          data-vp-asli="${mProductData.VP}" 
+          data-harga-setelah-diskon="${mPriceAfterDiscount}">
         <td>${mTableBody.rows.length + 1}</td>
         <td>${mProductSelect.value}</td>
         <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
         <td>${formatCurrency(mProductData.HargaEceran)}</td>
         <td>${formatCurrency(mPriceAfterDiscount)}</td>
         <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
-        <td>${formatCurrency(mTotVP)}</td>
-        <td>${formatCurrency(mHarga)}</td>
-        <td class="tooltip">
+        <td data-vp-nilai="${mTotVP}">${formatCurrency(mTotVP)}</td>
+        <td data-harga-nilai="${mHarga}">${formatCurrency(mHarga)}</td>
+        <td class="text-center">
           <span class="delete-icon" onclick="deleteItem(this)">
             <i class="fas fa-times"></i>
           </span>
-          <span class="tooltiptext">Hapus</span>
         </td>
       </tr>
     `;
+
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
     document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
     document.getElementById("submitButton").disabled = false;
+
+    // Perbarui total setelah menambahkan item
+    updateTotals();
+
+    // Setup ulang event listeners untuk icon delete
+    //setupDeleteIcons();
+   
+    // Setup ulang icon delete untuk row yang baru ditambahkan
+    setTimeout(setupDeleteIcons, 100)
+   
 
     // kirim per item ke sheet
     const mOrderData = {
@@ -1076,8 +1068,152 @@ function addItem() {
     disableFields();
     showNotification('success', 'SUKSES : Item berhasil di tambah');
   }).catch(error => {
-     showNotification('error', 'ERROR : '+ error.message);
+    showNotification('error', 'ERROR : ' + error.message);
   });
+}
+
+// ************************************************************
+// Fungsi untuk mengatur tampilan icon delete
+// ************************************************************
+function setupDeleteIcons() {
+    // Sembunyikan semua icon delete
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
+    
+    const tableBody = document.querySelector('#orderTable tbody');
+    if (!tableBody) return;
+    
+    // Hapus event listener lama jika ada
+    tableBody.removeEventListener('mouseover', handleRowHover);
+    tableBody.removeEventListener('mouseout', handleRowLeave);
+    
+    // Tambahkan event listener baru
+    tableBody.addEventListener('mouseover', handleRowHover);
+    tableBody.addEventListener('mouseout', handleRowLeave);
+}
+
+// Handler untuk ketika mouse berada di atas baris
+function handleRowHover(e) {
+    const row = e.target.closest('tr');
+    if (row) {
+        const deleteIcon = row.querySelector('.delete-icon');
+        if (deleteIcon) {
+            deleteIcon.style.display = 'flex';
+        }
+    }
+}
+
+// Handler untuk ketika mouse meninggalkan baris
+function handleRowLeave(e) {
+    const row = e.target.closest('tr');
+    if (row) {
+        const deleteIcon = row.querySelector('.delete-icon');
+        if (deleteIcon && !deleteIcon.matches(':hover')) {
+            deleteIcon.style.display = 'none';
+        }
+    }
+}
+
+// Handler untuk ketika mouse meninggalkan icon
+document.addEventListener('mouseover', function(e) {
+    if (e.target.classList.contains('delete-icon') || 
+        e.target.closest('.delete-icon')) {
+        // Biarkan icon tetap terlihat
+        return;
+    }
+    
+    // Sembunyikan semua icon yang tidak dihover
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        if (!icon.matches(':hover')) {
+            icon.style.display = 'none';
+        }
+    });
+});
+
+// *******************
+// Fungsi Delete Item 
+// *******************
+function deleteItem(icon) {
+    const row = icon.closest('tr');
+    const noStok = row.cells[1].textContent.trim();
+    
+    // Hapus dari tampilan
+    row.remove();
+    
+    // Update tampilan
+    updateItemNumbers();
+    updateTotals();
+    
+    // Hapus dari sheet
+    const invoice = document.getElementById("invoice").value;
+    callAPI("deleteItem", { noStok: noStok, invoice: invoice }, "POST")
+        .then(response => {
+            showNotification('success', 'Item berhasil dihapus');
+        })
+        .catch(error => {
+            showNotification('error', 'Gagal menghapus item');
+        });
+}
+
+// Sembunyikan semua icon delete
+function hideAllDeleteIcons() {
+    document.querySelectorAll('.delete-icon').forEach(icon => {
+        icon.style.display = 'none';
+    });
+}
+
+// *********************
+// Update Seluruh Total 
+// *********************
+function updateTotals() {
+  const rows = document.querySelectorAll('#orderTable tbody tr');
+  let totalJumlah = 0;
+  let totalVP = 0;
+  let totalHarga = 0;
+
+    rows.forEach(row => {
+    // Ambil nilai jumlah dari input
+    const qtyInput = row.querySelector('.qty-input');
+    const qty = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
+
+    // Ambil VP per item dari atribut data (nilai asli dengan desimal)
+    const vpPerItem = parseFloat(row.getAttribute('data-vp-asli')) || 0;
+
+    // Ambil harga setelah diskon dari atribut data (nilai asli dengan desimal)
+    const priceAfterDiscount = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
+
+    // HITUNG TOTAL VP UNTUK BARIS INI
+    const rowTotalVP = vpPerItem * qty;
+
+    // HITUNG TOTAL HARGA UNTUK BARIS INI
+    const rowTotalHarga = priceAfterDiscount * qty;
+
+    // UPDATE TAMPILAN KOLOM "Tot VP" (kolom ke-7)
+    row.cells[6].textContent = formatCurrency(rowTotalVP);
+    row.cells[6].setAttribute('data-vp-nilai', rowTotalVP);
+    
+    // UPDATE TAMPILAN KOLOM "Harga" (kolom ke-8)
+    row.cells[7].textContent = formatCurrency(rowTotalHarga);
+    row.cells[7].setAttribute('data-harga-nilai', rowTotalHarga);
+
+    totalJumlah += qty;
+    totalVP += rowTotalVP;
+    totalHarga += rowTotalHarga;
+  });
+
+  // Update footer tabel
+  document.getElementById('totalJumlah').textContent = totalJumlah;
+  document.getElementById('totalVP').textContent = formatCurrency(totalVP);
+  document.getElementById('totalHarga').textContent = formatCurrency(totalHarga);
+
+  // Update summary
+  const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
+  const tax = 0;
+  const grandTotal = totalHarga + shippingCost + tax;
+  document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
+  document.getElementById('tax').textContent = formatCurrency(tax);
+  document.getElementById('totalPrice').textContent = formatCurrency(grandTotal);
 }
 
 // *************************
@@ -1282,55 +1418,6 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
   }
 });
 
-// *********************
-// Update Seluruh Total 
-// *********************
-function updateTotals() {
-  const rows      = document.querySelectorAll('#orderTable tbody tr');
-  let totalJumlah = 0;
-  let totalVP     = 0;
-  let totalHarga  = 0;
-
-  rows.forEach(row => {
-    // Ambil nilai jumlah dari input
-    const qtyInput = row.querySelector('.qty-input');
-    const qty      = qtyInput ? parseInt(qtyInput.value) || 0 : 0;
-    
-    // Ambil VP per item dari atribut data
-    const vpPerItem = parseFloat(row.getAttribute('data-vp')) || 0;
-    
-    // Ambil harga setelah diskon (hilangkan format currency)
-    const priceAfterDiscount = parseFloat(
-      row.cells[4].textContent
-        .replace(/[^\d,]/g, '')
-        .replace(',', '.')
-    ) || 0;
-
-    // HITUNG TOTAL VP UNTUK BARIS INI
-    const rowTotalVP = vpPerItem * qty;
-    
-    // UPDATE TAMPILAN KOLOM "Tot VP" (kolom ke-7)
-    row.cells[6].textContent = formatCurrency(rowTotalVP);
-
-    totalJumlah += qty;
-    totalVP += rowTotalVP;
-    totalHarga += priceAfterDiscount * qty;
-  });
-
-  // Update footer tabel
-  document.getElementById('totalJumlah').textContent = totalJumlah;
-  document.getElementById('totalVP').textContent     = formatCurrency(totalVP);
-  document.getElementById('totalHarga').textContent  = formatCurrency(totalHarga);
-
-  // Update summary
-  const shippingCost = parseFloat(document.getElementById('shipping').value) || 0;
-  const tax          = 0;
-  const grandTotal   = totalHarga + shippingCost + tax;
-  document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
-  document.getElementById('tax').textContent          = formatCurrency(tax);
-  document.getElementById('totalPrice').textContent   = formatCurrency(grandTotal);
-}
-
 // *******************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
 // *******************************************************
@@ -1348,41 +1435,31 @@ function updateItemNumbers() {
     console.log("Nomor item di tabel 'Form Pesanan' berhasil diperbarui untuk Simulasi No: " + invoice);
 }
 
-// *******************
-// Fungsi Delete Item 
-// *******************
-function deleteItem(icon) {
-  const row    = icon.closest('tr');
-  const noStok = row.cells[1].textContent.trim();
-  
-  // Hapus dari tampilan
-  row.remove();
-  
-  // Update tampilan
-  updateItemNumbers();
-  updateTotals();
-}
-
 // ************************************
 // Kumpulkan data tabel ke object order
 // ************************************ 
-// Kumpulkan semua data order (produk + konsumen) untuk dikirim ke GAS
 function collectOrderData() {
-  const mTableBody = document.querySelector("#orderTable tbody");
+   const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
 
   const items = [];
   rows.forEach((row, idx) => {
-    const mNoItem        = idx + 1;
-    const mNoStok        = row.cells[1].textContent.trim();
-    const mNamaProduk    = row.cells[2].textContent.trim();
-    const mHargaEceran   = parseFloat(row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
-    const mSetelahDiskon = parseFloat(row.cells[4].textContent.replace(/[^\d]/g, "")) || 0;
-    const mJumlah        = parseInt(row.querySelector("input").value) || 0;
-    const mTotVP         = parseFloat(row.cells[6].textContent.replace(/[^\d]/g, "")) || 0;
-    const mHarga         = parseFloat(row.cells[7].textContent.replace(/[^\d]/g, "")) || 0;
-    const mKategori      = row.getAttribute("data-kategori") || "";
-    const mVp            = parseFloat(row.getAttribute("data-vp")) || 0;
+    const mNoItem = idx + 1;
+    const mNoStok = row.cells[1].textContent.trim();
+    const mNamaProduk = row.cells[2].textContent.trim();
+    const mHargaEceran = parseFloat(row.cells[3].getAttribute('data-nilai-asli') || 
+                                 row.cells[3].textContent.replace(/[^\d]/g, "")) || 0;
+    const mSetelahDiskon = parseFloat(row.getAttribute('data-harga-setelah-diskon')) || 0;
+    const mJumlah = parseInt(row.querySelector("input").value) || 0;
+    
+    // Gunakan nilai VP dari atribut data, bukan dari teks yang diformat
+    const mTotVP = parseFloat(row.cells[6].getAttribute('data-vp-nilai')) || 0;
+    
+    // Gunakan nilai harga dari atribut data, bukan dari teks yang diformat
+    const mHarga = parseFloat(row.cells[7].getAttribute('data-harga-nilai')) || 0;
+    
+    const mKategori = row.getAttribute("data-kategori") || "";
+    const mVp = parseFloat(row.getAttribute("data-vp-asli")) || 0;
 
     items.push({
       mNoItem,
@@ -1453,34 +1530,26 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-// === Tahap 1: SUBMIT ===
 function submitForm() {
-  const mOrderData = collectOrderData();
+  // Hanya mengubah tampilan, tidak menyimpan data
+  console.log("Submit clicked - preparing for final submission");
 
-  // simpan ke DataInput (hanya data produk)
-  callAPI("saveOrder", mOrderData, "POST")
-    .then(res => {
-      console.log("Submit berhasil:", res);
+  // Disable input produk
+  document.getElementById("product").disabled = true;
+  document.getElementById("quantity").disabled = true;
+  document.getElementById("discount").disabled = true;
+  document.getElementById("shipping").disabled = true;
+  document.getElementById("btnAdd").disabled = true;
+  document.getElementById("btnUpdate").disabled = true;
 
-      // Disable input produk
-      document.getElementById("product").disabled = true;
-      document.getElementById("quantity").disabled = true;
-      document.getElementById("discount").disabled = true;
-      document.getElementById("shipping").disabled = true;
-      document.getElementById("btnAdd").disabled = true;
-      document.getElementById("btnUpdate").disabled = true;
+  // Toggle tombol
+  document.getElementById("submitButton").style.display = "none";
+  document.getElementById("kirimButton").style.display = "inline-block";
 
-      // Toggle tombol
-      document.getElementById("submitButton").style.display = "none";
-      document.getElementById("kirimButton").style.display = "inline-block";
-
-      // Tampilkan inputan konsumen
-      document.getElementById("inputanSection").style.display = "block";
-    })
-    .catch(err => {
-      console.error("Error submit:", err);
-      alert("Gagal submit: " + err.message);
-    });
+  // Tampilkan inputan konsumen
+  document.getElementById("inputanSection").style.display = "block";
+  
+  showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
 }
 
 // **************************************************
@@ -1500,8 +1569,6 @@ function kirimData() {
   
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
-      // Karena mode no-cors, kita tidak bisa mendapatkan response JSON
-      // Jadi kita asumsikan berhasil jika tidak ada error
       console.log("Kirim berhasil");
       showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
       
@@ -1534,28 +1601,6 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
         row.querySelector('.delete-icon').style.display = 'none';
     });
 });
-
-// **********************
-// Mengupdate Baris Icon
-// *********************
-function updateRowIcons(row, mode) {
-    const icons = row.querySelectorAll('.action-icon');
-    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
-
-    if (mode === 'unlock') {
-        editIcon.classList.add('disabled');
-        aktifasiIcon.classList.add('disabled');
-        delIcon.classList.add('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.remove('disabled');
-    } else if (mode === 'kirim') {
-        editIcon.classList.remove('disabled');
-        aktifasiIcon.classList.remove('disabled');
-        delIcon.classList.remove('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.add('disabled');
-    }
-}
 
 // ********************************
 // Fungsi untuk menformat currency
@@ -1716,7 +1761,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // Event listener untuk tombol Close About
   document.getElementById('btnCloseAbout').addEventListener('click', hideAbout);
 });
-
 
 </script>
 </body>
