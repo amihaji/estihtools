@@ -233,7 +233,6 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     border: 1px solid #ddd;
 }
 
-
 /* **********************************
 /* Delete Icon Styles               *
 /* *********************************/
@@ -1114,6 +1113,10 @@ function addItem() {
       </tr>
     `;
     
+    //<a href="#" class="action-icon ${userLevel === 'User' ? 'disabled-action' : ''}" 
+    // onclick="${userLevel !== 'User' ? `deleteRow(${rowIndex})` : 'return false;'}" 
+    // title="Hapus"><i class="fas fa-trash"></i></a>
+
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
     document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
     document.getElementById("submitButton").disabled = false;
