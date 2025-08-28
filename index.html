@@ -508,42 +508,42 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
     }
     /* Sorotan Baris */
     #orderTable tbody tr:hover { background-color: #f8f9fa; }
-
-   /************************
-    /* Delete Icon Styles  */
-    /***********************/
-    .delete-icon { 
-        display: none; /* Sembunyi secara default */
-        margin: 0;
-        cursor: pointer;
+    
+    /* Icon delete sembunyi default */
+    .delete-icon {
+        visibility: hidden;   /* bukan display:none */
+        opacity: 0;
         width: 24px;
         height: 24px;
         border-radius: 50%;
+        display: flex;
         align-items: center;
         justify-content: center;
+        cursor: not-allowed; /* default disabled */
         transition: all 0.3s ease;
         background-color: transparent;
     }
 
-    /* Tampilkan icon X saat baris dihover */
-    #orderTable tbody tr:hover .delete-icon { 
-        display: flex; /* Tampilkan saat hover baris */
+    /* Tampilkan icon abu-abu saat baris tersorot */
+    #orderTable tbody tr:hover .delete-icon {
+        visibility: visible;
+        opacity: 1;
     }
 
-    /* Style default icon X (warna abu-abu) */
-    .delete-icon .fa-times { 
-        color: #b6b6b6; /* Warna abu-abu */
-        font-size: 16px; 
+    /* Warna default X abu-abu */
+    .delete-icon .fa-times {
+        color: #b6b6b6;
+        font-size: 16px;
         transition: all 0.3s ease;
     }
 
-    /* Saat hover pada icon, ubah warna jadi merah dan background abu-abu muda */
-    .delete-icon:hover { 
-        background-color: #f0f0f0; /* Abu-abu muda */
+    /* Saat hover ke icon, ubah jadi merah + background abu-abu muda */
+    .delete-icon:hover {
+        background-color: #f0f0f0;
+        cursor: pointer; /* aktif saat hover icon */
     }
-
-    .delete-icon:hover .fa-times { 
-        color: red; /* Warna merah */
+    .delete-icon:hover .fa-times {
+        color: red;
     }
 
     /* Tooltip */
@@ -571,11 +571,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
         transition: opacity 0.3s;
         font-size: 12px;
     }
-
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
+    .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
 
     /* Edit Jumlah Item */
     .qty-input { width: 55px  !important; height: 20px !important; font-size: 12px ;} 
