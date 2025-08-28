@@ -997,9 +997,6 @@ function updateItem() {
 // *************************
 // Fungsi untuk nambah data
 // *************************
-// *************************
-// Fungsi untuk nambah data
-// *************************
 function addItem() {
   const mDiscountSelect = document.getElementById('discount');
   const mProductSelect = document.getElementById('product');
@@ -1142,94 +1139,6 @@ function updateTotals() {
   document.getElementById('shippingCost').textContent = formatCurrency(shippingCost);
   document.getElementById('tax').textContent = formatCurrency(tax);
   document.getElementById('totalPrice').textContent = formatCurrency(grandTotal);
-}
-
-function BACKUP_addItem() {
-  const mDiscountSelect = document.getElementById('discount');
-  const mProductSelect  = document.getElementById('product');
-  const mQuantity       = parseInt(document.getElementById('quantity').value) || 0;
-  const mShippingSelect = document.getElementById('shipping');
-  const selectedDiscountLabel = mDiscountSelect.options[mDiscountSelect.selectedIndex].text;
-
-  if (!mProductSelect.value || mQuantity <= 0 || !mDiscountSelect.value || !mShippingSelect.value) {
-    showNotification('warning', 'PERHATIAN : Lengkapi pilihan Produk, Jumlah, Diskon dan Pengiriman');
-    return;
-  }
-
-  callAPI("getProductDetails", { noStok: mProductSelect.value }).then(mProductData => {
-    const mTableBody = document.querySelector("#orderTable tbody");
-    const mDiscount = mDiscountSelect.value;
-
-    let mPriceAfterDiscount;
-    switch (mDiscount) {
-      case "0%":  mPriceAfterDiscount = mProductData.HargaEceran; break;
-      case "25%": mPriceAfterDiscount = mProductData.Member25; break;
-      case "35%": mPriceAfterDiscount = mProductData.SC35; break;
-      case "42%": mPriceAfterDiscount = mProductData.SB42; break;
-      case "50%": mPriceAfterDiscount = mProductData.SPV50; break;
-      default:    mPriceAfterDiscount = mProductData.HargaEceran;
-    }
-
-    const mHarga = mPriceAfterDiscount * mQuantity;
-    const mTotVP = mProductData.VP * mQuantity;
-
-    // tambahkan atribut data-kategori dan data-vp ke <tr>
-    const mNewRow = `
-      <tr data-kategori="${mProductData.Kategori}" data-vp="${mProductData.VP}">
-        <td>${mTableBody.rows.length + 1}</td>
-        <td>${mProductSelect.value}</td>
-        <td>${mProductSelect.options[mProductSelect.selectedIndex].text}</td>
-        <td>${formatCurrency(mProductData.HargaEceran)}</td>
-        <td>${formatCurrency(mPriceAfterDiscount)}</td>
-        <td><input type="number" value="${mQuantity}" min="1" max="999" class="qty-input" style="width:60px"></td>
-        <td>${formatCurrency(mTotVP)}</td>
-        <td>${formatCurrency(mHarga)}</td>
-        <td class="tooltip">
-          <span class="delete-icon" onclick="deleteItem(this)">
-            <i class="fas fa-times"></i>
-          </span>
-          <span class="tooltiptext">Hapus</span>
-        </td>
-      </tr>
-    `;
-    mTableBody.insertAdjacentHTML("beforeend", mNewRow);
-    document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
-    document.getElementById("submitButton").disabled = false;
-
-    // Perbarui total setelah menambahkan item
-    updateTotals();
-
-    // kirim per item ke sheet
-    const mOrderData = {
-      mDate: document.getElementById("date").value,
-      mInvoice: document.getElementById("invoice").value,
-      mDistributorName: document.getElementById("distributorName").value,
-      mDistributorPhone: document.getElementById("distributorPhone").value,
-      mConsumerName: document.getElementById("consumerName").value,
-      mConsumerPhone: document.getElementById("consumerPhone").value,
-      mConsumerEmail: document.getElementById("consumerEmail").value,
-      mDiskon: selectedDiscountLabel,
-      mByKirim: parseFloat(mShippingSelect.value),
-      mPajak: parseFloat(document.getElementById("tax").textContent.replace(/\./g, "").replace(",", ".")),
-      mItem: {
-        mNoStok: mProductSelect.value,
-        mKategori: mProductData.Kategori,
-        mNamaProduk: mProductSelect.options[mProductSelect.selectedIndex].text,
-        mVp: mProductData.VP,
-        mHargaEceran: mProductData.HargaEceran,
-        mSetelahDiskon: mPriceAfterDiscount,
-        mJumlah: mQuantity,
-        mTotVP: mTotVP,
-        mHarga: mHarga
-      }
-    };
-
-    callAPI("saveItem", mOrderData, "POST");
-    disableFields();
-    showNotification('success', 'SUKSES : Item berhasil di tambah');
-  }).catch(error => {
-     showNotification('error', 'ERROR : '+ error.message);
-  });
 }
 
 // *************************
@@ -1434,7 +1343,6 @@ document.querySelector('#orderTable tbody').addEventListener('input', function(e
   }
 });
 
-
 // *******************************************************
 // Fungsi untuk memperbarui nomor item setelah penghapusan
 // *******************************************************
@@ -1470,7 +1378,6 @@ function deleteItem(icon) {
 // ************************************
 // Kumpulkan data tabel ke object order
 // ************************************ 
-// Kumpulkan semua data order (produk + konsumen) untuk dikirim ke GAS
 function collectOrderData() {
    const mTableBody = document.querySelector("#orderTable tbody");
   const rows = mTableBody.querySelectorAll("tr");
@@ -1563,7 +1470,6 @@ function saveOrderToSheet(orderData) {
 // *******************************************
 // Fungsi untuk simpan data terakhir ke sheet 
 // *******************************************
-// === Tahap 1: SUBMIT ===
 function submitForm() {
   // Hanya mengubah tampilan, tidak menyimpan data
   console.log("Submit clicked - preparing for final submission");
@@ -1639,7 +1545,7 @@ document.querySelectorAll('#orderTable tbody tr').forEach(row => {
 // **********************
 // Mengupdate Baris Icon
 // *********************
-function updateRowIcons(row, mode) {
+function BACKUP_updateRowIcons(row, mode) {
     const icons = row.querySelectorAll('.action-icon');
     const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
 
