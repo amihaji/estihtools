@@ -928,8 +928,7 @@ function addItem() {
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
     document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
     document.getElementById("submitButton").disabled = false;
-    showSpinner("btnAdd");
-    
+      
     // Perbarui total setelah menambahkan item
     updateTotals();
  
@@ -960,8 +959,9 @@ function addItem() {
 
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
-    hideSpinner("btnAdd");  
+    showSpinner("btnAdd");
     showNotification('success', 'SUKSES : Item berhasil di tambah');
+    hideSpinner("btnAdd");  
   }).catch(error => {
     showNotification('error', 'ERROR : ' + error.message);
   });
@@ -1117,10 +1117,10 @@ function resetForm() {
     document.getElementById('tax').textContent           = formatCurrency(0);
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
+    showSpinner("btnReset");
     // saat form direset
     document.getElementById("submitButton").disabled = true;   // Nonaktifkan tombol "submit" 
     document.getElementById("btnAdd").disabled       = false;  // Aktifkan tombol "Tambah" 
-    showSpinner("btnReset");
     // Enable semua field kecuali Tanggal dan Invoice
     enableFields();
 
@@ -1397,17 +1397,17 @@ function kirimData() {
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
+      showSpinner("kirimButton");
       showNotification('success', 'SUKSES: Data berhasil dikirim');
       
       // Reset form
       resetForm();
-      
+     
       // Toggle tombol
       document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
-      showSpinner("kirimButton");
-    })
+   })
     .catch(err => {
       console.error("Error kirim:", err);
       showNotification('error', 'ERROR: Gagal mengirim data');
