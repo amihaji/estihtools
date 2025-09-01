@@ -1392,9 +1392,6 @@ function kirimData() {
 
   const mOrderData = collectOrderData();
   
-  // Tampilkan loading spinner
-  //document.getElementById('loadingSpinner').style.display = 'block';
-  
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
@@ -1407,14 +1404,14 @@ function kirimData() {
       document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
+      // Sembunyikan loading spinner
+      setTimeout(() => hideSpinner("kirimButton"), 1000);
     })
     .catch(err => {
       console.error("Error kirim:", err);
       showNotification('error', 'ERROR: Gagal mengirim data');
     })
     .finally(() => {
-      // Sembunyikan loading spinner
-      setTimeout(() => hideSpinner("kirimButton"), 1000);
       // Reset form
       resetForm();
     });
