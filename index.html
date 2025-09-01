@@ -1405,7 +1405,7 @@ function kirimData() {
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
       // Sembunyikan loading spinner
-      setTimeout(() => hideSpinner("kirimButton"), 1000);
+      setTimeout(() => hideSpinner("kirimButton"), 2000);
     })
     .catch(err => {
       console.error("Error kirim:", err);
