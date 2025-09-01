@@ -850,28 +850,6 @@ document.addEventListener("DOMContentLoaded", function() {
     isEditMode = false;
 });
 
-// ******************
-// Tampilkan spinner
-// *****************
-function showSpinner(buttonId) {
-  const btn = document.getElementById(buttonId);
-  if (!btn) return;
-  btn.disabled = true;
-  const spinner = btn.querySelector(".spinner-border");
-  if (spinner) spinner.style.display = "inline-block";
-}
-
-// ********************
-// Sembunyikan spinner
-// ********************
-function hideSpinner(buttonId) {
-  const btn = document.getElementById(buttonId);
-  if (!btn) return;
-  btn.disabled = false;
-  const spinner = btn.querySelector(".spinner-border");
-  if (spinner) spinner.style.display = "none";
-}
-
 // *************************
 // Fungsi untuk nambah data
 // *************************
@@ -959,9 +937,10 @@ function addItem() {
 
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
+
     showSpinner("btnAdd");
     showNotification('success', 'SUKSES : Item berhasil di tambah');
-    hideSpinner("btnAdd");  
+    setTimeout(() => hideSpinner("btnAdd"), 1000); // simulasi selesai proses
   }).catch(error => {
     showNotification('error', 'ERROR : ' + error.message);
   });
@@ -990,6 +969,28 @@ function deleteItem(icon) {
         .catch(error => {
             showNotification('error', 'Gagal menghapus item');
         });
+}
+
+// ******************
+// Tampilkan spinner
+// *****************
+function showSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = true;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "inline-block";
+}
+
+// ********************
+// Sembunyikan spinner
+// ********************
+function hideSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = false;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "none";
 }
 
 // *********************
@@ -1127,7 +1128,7 @@ function resetForm() {
     // Pastikan kembali ke mode TAMBAH
     showNotification('success', 'SUKSES : Form telah direset');
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
-    hideSpinner("btnReset");
+    setTimeout(() => hideSpinner("btnReset"), 1000);
 }
 
 // *********************************************
@@ -1376,7 +1377,7 @@ function submitForm() {
  // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
   showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
-  hideSpinner("submitButton");  
+  setTimeout(() => hideSpinner("submitButton"), 1000);
 }
 
 // **************************************************
@@ -1414,7 +1415,7 @@ function kirimData() {
     })
     .finally(() => {
       // Sembunyikan loading spinner
-      hideSpinner("kirimButton");
+      setTimeout(() => hideSpinner("kirimButton"), 1000);
       // document.getElementById('loadingSpinner').style.display = 'none';
     });
     
