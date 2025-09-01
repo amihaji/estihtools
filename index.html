@@ -1398,14 +1398,15 @@ function kirimData() {
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
+      document.getElementById("kirimButton").style.display    = "block";
       showNotification('success', 'SUKSES: Data berhasil dikirim');
             
       // Toggle tombol
-      document.getElementById("kirimButton").style.display    = "block";
+      showSpinner("kirimButton");
+      document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
-      showSpinner("kirimButton");
-   })
+    })
     .catch(err => {
       console.error("Error kirim:", err);
       showNotification('error', 'ERROR: Gagal mengirim data');
