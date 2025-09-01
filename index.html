@@ -928,7 +928,8 @@ function addItem() {
     mTableBody.insertAdjacentHTML("beforeend", mNewRow);
     document.querySelector('#orderTable th:nth-child(5)').textContent = `Diskon ${selectedDiscountLabel}`;
     document.getElementById("submitButton").disabled = false;
-
+    showSpinner("btnAdd");
+    
     // Perbarui total setelah menambahkan item
     updateTotals();
  
@@ -959,12 +960,11 @@ function addItem() {
 
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
-    showSpinner("btnAdd");
+    hideSpinner("btnAdd");  
     showNotification('success', 'SUKSES : Item berhasil di tambah');
   }).catch(error => {
     showNotification('error', 'ERROR : ' + error.message);
   });
-  hideSpinner("btnAdd");
 }
 
 // *******************
