@@ -1401,8 +1401,9 @@ function kirimData() {
       document.getElementById("kirimButton").style.display    = "block";
       showNotification('success', 'SUKSES: Data berhasil dikirim');
             
-      // Toggle tombol
+      // Tampilkan loading spinner
       showSpinner("kirimButton");
+      // Toggle tombol
       document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
