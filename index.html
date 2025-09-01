@@ -1400,10 +1400,7 @@ function kirimData() {
       console.log("Kirim berhasil");
       showSpinner("kirimButton");
       showNotification('success', 'SUKSES: Data berhasil dikirim');
-      
-      // Reset form
-      resetForm();
-     
+            
       // Toggle tombol
       document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
@@ -1417,6 +1414,8 @@ function kirimData() {
       // Sembunyikan loading spinner
       setTimeout(() => hideSpinner("kirimButton"), 1000);
       // document.getElementById('loadingSpinner').style.display = 'none';
+      // Reset form
+      resetForm();
     });
     
 }
