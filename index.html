@@ -158,8 +158,10 @@ input:enabled, select:enabled { cursor: pointer; }
 .validasi-warning { background-color: #f0ad4e; color: black; }
 
 /* Style spinner */
+/* TIDAK DIGUNAKAN
 #loadingSpinner { display: none; text-align: center; padding: 0.1px; }
 #loadingSpinner .spinner-border { width: 2rem; height: 2rem; border-width: 0.2em; }
+*/
 
 /* Tombol */
 .button-group { display: flex; gap: 10px; margin-top: 10px; margin-bottom: 10px; }
@@ -619,6 +621,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
 
                     <!-- Tampilan tombol -->
                     <div class="button-group"> 
+                        <!--
                         <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
                             <i class="fas fa-save"></i> TAMBAH
                         </button>
@@ -628,18 +631,39 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                         <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
                             <i class="fas fa-paper-plane"></i> SUBMIT
                         </button>
-                        <!-- Tombol KIRIM tampil jika menekan tombol SUBMIT -->
                         <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
                             <i class="fas fa-share-square"></i> KIRIM
+                        </button>
+                        -->
+                        <button type="button" class="btn btn-primary" id="btnAdd" onclick="addItem()">
+                            <i class="fas fa-save"></i> TAMBAH
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" onclick="resetForm()" id="btnReset">
+                            <i class="fas fa-rotate-left"></i> RESET
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" id="submitButton" onclick="submitForm()" disabled>
+                            <i class="fas fa-paper-plane"></i> SUBMIT
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
+                        </button>
+
+                        <button type="button" class="btn btn-success" id="kirimButton" onclick="kirimData()" style="display:none;">
+                            <i class="fas fa-share-square"></i> KIRIM
+                            <span class="spinner-border spinner-border-sm ms-2" style="display:none;"></span>
                         </button>
                     </div>  
                 </form>
 
                 <div id="orderSummary">
                     <!-- Tampilan Spinner -->
+                    <!--
                     <div id="loadingSpinner" class="text-center my-3 mt-0 mb-0">
                         <div class="spinner-border text-primary"></div>
                     </div>
+                    -->
                     <h5>Ringkasan Pesanan</h5>
                     <div class="table-wrapper">
                         <div class="table-container">
@@ -826,6 +850,28 @@ document.addEventListener("DOMContentLoaded", function() {
     isEditMode = false;
 });
 
+// ******************
+// Tampilkan spinner
+// *****************
+function showSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = true;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "inline-block";
+}
+
+// ********************
+// Sembunyikan spinner
+// ********************
+function hideSpinner(buttonId) {
+  const btn = document.getElementById(buttonId);
+  if (!btn) return;
+  btn.disabled = false;
+  const spinner = btn.querySelector(".spinner-border");
+  if (spinner) spinner.style.display = "none";
+}
+
 // *************************
 // Fungsi untuk nambah data
 // *************************
@@ -913,10 +959,12 @@ function addItem() {
 
     callAPI("saveItem", mOrderData, "POST");
     disableFields();
+    showSpinner("btnAdd");
     showNotification('success', 'SUKSES : Item berhasil di tambah');
   }).catch(error => {
     showNotification('error', 'ERROR : ' + error.message);
   });
+  hideSpinner("btnAdd");
 }
 
 // *******************
@@ -1072,13 +1120,14 @@ function resetForm() {
     // saat form direset
     document.getElementById("submitButton").disabled = true;   // Nonaktifkan tombol "submit" 
     document.getElementById("btnAdd").disabled       = false;  // Aktifkan tombol "Tambah" 
-
+    showSpinner("btnReset");
     // Enable semua field kecuali Tanggal dan Invoice
     enableFields();
 
     // Pastikan kembali ke mode TAMBAH
     showNotification('success', 'SUKSES : Form telah direset');
     console.log("Form dan tabel berhasil direset. Semua total diatur ke 0.");
+    hideSpinner("btnReset");
 }
 
 // *********************************************
@@ -1289,7 +1338,7 @@ function parseCurrency(str) {
 // *****************************
 function saveOrderToSheet(orderData) {
   // Tampilkan loading indicator
-  document.getElementById('loadingSpinner').style.display = 'block';
+  //document.getElementById('loadingSpinner').style.display = 'block';
   
   return callAPI("saveOrder", orderData, "POST")
     .then(res => {
@@ -1301,7 +1350,8 @@ function saveOrderToSheet(orderData) {
       showNotification('error', 'ERROR : Gagal menyimpan perubahan');
     })
     .finally(() => {
-      document.getElementById('loadingSpinner').style.display = 'none';
+       showNotification('success', 'SUKSES : Data tersimpan'); 
+      //document.getElementById('loadingSpinner').style.display = 'none';
     });
 }
 
@@ -1322,10 +1372,11 @@ function submitForm() {
   // Toggle tombol
   document.getElementById("submitButton").style.display = "none";
   document.getElementById("kirimButton").style.display = "inline-block";
-
-  // Tampilkan inputan konsumen
+  showSpinner("submitButton");
+ // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
   showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
+  hideSpinner("submitButton");  
 }
 
 // **************************************************
@@ -1341,12 +1392,12 @@ function kirimData() {
   const mOrderData = collectOrderData();
   
   // Tampilkan loading spinner
-  document.getElementById('loadingSpinner').style.display = 'block';
+  //document.getElementById('loadingSpinner').style.display = 'block';
   
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
-      showNotification('success', 'SUKSES: Data berhasil dikirim dan disimpan');
+      showNotification('success', 'SUKSES: Data berhasil dikirim');
       
       // Reset form
       resetForm();
@@ -1355,6 +1406,7 @@ function kirimData() {
       document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
+      showSpinner("kirimButton");
     })
     .catch(err => {
       console.error("Error kirim:", err);
@@ -1362,8 +1414,10 @@ function kirimData() {
     })
     .finally(() => {
       // Sembunyikan loading spinner
-      document.getElementById('loadingSpinner').style.display = 'none';
+      hideSpinner("kirimButton");
+      // document.getElementById('loadingSpinner').style.display = 'none';
     });
+    
 }
 
 // ************************************************************
