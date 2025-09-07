@@ -1416,13 +1416,13 @@ function submitForm() {
 // **************************************************
 function kirimData() {
   // Validasi form sebelum mengirim
-  //if (!validateForm()) {
-  //  showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
-  //  return;
-  //}
+  if (!validateForm()) {
+     //showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+     return false;
+  }
   
   //Validasi form sebelum mengirim
-  validateForm();
+  //validateForm();
   const mOrderData = collectOrderData();
   
   callAPI("kirimData", mOrderData, "POST")
