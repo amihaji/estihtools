@@ -1115,6 +1115,7 @@ function resetForm() {
 
     // Reset form input
     document.getElementById('orderForm').reset();
+    showSpinner("btnReset");
 
     // Kosongkan tabel pesanan
     document.querySelector('#orderTable tbody').innerHTML = '';
@@ -1143,11 +1144,10 @@ function resetForm() {
     // saat form direset
     document.getElementById("submitButton").style.display = "block";
     document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "submit" 
-    document.getElementById("kirimButton").style.display  = "inline-block";
+    document.getElementById("kirimButton").style.display  = "none";
     document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
     
     // Enable semua field kecuali Tanggal dan Invoice
-    showSpinner("btnReset");
     enableFields();
 
     // Pastikan kembali ke mode TAMBAH
