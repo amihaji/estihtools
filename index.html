@@ -1140,13 +1140,14 @@ function resetForm() {
     document.getElementById('tax').textContent           = formatCurrency(0);
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
-    showSpinner("btnReset");
     // saat form direset
-    
     document.getElementById("submitButton").style.display = "block";
-    document.getElementById("submitButton").disabled      = true;   // Nonaktifkan tombol "submit" 
-    document.getElementById("btnAdd").disabled            = false;  // Aktifkan tombol "Tambah" 
+    document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "submit" 
+    document.getElementById("kirimButton").style.display  = "inline-block";
+    document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
+    
     // Enable semua field kecuali Tanggal dan Invoice
+    showSpinner("btnReset");
     enableFields();
 
     // Pastikan kembali ke mode TAMBAH
@@ -1426,8 +1427,8 @@ function kirimData() {
       
       // Toggle tombol
       //document.getElementById("kirimButton").style.display    = "none";
-      //document.getElementById("submitButton").style.display   = "inline-block";
-      document.getElementById("submitButton").style.display   = "none";
+      document.getElementById("submitButton").style.display   = "inline-block";
+      //document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
       // Sembunyikan loading spinner
       setTimeout(() => hideSpinner("kirimButton"), 2000);
