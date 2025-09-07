@@ -584,6 +584,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <div id="inputanSection" style="display:none; margin-top:5px;">    
                         <div>
                             <i class="fas fa-user-friends"> Data Personal</i>
+                            <p><strong>Silahkan lengkapi Data Personal ini sebelum mengirim hasil estimasi harganya</strong></p>
                         </div>  
                         <div class="form-control mt-2">
                             <div class="input-group mt-2">
@@ -1357,7 +1358,7 @@ function submitForm() {
   showSpinner("submitButton");
  // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
-  showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
+  // showNotification('success', 'SUKSES: Data siap untuk dikirim. Silakan lengkapi data konsumen lalu tekan KIRIM');
   setTimeout(() => hideSpinner("submitButton"), 1000);
 }
 
