@@ -1420,7 +1420,9 @@ function kirimData() {
   //  showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
   //  return;
   //}
-
+  
+  //Validasi form sebelum mengirim
+  validateForm();
   const mOrderData = collectOrderData();
   
   callAPI("kirimData", mOrderData, "POST")
