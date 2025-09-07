@@ -1044,6 +1044,12 @@ function validateForm() {
     const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;      // format email sederhana
     const hpPattern        = /^[0-9]{10,14}$/;                  // hanya angka, panjang 10–14
     
+    // Cek kalau SEMUA input kosong
+    if (!consumerName && !consumerPhone && !consumerEmail) {
+        showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+        return false;
+    }
+
     // Validasi Distributor (WAJIB)
     if (!userNamePattern.test(distributorName)) {
         showNotifValidasi("warning", " WARNING : Nama Member, huruf besar dan 3-20 karakter.");
@@ -1410,10 +1416,10 @@ function submitForm() {
 // **************************************************
 function kirimData() {
   // Validasi form sebelum mengirim
-  if (!validateForm()) {
-    showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
-    return;
-  }
+  //if (!validateForm()) {
+  //  showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
+  //  return;
+  //}
 
   const mOrderData = collectOrderData();
   
