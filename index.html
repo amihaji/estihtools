@@ -583,7 +583,7 @@ button { border: none; cursor: pointer; flex: 1; transition: background-color 0.
                     <!-- Default Dalam keadan tersembunyi, akan muncul setelah tekan tombol "SUBMIT" -->
                     <div id="inputanSection" style="display:none; margin-top:5px;">    
                         <div>
-                            <i class="fas fa-user-friends"> Data Personal</i>
+                            <p><i class="fas fa-user-friends"> Data Personal</i></p>
                         </div>  
                         <div class="form-control mt-2">
                             <p><strong>Silahkan lengkapi Data Personal ini sebelum mengirim hasil estimasi harganya</strong></p>
@@ -1040,6 +1040,46 @@ function validateForm() {
     const consumerEmail    = document.getElementById('consumerEmail').value.trim();
        
     const qtyPattern       = /^[0-9]{1,3}$/;                    // hanya angka, panjang 1–3
+    const userNamePattern  = /^[A-Z\s]{3,20}$/;                 // huruf besar & spasi, panjang 3–20
+    const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;      // format email sederhana
+    const hpPattern        = /^[0-9]{10,14}$/;                  // hanya angka, panjang 10–14
+    
+    // Validasi Distributor (WAJIB)
+    if (!userNamePattern.test(distributorName)) {
+        showNotifValidasi("warning", " WARNING : Nama Member, huruf besar dan 3-20 karakter.");
+        return false;
+    }
+    if (!hpPattern.test(distributorPhone)) {
+        showNotifValidasi("warning", " WARNING : Nomor HP Member, harus 10-14 digit angka.");
+        return false;
+    }
+
+    // Validasi Konsumen (OPSIONAL)
+    if (consumerName && !userNamePattern.test(consumerName)) {
+        showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-20 karakter.");
+        return false;
+    }
+    if (consumerPhone && !hpPattern.test(consumerPhone)) {
+        showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
+        return false;
+    }
+    if (consumerEmail && !emailPattern.test(consumerEmail)) {
+        showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
+        return false;
+    }
+
+    return true;
+}
+
+function BACKUP_validateForm() {
+    const distributorName  = document.getElementById('distributorName').value.trim().toUpperCase();
+    document.getElementById('distributorName').value = distributorName;
+    const distributorPhone = document.getElementById('distributorPhone').value.trim();
+    const consumerName     = document.getElementById('consumerName').value.trim().toUpperCase();
+    const consumerPhone    = document.getElementById('consumerPhone').value.trim();
+    const consumerEmail    = document.getElementById('consumerEmail').value.trim();
+       
+    const qtyPattern       = /^[0-9]{1,3}$/;                    // hanya angka, panjang 1–3
     const userNamePattern  = /^[A-Z\s]{3,20}$/;                 // hanya huruf besar & angka, panjang 3–20
     const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;      // hanya untuk validasi email
     const hpPattern        = /^[0-9]{10,14}$/;                  // hanya angka, panjang 10–14
@@ -1383,7 +1423,7 @@ function kirimData() {
       showNotification('success', 'SUKSES: Data berhasil dikirim');
       
       // Toggle tombol
-      document.getElementById("kirimButton").style.display    = "none";
+      //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
       // Sembunyikan loading spinner
