@@ -1043,12 +1043,6 @@ function validateForm() {
     const userNamePattern  = /^[A-Z\s]{3,20}$/;                 // huruf besar & spasi, panjang 3–20
     const emailPattern     = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;      // format email sederhana
     const hpPattern        = /^[0-9]{10,14}$/;                  // hanya angka, panjang 10–14
-    
-    // Cek kalau SEMUA input kosong
-    if (!consumerName && !consumerPhone && !consumerEmail) {
-        showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
-        return false;
-    }
 
     // Validasi Distributor (WAJIB)
     if (!userNamePattern.test(distributorName)) {
@@ -1060,20 +1054,25 @@ function validateForm() {
         return false;
     }
 
-    // Validasi Konsumen (OPSIONAL)
-    if (consumerName && !userNamePattern.test(consumerName)) {
-        showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-20 karakter.");
+    // Cek kalau SEMUA input konsumen kosong
+    if (!consumerName && !consumerPhone && !consumerEmail) {
+        showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
         return false;
+    } else {
+       // Validasi Konsumen (OPSIONAL)
+        if (consumerName && !userNamePattern.test(consumerName)) {
+            showNotifValidasi("warning", " WARNING : Nama Konsumen, huruf besar dan 3-20 karakter.");
+            return false;
+        }
+        if (consumerPhone && !hpPattern.test(consumerPhone)) {
+            showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
+            return false;
+        }
+        if (consumerEmail && !emailPattern.test(consumerEmail)) {
+            showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
+            return false;
+        }
     }
-    if (consumerPhone && !hpPattern.test(consumerPhone)) {
-        showNotifValidasi("warning", " WARNING : Nomor HP Konsumen, harus 10-14 digit angka.");
-        return false;
-    }
-    if (consumerEmail && !emailPattern.test(consumerEmail)) {
-        showNotifValidasi("warning", " WARNING : Format email perbaiki ! (misalnya : test@example.com)");
-        return false;
-    }
-
     return true;
 }
 
