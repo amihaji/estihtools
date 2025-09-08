@@ -1118,7 +1118,6 @@ function BACKUP_validateForm() {
 // **************************
 function resetForm() {
     console.log("Tombol Reset diklik");
-    // hideSpinner("kirimButton");
     // Reset form input
     document.getElementById('orderForm').reset();
     
@@ -1416,7 +1415,6 @@ function submitForm() {
 function kirimData() {
   // Validasi form sebelum mengirim
   if (!validateForm()) {
-     //showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
      return false;
   }
  
@@ -1429,9 +1427,7 @@ function kirimData() {
       showSpinner("kirimButton");
       
       // Toggle tombol
-      //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
-      //document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
     })
     .catch(err => {
@@ -1440,8 +1436,6 @@ function kirimData() {
     })
     .finally(() => {
       showNotification('success', 'SUKSES: Data berhasil dikirim');
-      // Sembunyikan loading spinner
-      //setTimeout(() => hideSpinner("kirimButton"), 2000);
       // Reset form
       resetForm();
     });   
