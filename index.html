@@ -1431,21 +1431,20 @@ function kirimData() {
       document.getElementById("kirimButton").style.display = "block";
       // Tampilkan loading spinner
       showSpinner("kirimButton");
-      showNotification('success', 'SUKSES: Data berhasil dikirim');
-      
       // Toggle tombol
       //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
       //document.getElementById("submitButton").style.display   = "none";
       document.getElementById("inputanSection").style.display = "none";
-      // Sembunyikan loading spinner
-      setTimeout(() => hideSpinner("kirimButton"), 2000);
     })
     .catch(err => {
       console.error("Error kirim:", err);
       showNotification('error', 'ERROR: Gagal mengirim data');
     })
     .finally(() => {
+      showNotification('success', 'SUKSES: Data berhasil dikirim');
+      // Sembunyikan loading spinner
+      setTimeout(() => hideSpinner("kirimButton"), 2000);
       // Reset form
       resetForm();
     });   
