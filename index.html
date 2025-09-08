@@ -1118,7 +1118,7 @@ function BACKUP_validateForm() {
 // **************************
 function resetForm() {
     console.log("Tombol Reset diklik");
-
+    // hideSpinner("kirimButton");
     // Reset form input
     document.getElementById('orderForm').reset();
     showSpinner("btnReset");
@@ -1420,20 +1420,14 @@ function kirimData() {
      //showNotification('warning', 'PERHATIAN: Lengkapi data dengan benar sebelum mengirim');
      return false;
   }
-  
-  //Validasi form sebelum mengirim
-  //validateForm();
+ 
   const mOrderData = collectOrderData();
-  document.getElementById("kirimButton").style.display = "block";
-  // Tampilkan loading spinner
-  showSpinner("kirimButton");
-
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
-      //document.getElementById("kirimButton").style.display = "block";
+      document.getElementById("kirimButton").style.display = "block";
       // Tampilkan loading spinner
-      //showSpinner("kirimButton");
+      showSpinner("kirimButton");
       // Toggle tombol
       //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
