@@ -1417,15 +1417,16 @@ function kirimData() {
   if (!validateForm()) {
      return false;
   }
- 
+  
   const mOrderData = collectOrderData();
+  // Tampilkan loading spinner
+  document.getElementById("kirimButton").style.display = "block";
+  showSpinner("kirimButton");
+
   callAPI("kirimData", mOrderData, "POST")
-    .then(response => {
+  .then(response => {
       console.log("Kirim berhasil");
-      // Tampilkan loading spinner
-      document.getElementById("kirimButton").style.display = "block";
-      showSpinner("kirimButton");
-      
+     
       // Toggle tombol
       document.getElementById("submitButton").style.display   = "inline-block";
       document.getElementById("inputanSection").style.display = "none";
