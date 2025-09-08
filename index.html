@@ -1121,8 +1121,7 @@ function resetForm() {
     // hideSpinner("kirimButton");
     // Reset form input
     document.getElementById('orderForm').reset();
-    showSpinner("btnReset");
-
+    
     // Kosongkan tabel pesanan
     document.querySelector('#orderTable tbody').innerHTML = '';
 
@@ -1152,7 +1151,7 @@ function resetForm() {
     document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "submit" 
     document.getElementById("kirimButton").style.display  = "none";
     document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
-    
+    showSpinner("btnReset");
     // Enable semua field kecuali Tanggal dan Invoice
     enableFields();
 
@@ -1425,9 +1424,9 @@ function kirimData() {
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
-      document.getElementById("kirimButton").style.display = "block";
       // Tampilkan loading spinner
       showSpinner("kirimButton");
+      document.getElementById("kirimButton").style.display = "block";
       // Toggle tombol
       //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
