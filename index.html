@@ -1424,13 +1424,16 @@ function kirimData() {
   //Validasi form sebelum mengirim
   //validateForm();
   const mOrderData = collectOrderData();
-  
+  document.getElementById("kirimButton").style.display = "block";
+  // Tampilkan loading spinner
+  showSpinner("kirimButton");
+
   callAPI("kirimData", mOrderData, "POST")
     .then(response => {
       console.log("Kirim berhasil");
-      document.getElementById("kirimButton").style.display = "block";
+      //document.getElementById("kirimButton").style.display = "block";
       // Tampilkan loading spinner
-      showSpinner("kirimButton");
+      //showSpinner("kirimButton");
       // Toggle tombol
       //document.getElementById("kirimButton").style.display    = "none";
       document.getElementById("submitButton").style.display   = "inline-block";
