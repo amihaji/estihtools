@@ -1380,17 +1380,18 @@ function kirimData() {
   }
   
   const mOrderData = collectOrderData();
+  document.getElementById("kirimButton").style.display    = "block";
+  document.getElementById("submitButton").style.display   = "inline-block";
+  document.getElementById("inputanSection").style.display = "none";
   // Tampilkan loading spinner
-  document.getElementById("kirimButton").style.display = "block";
   showSpinner("kirimButton");
 
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
-     
       // Toggle tombol
-      document.getElementById("submitButton").style.display   = "inline-block";
-      document.getElementById("inputanSection").style.display = "none";
+      //document.getElementById("submitButton").style.display   = "inline-block";
+      //document.getElementById("inputanSection").style.display = "none";
     })
     .catch(err => {
       console.error("Error kirim:", err);
