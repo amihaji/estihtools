@@ -1109,9 +1109,10 @@ function resetForm() {
     document.getElementById('totalPrice').textContent    = formatCurrency(0);
 
     // saat form direset
-    document.getElementById("submitButton").style.display = "block";
-    document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "submit" 
-    document.getElementById("kirimButton").style.display  = "none";
+    document.getElementById("submitButton").style.display = "block";        // Tampilkan tombol "Submit"   
+    document.getElementById("submitButton").disabled      = true;           // Nonaktifkan tombol "Submit" 
+    document.getElementById("kirimButton").style.display  = "none";         // Sembuyikan tombol "Kirim" 
+    document.getElementById("kirimButton").disabled       = true;           // Nonaktifkan tombol "Kirim" 
     document.getElementById("btnAdd").disabled            = false;          // Aktifkan tombol "Tambah" 
     showSpinner("btnReset");
     enableFields();    // Enable semua field kecuali Tanggal dan Invoice
@@ -1364,10 +1365,10 @@ function submitForm() {
   // Toggle tombol
   document.getElementById("submitButton").style.display = "none";
   document.getElementById("kirimButton").style.display  = "inline-block";
-  showSpinner("submitButton");
+  //showSpinner("submitButton");
   // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
-  setTimeout(() => hideSpinner("submitButton"), 1000);
+  //setTimeout(() => hideSpinner("submitButton"), 1000);
 }
 
 // **************************************************
@@ -1380,18 +1381,15 @@ function kirimData() {
   }
   
   const mOrderData = collectOrderData();
-  document.getElementById("kirimButton").style.display    = "block";
-  document.getElementById("submitButton").style.display   = "inline-block";
-  document.getElementById("inputanSection").style.display = "none";
-  // Tampilkan loading spinner
-  showSpinner("kirimButton");
-
+  
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
-      // Toggle tombol
-      //document.getElementById("submitButton").style.display   = "inline-block";
-      //document.getElementById("inputanSection").style.display = "none";
+      document.getElementById("kirimButton").style.display    = "block";
+      document.getElementById("submitButton").style.display   = "inline-block";
+      document.getElementById("inputanSection").style.display = "none";
+      // Tampilkan loading spinner
+      showSpinner("kirimButton");
     })
     .catch(err => {
       console.error("Error kirim:", err);
