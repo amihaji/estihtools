@@ -1379,15 +1379,14 @@ function kirimData() {
   }
   
   const mOrderData = collectOrderData();
-  
-  document.getElementById("kirimButton").style.display    = "block";
-  document.getElementById("submitButton").style.display   = "inline-block";
+  document.getElementById("kirimButton").style.display  = "block";
   // Tampilkan loading spinner
   showSpinner("kirimButton");
 
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
+      document.getElementById("submitButton").style.display = "none";
       setTimeout(() => hideSpinner("kirimButton"), 1000);
       //document.getElementById("inputanSection").style.display = "none";
     })
