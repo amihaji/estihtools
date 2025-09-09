@@ -115,7 +115,7 @@ tr:hover .action-icon {
 .notification-success { background-color: #0275d8; color: white; }
 .notification-warning { background-color: #f0ad4e; color: black; }
 
-/* Spinner Untuk tabel user */
+/* Spinner Untuk tabel produk */
 .loading-overlay {
   position: absolute;
   top: 100px;
@@ -178,17 +178,17 @@ tr:hover .action-icon {
 <body class="p-2 p-sm-3">
 <div class="container">
 <div class="title-box mb-3">
-    <i class="fas fa-cart-plus mt-2"></i>
+    <i class="fas fa-cog"></i>
     <h6 class="mb-0">SETUP ESTIHTOOLS</h6>
 </div>
 
-<!-- Tombol Form Setup User -->
+<!-- Tombol Form Setup produk -->
 <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
     <div>
-       <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Set Produk</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="far fa-list-alt"></i> Set Kategori</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-shipping-fast"></i> Set By Kirim</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addImportProduk"><i class="fas fa-file-import"></i> Import Daftar Produk</button>
+       <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Produk</button>
+       <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="far fa-list-alt"></i> Kategori</button>
+       <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-shipping-fast"></i> By Kirim</button>
+       <button class="btn btn-primary btn-sm mb-1" id="addImportProduk"><i class="fas fa-file-import"></i> Import </button>
        <!-- <button class="btn btn-primary btn-sm mb-1" onclick="showLogNotifForm()"><i class="fas fa-list"></i> Log Notif</button>-->
     </div>
     <div>
@@ -200,7 +200,7 @@ tr:hover .action-icon {
 <div id="pesanNotification" class="notification-message">
     <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
 </div>
-    <!-- Tabel Daftar User -->
+    <!-- Tabel Daftar Produk -->
     <div class="table-box">
         <div class="table-wrapper">
         <table class="table table-hover table-striped table-bordered align-middle text-center">
@@ -219,7 +219,7 @@ tr:hover .action-icon {
                 </tr>
             </thead>
             <!-- Loading Overlay -->
-            <div id="loadingOverlayUser" class="loading-overlay" style="display:none; align-content: center;">
+            <div id="loadingOverlayproduk" class="loading-overlay" style="display:none; align-content: center;">
                <div class="spinner-border text-primary" role="status"></div>
             </div>   
             <tbody id="produkTableBody" style="font-size: small;"><tr><td colspan="15">Memuat data produk ...</td></tr>
@@ -231,28 +231,28 @@ tr:hover .action-icon {
 </div>
 
 <!-- Modal Add/Edit -->
-<div class="modal fade" id="modalUser" tabindex="-1" data-mode="add">
+<div class="modal fade" id="modalProduk" tabindex="-1" data-mode="add">
 <div class="modal-dialog">
-<form id="userForm" class="modal-content">
+<form id="produkForm" class="modal-content">
     <div class="modal-header" style="background-color:#003366; color:white;">
-        <h6 id="judulModal" class="modal-title">Tambah User</h6>
+        <h6 id="judulModal" class="modal-title">Tambah Produk</h6>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body">
         <input type="hidden" id="mode" value="add">
-        <div class="mb-2"><label>User ID</label><input type="text" id="userId" class="form-control" required></div>
-        <div class="mb-2"><label>Nama User</label><input type="text" id="userName" class="form-control" required></div>
-        <div class="mb-2"><label>Email</label><input type="email" id="userEmail" class="form-control" required></div>
-        <div class="mb-2"><label>HP</label><input type="text" id="userHP" class="form-control" required></div>
-        <div class="mb-2"><label>Password</label><input type="text" id="userPass" class="form-control" required></div>
+        <div class="mb-2"><label>Produk ID</label><input type="text" id="noStok" class="form-control" required></div>
+        <div class="mb-2"><label>Nama Produk</label><input type="text" id="ProdukName" class="form-control" required></div>
+        <div class="mb-2"><label>Email</label><input type="email" id="ProdukEmail" class="form-control" required></div>
+        <div class="mb-2"><label>HP</label><input type="text" id="ProdukHP" class="form-control" required></div>
+        <div class="mb-2"><label>Password</label><input type="text" id="ProdukPass" class="form-control" required></div>
         <div class="mb-2"><label>Level</label>
-            <select id="userLevel" class="form-select" required>
+            <select id="ProdukLevel" class="form-select" required>
                 <option value="Admin">Admin</option>
                 <option value="Member">Member</option>
-                <option value="User">User</option>
+                <option value="Produk">Produk</option>
             </select>
         </div>
-        <div class="mb-2"><label>Salah</label><input type="number" id="userSalah" class="form-control" value="0" min="0" max="3" required></div>
+        <div class="mb-2"><label>Salah</label><input type="number" id="ProdukSalah" class="form-control" value="0" min="0" max="3" required></div>
         <div class="form-group">
             <label>Hak Akses, pilih (Y/N):</label>
             <div class="hak-akses-group">
@@ -301,7 +301,7 @@ tr:hover .action-icon {
         </div>
         <!-- Tombol-tombol untuk Modal Add dan Edit -->
         <div class="w-100 d-flex justify-content-end gap-2">
-            <button type="submit" class="btn btn-primary btn-sm" id="saveUserBtn"><i class="fas fa-save"></i> Simpan</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="saveProdukBtn"><i class="fas fa-save"></i> Simpan</button>
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
         </div>
     </div>
@@ -333,7 +333,7 @@ tr:hover .action-icon {
             <button class="btn btn-danger btn-sm mb-2" onclick="deleteAllLogNotif()">
                 <i class="fas fa-trash"></i> Hapus Semua
             </button>
-            <button class="btn btn-secondary btn-sm mb-2" onclick="kembaliKeSetupUser()">
+            <button class="btn btn-secondary btn-sm mb-2" onclick="kembaliKeSetupProduk()">
                 <i class="fas fa-sign-out-alt"></i> Kembali
             </button>
         </div>
@@ -348,10 +348,10 @@ tr:hover .action-icon {
     <div class="table-box">
         <div class="table-wrapper">
             <table class="table table-hover table-striped table-bordered align-middle text-center">
-                <thead class="sticky-header"><h6 class="mb-0">DAFTAR LOG USER</h6>    
+                <thead class="sticky-header"><h6 class="mb-0">DAFTAR LOG Produk</h6>    
                 <tr>
                     <th>Waktu</th>
-                    <th>User ID</th>
+                    <th>Produk ID</th>
                     <th>Nama</th>
                     <th>Email</th>
                     <th>No HP</th>
@@ -371,131 +371,120 @@ tr:hover .action-icon {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbx5EHFyxNUpk6lfTrP4dsjxuc5ok1jQEHx_phwoMBEPNPc9Vzf2GB2AlcywLY4Q5sQAcA/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycby4OjlaL3fcrr7MQngunaO1o2AvzhHaM9EwDJr9c_VKTy9PYbwD34QLmPCGPNqljtzhYQ/exec';
 // **************************************
 
 // **********************************
 // Tampilkan Spinner Loading Overlay
 // **************************************
-function showLoading(show, target = 'user') {
-  const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayUser';
+function showLoading(show, target = 'Produk') {
+  const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayProduk';
   const overlay = document.getElementById(overlayId);
   if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
 
 // *************************************
-// Fungsi untuk load awal Tabel User id
+// Fungsi untuk load awal Tabel Produk id
 // *************************************
-document.addEventListener('DOMContentLoaded', loadUserTable);
-  document.getElementById('addUserButton').addEventListener('click', () => {
+document.addEventListener('DOMContentLoaded', loadProdukTable);
+  document.getElementById('addProdukButton').addEventListener('click', () => {
   document.getElementById('mode').value = 'add';
-  document.getElementById('userForm').reset();
-  document.getElementById('userId').disabled = false;
-  document.getElementById('judulModal').textContent = 'INPUT USER';
-  new bootstrap.Modal(document.getElementById('modalUser')).show();
+  document.getElementById('ProdukForm').reset();
+  document.getElementById('noStok').disabled = false;
+  document.getElementById('judulModal').textContent = 'INPUT Produk';
+  new bootstrap.Modal(document.getElementById('modalProduk')).show();
 });
 
 // *************************************
-// Fungsi untuk memanggil Tabel User Id
+// Fungsi untuk memanggil Tabel Produk Id
 // *************************************
-function loadUserTable() {
-    showLoading(true,'user');
+function loadProdukTable() {
+    showLoading(true,'Produk');
     const callbackName = 'cb_' + Date.now();
     const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=getTabelUser&callback=${callbackName}`;
+    script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
 
     window[callbackName] = function(data) {
         const tbody = document.getElementById('produkTableBody');
         tbody.innerHTML = '';
 
         if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="14">Tidak ada data user.</td></tr>';
-            showLoading(false,'user');
+            tbody.innerHTML = '<tr><td colspan="14">Tidak ada data produk.</td></tr>';
+            showLoading(false,'Produk');
             return;
         }
 
         data.forEach(row => {
-            const [userId, namaUser, emailUser, hpUser, passUser, levelUser, salah,
+            const [noStok, namaProduk, emailProduk, hpProduk, passProduk, levelProduk, salah,
                 login, setting, flc, estih, we, followup, crm] = row;
 
             let editState     = '';
-            let aktifasiState = '';
+            //let aktifasiState = '';
             let deleteState   = '';
-            let unlockState   = 'disabled';
-            let kirimState    = 'disabled';
+            //let unlockState   = 'disabled';
+            //let kirimState    = 'disabled';
 
             const salahCount = parseInt(salah) || 0;
-            const unlockFlag = localStorage.getItem('notifReady_' + userId);
+            const unlockFlag = localStorage.getItem('notifReady_' + noStok);
 
             if (salahCount >= 3) {
                 editState     = 'disabled';
-                aktifasiState = 'disabled';
+                //aktifasiState = 'disabled';
                 deleteState   = 'disabled';
-                unlockState   = '';
-                kirimState    = 'disabled';
+                //unlockState   = '';
+                //kirimState    = 'disabled';
             } else if (unlockFlag === 'true') {
                 editState     = 'disabled';
-                aktifasiState = 'disabled';
+                //aktifasiState = 'disabled';
                 deleteState   = 'disabled';
-                unlockState   = 'disabled';
-                kirimState    = '';
+                //unlockState   = 'disabled';
+                //kirimState    = '';
             }
 
             const tr = document.createElement('tr');
-            tr.id = `row_${userId}`; // Untuk mengupdate baris record di tabel 
+            tr.id = `row_${noStok}`; // Untuk mengupdate baris record di tabel 
 
             tr.innerHTML = `
-                <td>${userId}</td>
-                <td>${namaUser}</td>
-                <td>${emailUser}</td>
-                <td>${hpUser}</td>
-                <td>${passUser}</td>
-                <td>${levelUser}</td>
-                <td>${salah}</td>
-                <td>${login}</td>
-                <td>${setting}</td>
-                <td>${flc}</td>
-                <td>${estih}</td>
-                <td>${we}</td>
-                <td>${followup}</td>
-                <td>${crm}</td>
+                <td>${noStok}</td>
+                <td>${produkName}</td>
+                <td>${volumePoint}</td>
+                <td>${hargaDasar}</td>
+                <td>${hargaEceran}</td>
+                <td>${member25}</td>
+                <td>${sc35}</td>
+                <td>${sb42}</td>
+                <td>${spv50}</td>
                 <td class="actions-col">
-
-                    <!-- <i class="fas fa-edit action-icon ${editState}" title="Edit User" onclick="editUser('${userId}')"></i> -->
-
-                    <i class="fas fa-edit action-icon" title="Edit User" onclick="showEditModal({
-                        userId: '${userId}', userName: '${namaUser}', userEmail: '${emailUser}', userHP: '${hpUser}',userPass: '${passUser}',userLevel: '${levelUser}',
-                        aksesLogin: '${login}', aksesSetting: '${setting}', aksesFLC: '${flc}', aksesEstiH: '${estih}', aksesWE: '${we}', aksesFollowup: '${followup}', aksesCRM: '${crm}'
+                    <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
+                        noStok: '${noStok}', produkName: '${produkName}', volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}',
+                        member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}' 
                     })"></i>
-                    <i class="fas fa-user-secret action-icon ${aktifasiState}" title="Kirim Notif Aktifasi" onclick="aktifasiNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
-                    <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus User" onclick="deleteUser('${userId}')"></i>
-                    <i class="fas fa-unlock action-icon ${unlockState}" title="Aktifkan User" onclick="unlockUser('${userId}')"></i>
-                    <i class="fas fa-paper-plane action-icon ${kirimState}" title="Kirim Notif Reset User" onclick="sendNotif('${userId}','${namaUser}','${emailUser}','${hpUser}','${passUser}')"></i>
+                    <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
                 </td>
             `;
 
             tbody.appendChild(tr);
         });
-        showLoading(false,'user');
+        showLoading(false,'Produk');
         delete window[callbackName];
         document.body.removeChild(script);
     };
 
     script.onerror = function() {
-        showPesan('error',' ERROR : Gagal mengambil data user!');
-        showLoading(false,'user');
+        showPesan('error',' ERROR : Gagal mengambil data Produk!');
+        showLoading(false,'Produk');
         delete window[callbackName];
     };
     document.body.appendChild(script);
 }
 
 // **********************************
-// Fungsi untuk kembali ke setup user
+// Fungsi untuk kembali ke setup Produk
 // **********************************
-function kembaliKeSetupUser() {
-  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup User
+function kembaliKeSetupProduk() {
+  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
   document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
-  loadUserTable(); // Refresh data user
+  loadProdukTable(); // Refresh data Produk
 }
 
 // ********************************************
@@ -518,11 +507,11 @@ function loadLogNotifTable() {
     }
 
     data.forEach(row => {
-      const [waktu, userId, nama, email, hp, pass, status] = row;
+      const [waktu, noStok, nama, email, hp, pass, status] = row;
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${waktu}</td>
-        <td>${userId}</td>
+        <td>${noStok}</td>
         <td>${nama}</td>
         <td>${email}</td>
         <td>${hp}</td>
@@ -547,45 +536,40 @@ function loadLogNotifTable() {
 }
 
 // ***************************************************
-// Sembunyikan tombol Setup User saat tampil Log Notif
+// Sembunyikan tombol Setup Produk saat tampil Log Notif
 // ***************************************************
 function showLogNotifForm() {
-  // Sembunyikan elemen-elemen Setup User
-  document.querySelector('.container').style.display    = 'none';  // Sembunyikan semua form Setup User
+  // Sembunyikan elemen-elemen Setup Produk
+  document.querySelector('.container').style.display    = 'none';  // Sembunyikan semua form Setup Produk
   document.getElementById('logNotifForm').style.display = 'block'; // Tampilkan form Log Notifikasi
   loadLogNotifTable(); // Load datanya
 }
 
 // **************************
-// Fungsi untuk menambah user
+// Fungsi untuk menambah Produk
 // **************************
-function addUser() {
-    const userId     = document.getElementById('userId').value.trim().toLowerCase();
-    document.getElementById('userId').value = userId;
-    const userName   = document.getElementById('userName').value.trim().toUpperCase();
-    document.getElementById('userName').value = userName;
-    const userEmail  = document.getElementById('userEmail').value.trim();
-    const userHP     = document.getElementById('userHP').value.trim();
-    const userPass   = document.getElementById('userPass').value.trim();
-    const userLevel  = document.getElementById('userLevel').value;
-
-    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
-    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
-    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
-    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
-    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
-    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
-
+function addProduk() {
+    const nomorStok  = document.getElementById('noStok').value.trim().toLowerCase();
+    document.getElementById('noStok').value = nomorStok;
+    const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
+    document.getElementById('produkName').value = namaProduk;
+    const volumePoint= document.getElementById('volumePoint').value = volumePoint;
+    const hargaDasar = document.getElementById('hargaDasar').value = hargaDasar;
+    const hargaEceran = document.getElementById('hargaEceran').value = hargaEceran;
+    const member25 = document.getElementById('member25').value = member25;
+    const sc35 = document.getElementById('sc35').value = sc35;
+    const sb42 = document.getElementById('sb42').value = sb42;
+    const spv50 = document.getElementById('spv50').value = spv50;
+    
     // Validasi
-    if (!validateUserForm()) return;
+    if (!validateProdukForm()) return;
 
-    // Cek duplikasi User ID di tabel
+    // Cek duplikasi Produk ID di tabel
     const rows = document.querySelectorAll('#produkTableBody tr');
     for (let row of rows) {
-        const cellUserId = row.children[0]?.textContent?.trim();
-        if (cellUserId === userId) {
-            showPesanModal("warning", " WARNING : User ID sudah digunakan.");
+        const cellnoStok = row.children[0]?.textContent?.trim();
+        if (cellnoStok === noStok) {
+            showPesanModal("warning", " WARNING : Produk ID sudah digunakan.");
             return;
         }
     }
@@ -594,8 +578,8 @@ function addUser() {
     window[callbackName] = function(response) {
         if (response.success) {
             showPesanModal('success', ' SUKSES : ' + response.message);
-            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
-            loadUserTable();
+            bootstrap.Modal.getInstance(document.getElementById("modalProduk")).hide();
+            loadProdukTable();
         } else {
             showPesanModal('error', ' ERROR : Gagal menyimpan data');
         }
@@ -603,9 +587,9 @@ function addUser() {
     };
 
     const params = new URLSearchParams({
-        action: 'addUser',
-        userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        action: 'addProduk',
+        noStok, produkName, volumePoint, hargaDasar, hargaEceran,
+        member25, sc35, sb42, spv50,
         callback: callbackName
     });
 
@@ -614,37 +598,32 @@ function addUser() {
     document.body.appendChild(script);
 }
 
-// ******************************
-// Fungsi untuk mengedit user id
-// ******************************
-function editUser() {
-    const userId     = document.getElementById('userId').value.trim().toLowerCase();
-    document.getElementById('userId').value = userId;
-    const userName   = document.getElementById('userName').value.trim().toUpperCase();
-    document.getElementById('userName').value = userName;
-    const userEmail  = document.getElementById('userEmail').value.trim();
-    const userHP     = document.getElementById('userHP').value.trim();
-    const userPass   = document.getElementById('userPass').value.trim();
-    const userLevel  = document.getElementById('userLevel').value;
-
-    const aksesLogin    = document.querySelector('input[name="aksesLogin"]:checked')?.value || 'N';
-    const aksesSetting  = document.querySelector('input[name="aksesSetting"]:checked')?.value || 'N';
-    const aksesFLC      = document.querySelector('input[name="aksesFLC"]:checked')?.value || 'N';
-    const aksesEstiH    = document.querySelector('input[name="aksesEstiH"]:checked')?.value || 'N';
-    const aksesWE       = document.querySelector('input[name="aksesWE"]:checked')?.value || 'N';
-    const aksesFollowup = document.querySelector('input[name="aksesFollowup"]:checked')?.value || 'N';
-    const aksesCRM      = document.querySelector('input[name="aksesCRM"]:checked')?.value || 'N';
+// *******************************
+// Fungsi untuk mengedit Produk id
+// *******************************
+function editProduk() {
+    const nomorStok  = document.getElementById('noStok').value.trim().toLowerCase();
+    document.getElementById('noStok').value = nomorStok;
+    const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
+    document.getElementById('produkName').value = namaProduk;
+    const volumePoint= document.getElementById('volumePoint').value.trim();
+    const hargaDasar = document.getElementById('hargaDasar').value.trim();
+    const hargaEceran = document.getElementById('hargaEceran').value.trim();
+    const member25 = document.getElementById('member25').value.trim();
+    const sc35 = document.getElementById('sc35').value.trim();
+    const sb42 = document.getElementById('sb42').value.trim();
+    const spv50 = document.getElementById('spv50').value.trim();
 
     // Validasi
-    if (!validateUserForm()) return;
+    if (!validateProdukForm()) return;
 
     const callbackName = 'cb_' + Date.now();
     window[callbackName] = function(res) {
         if (res.status === "success") {
             showPesanModal("success", " SUKSES : " + res.message);
-            bootstrap.Modal.getInstance(document.getElementById("modalUser")).hide();
-            loadUserTable();
-            document.getElementById("modalUser").setAttribute("data-mode", "add");
+            bootstrap.Modal.getInstance(document.getElementById("modalProduk")).hide();
+            loadProdukTable();
+            document.getElementById("modalProduk").setAttribute("data-mode", "add");
         } else {
             showPesanModal("error", " ERROR : " + res.message);
         }
@@ -652,9 +631,9 @@ function editUser() {
     };
 
     const params = new URLSearchParams({
-        action: 'editUser',
-        userId, userName, userEmail, userHP, userPass, userLevel,
-        aksesLogin, aksesSetting, aksesFLC, aksesEstiH, aksesWE, aksesFollowup, aksesCRM,
+        action: 'editProduk',
+        noStok, produkName, volumePoint, hargaDasar, hargaEceran,
+        member25, sc35, sb42, spv50,
         callback: callbackName
     });
 
@@ -667,144 +646,38 @@ function editUser() {
 // Fungsi untuk pengaturan tombol simpan
 // **************************************
 document.addEventListener('DOMContentLoaded', () => {
-  const saveBtn = document.getElementById("saveUserBtn");
+  const saveBtn = document.getElementById("saveProdukBtn");
   if (saveBtn) {
     saveBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      const mode = document.getElementById("modalUser").getAttribute("data-mode");
+      const mode = document.getElementById("modalProduk").getAttribute("data-mode");
       if (mode === "edit") {
-        editUser();
+        editProduk();
       } else {
-        addUser();
+        addProduk();
       }
     });
   }
 });
 
 // ******************************
-// Fungsi untuk menghapus user id
+// Fungsi untuk menghapus Produk id
 // ******************************
-function deleteUser(userId) {
-  if (!confirm("Yakin ingin menghapus user ini?")) return;
+function deleteProduk(noStok) {
+  if (!confirm("Yakin ingin menghapus Produk ini?")) return;
 
   const callback = 'cb_' + Date.now();
   window[callback] = function(response) {
     if (response.status === 'success') {
        showPesan('success', " SUKSES : " + response.message);
-       loadUserTable(); // Refresh tabel
+       loadProdukTable(); // Refresh tabel
     }
     delete window[callback];
   };
 
   const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=deleteUser&userId=${encodeURIComponent(userId)}&callback=${callback}`;
+  script.src = `${URL_APPS_SCRIPT}?action=deleteProduk&noStok=${encodeURIComponent(noStok)}&callback=${callback}`;
   document.body.appendChild(script);
-}
-
-// ***************************
-// Fungsi untuk reset user id
-// ***************************
-function unlockUser(userId) {
-  if (!confirm("Anda yakin untuk unlock user ini?")) return;
-  const callbackName = 'cbUnlock_' + Date.now();
-  window[callbackName] = (res) => {
-    if (res.status === 'success') {
-      showPesan('success', " SUKSES : " + res.message);
-      localStorage.setItem('notifReady_' + userId, 'true');
-      const row = document.getElementById(`row_${userId}`);
-      if (row) {
-        const cols = row.getElementsByTagName('td');
-        if (cols.length >= 7) cols[6].textContent = '0';
-        row.querySelector('.fa-edit')?.classList.add('disabled');
-        row.querySelector('.fa-user-secret')?.classList.remove('disabled');
-        row.querySelector('.fa-trash-alt')?.classList.add('disabled');
-        row.querySelector('.fa-unlock')?.classList.add('disabled');
-        row.querySelector('.fa-paper-plane')?.classList.remove('disabled');
-      }
-    } else showPesan('error', " ERROR : Reset Login gagal " + res.message);
-      delete window[callbackName];
-  };
-  const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=unlockUser&userId=${encodeURIComponent(userId)}&callback=${callbackName}`;
-  document.body.appendChild(script);
-}
-
-// *************************************************
-// Fungsi untuk mengirim notifikasi ke wa dan email
-// *************************************************
-function sendNotif(userId, userName, userEmail, userHP, userPass) {
-    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
-
-    const callback = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=sendNotifUser` +
-        `&userId=${encodeURIComponent(userId)}` +
-        `&userName=${encodeURIComponent(userName)}` +
-        `&userEmail=${encodeURIComponent(userEmail)}` +
-        `&userHP=${encodeURIComponent(userHP)}` +
-        `&userPass=${encodeURIComponent(userPass)}` +
-        `&callback=${callback}`;
-
-    window[callback] = function (response) {
-        console.log("Respon kirim:", response);
-        if (response.status === 'success') {
-            showPesan('success', " SUKSES : " + response.message);
-            localStorage.removeItem('notifReady_' + userId);
-            loadUserTable(); // reload tampilan icon
-        } else {
-            showPesan('error', " ERROR : " + response.message);
-        }
-
-        delete window[callback];
-        document.body.removeChild(script);
-    };
-
-    script.onerror = () => {
-        showPesan('error', " ERROR : Gagal terhubung ke server");
-        delete window[callback];
-        document.body.removeChild(script);
-    };
-
-    document.body.appendChild(script);
-}
-
-// *******************************
-// Fungsi untuk Mengaktifasi User
-// *******************************
-function aktifasiNotif(userId, userName, userEmail, userHP, userPass) {
-    console.log("Mengirim notifikasi ke:", userId, userName, userEmail, userHP, userPass);
-
-    const callback = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=aktifasiUser` +
-        `&userId=${encodeURIComponent(userId)}` +
-        `&userName=${encodeURIComponent(userName)}` +
-        `&userEmail=${encodeURIComponent(userEmail)}` +
-        `&userHP=${encodeURIComponent(userHP)}` +
-        `&userPass=${encodeURIComponent(userPass)}` +
-        `&callback=${callback}`;
-
-    window[callback] = function (response) {
-        console.log("Respon kirim:", response);
-        if (response.status === 'success') {
-            showPesan('success', " SUKSES : " + response.message);
-            localStorage.removeItem('notifReady_' + userId);
-            loadUserTable(); // reload tampilan icon
-        } else {
-            showPesan('error', " ERROR : " + response.message);
-        }
-
-        delete window[callback];
-        document.body.removeChild(script);
-    };
-
-    script.onerror = () => {
-        showPesan('error', " ERROR : Gagal terhubung ke server");
-        delete window[callback];
-        document.body.removeChild(script);
-    };
-
-    document.body.appendChild(script);
 }
 
 // **********************
@@ -816,16 +689,10 @@ function updateRowIcons(row, mode) {
 
     if (mode === 'unlock') {
         editIcon.classList.add('disabled');
-        aktifasiIcon.classList.add('disabled');
         delIcon.classList.add('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.remove('disabled');
     } else if (mode === 'kirim') {
         editIcon.classList.remove('disabled');
-        aktifasiIcon.classList.remove('disabled');
         delIcon.classList.remove('disabled');
-        unlockIcon.classList.add('disabled');
-        kirimIcon.classList.add('disabled');
     }
 }
 
@@ -860,7 +727,7 @@ function deleteAllLogNotif() {
 }
 
 // *****************************************
-// Pesan Notifikasi untuk di Form Tabel User
+// Pesan Notifikasi untuk di Form Tabel Produk
 // *****************************************
 function showPesan(type, message, duration = 3000) {
   const box      = document.getElementById('pesanNotification');
@@ -918,68 +785,68 @@ function showPesanModal(type, message, duration = 3000) {
 
 
 // **************************
-// Tampilkan Modal Edit User
+// Tampilkan Modal Edit Produk
 // ************************** 
-function showEditModal(userData) {
-  // Isi input dari userData
-  document.getElementById('judulModal').textContent = 'EDIT USER';
-  document.getElementById('userId').disabled = true;
-  document.getElementById("userId").value    = userData.userId;
-  document.getElementById("userName").value  = userData.userName;
-  document.getElementById("userEmail").value = userData.userEmail;
-  document.getElementById("userHP").value    = userData.userHP;
-  document.getElementById("userPass").value  = userData.userPass;
-  document.getElementById("userLevel").value = userData.userLevel;
+function showEditModal(ProdukData) {
+  // Isi input dari ProdukData
+  document.getElementById('judulModal').textContent = 'EDIT Produk';
+  document.getElementById('noStok').disabled = true;
+  document.getElementById("noStok").value    = ProdukData.noStok;
+  document.getElementById("ProdukName").value  = ProdukData.ProdukName;
+  document.getElementById("ProdukEmail").value = ProdukData.ProdukEmail;
+  document.getElementById("ProdukHP").value    = ProdukData.ProdukHP;
+  document.getElementById("ProdukPass").value  = ProdukData.ProdukPass;
+  document.getElementById("ProdukLevel").value = ProdukData.ProdukLevel;
 
   // Set radio akses
   const akses = ['Login','Setting','FLC','EstiH','WE','Followup','CRM'];
   akses.forEach(aksesName => {
-    const val   = userData['akses'+aksesName] || 'N';
+    const val   = ProdukData['akses'+aksesName] || 'N';
     const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
     if (radio) radio.checked = true;
   });
 
   // Tampilkan modal & ubah mode
-  document.getElementById("modalUser").setAttribute("data-mode", "edit");
-  new bootstrap.Modal(document.getElementById("modalUser")).show();
+  document.getElementById("modalProduk").setAttribute("data-mode", "edit");
+  new bootstrap.Modal(document.getElementById("modalProduk")).show();
 }
 
 // **********************
-// Validasi Form User
+// Validasi Form Produk
 // ********************** 
-function validateUserForm() {
-    const userId    = document.getElementById('userId').value.trim().toLowerCase();
-    document.getElementById('userId').value = userId;
-    const userName  = document.getElementById('userName').value.trim().toUpperCase();
-    document.getElementById('userName').value = userName;
+function validateProdukForm() {
+    const noStok    = document.getElementById('noStok').value.trim().toLowerCase();
+    document.getElementById('noStok').value = noStok;
+    const ProdukName  = document.getElementById('ProdukName').value.trim().toUpperCase();
+    document.getElementById('ProdukName').value = ProdukName;
 
-    const userEmail = document.getElementById('userEmail').value.trim();
-    const userHP    = document.getElementById('userHP').value.trim();
-    const userPass  = document.getElementById('userPass').value.trim();
+    const ProdukEmail = document.getElementById('ProdukEmail').value.trim();
+    const ProdukHP    = document.getElementById('ProdukHP').value.trim();
+    const ProdukPass  = document.getElementById('ProdukPass').value.trim();
 
-    const userIdPattern   = /^[a-z0-9]{6,8}$/;                       // hanya huruf kecil & angka, panjang 6–8
-    const userNamePattern = /^[A-Z\s]{3,20}$/;                       // hanya huruf besar & angka, panjang 3–20
+    const noStokPattern   = /^[a-z0-9]{6,8}$/;                       // hanya huruf kecil & angka, panjang 6–8
+    const ProdukNamePattern = /^[A-Z\s]{3,20}$/;                       // hanya huruf besar & angka, panjang 3–20
     const emailPattern    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const hpPattern       = /^[0-9]{10,14}$/;                        // hanya angka, panjang 10–14
     const passwordPattern = /^[a-zA-Z0-9!@#$%^&*()_+=\-{}[\]:;"'<>,.?/\\]{6,8}$/;
 
-    if (!userIdPattern.test(userId)) {
-        showPesanModal("warning", " WARNING : User ID huruf kecil/angka 6-8 karakter.");
+    if (!noStokPattern.test(noStok)) {
+        showPesanModal("warning", " WARNING : Produk ID huruf kecil/angka 6-8 karakter.");
         return false;
     }
-    if (!userNamePattern.test(userName)) {
+    if (!ProdukNamePattern.test(ProdukName)) {
         showPesanModal("warning", " WARNING : Nama huruf besar dan 3-20 karakter.");
         return false;
     }
-    if (!emailPattern.test(userEmail)) {
+    if (!emailPattern.test(ProdukEmail)) {
         showPesanModal("warning", " WARNING : Format email tidak valid.");
         return false;
     }
-    if (!hpPattern.test(userHP)) {
+    if (!hpPattern.test(ProdukHP)) {
         showPesanModal("warning", " WARNING : Nomor HP harus 10-14 digit angka.");
         return false;
     }
-    if (!passwordPattern.test(userPass)) {
+    if (!passwordPattern.test(ProdukPass)) {
         showPesanModal("warning", " WARNING : Pass 6-8 karakter kombinasi huruf,angka,simbol.");
         return false;
     }
