@@ -415,30 +415,21 @@ function loadProdukTable() {
         }
 
         data.forEach(row => {
-            const [noStok, namaProduk, emailProduk, hpProduk, passProduk, levelProduk, salah,
-                login, setting, flc, estih, we, followup, crm] = row;
+            const [ noStok, produkName, volumePoint, hargaDasar, hargaEceran,
+                    member25, sc35, sb42, spv50] = row;
 
             let editState     = '';
-            //let aktifasiState = '';
             let deleteState   = '';
-            //let unlockState   = 'disabled';
-            //let kirimState    = 'disabled';
-
+            
             const salahCount = parseInt(salah) || 0;
             const unlockFlag = localStorage.getItem('notifReady_' + noStok);
 
             if (salahCount >= 3) {
                 editState     = 'disabled';
-                //aktifasiState = 'disabled';
                 deleteState   = 'disabled';
-                //unlockState   = '';
-                //kirimState    = 'disabled';
             } else if (unlockFlag === 'true') {
                 editState     = 'disabled';
-                //aktifasiState = 'disabled';
                 deleteState   = 'disabled';
-                //unlockState   = 'disabled';
-                //kirimState    = '';
             }
 
             const tr = document.createElement('tr');
