@@ -1386,9 +1386,9 @@ function kirimData() {
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
-      document.getElementById("submitButton").style.display = "none";
+      document.getElementById("submitButton").style.display   = "none";
+      document.getElementById("inputanSection").style.display = "none";
       setTimeout(() => hideSpinner("kirimButton"), 1000);
-      //document.getElementById("inputanSection").style.display = "none";
     })
     .catch(err => {
       console.error("Error kirim:", err);
