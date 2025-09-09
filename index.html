@@ -1363,12 +1363,10 @@ function submitForm() {
   document.getElementById("btnAdd").disabled   = true;
  
   // Toggle tombol
-  document.getElementById("submitButton").style.display = "none";
-  document.getElementById("kirimButton").style.display  = "inline-block";
-  //showSpinner("submitButton");
+  document.getElementById("submitButton").style.display   = "none";
+  document.getElementById("kirimButton").style.display    = "inline-block";
   // Tampilkan inputan konsumen
   document.getElementById("inputanSection").style.display = "block";
-  //setTimeout(() => hideSpinner("submitButton"), 1000);
 }
 
 // **************************************************
@@ -1382,14 +1380,16 @@ function kirimData() {
   
   const mOrderData = collectOrderData();
   
+  document.getElementById("kirimButton").style.display    = "block";
+  document.getElementById("submitButton").style.display   = "inline-block";
+  // Tampilkan loading spinner
+  showSpinner("kirimButton");
+
   callAPI("kirimData", mOrderData, "POST")
   .then(response => {
       console.log("Kirim berhasil");
-      document.getElementById("kirimButton").style.display    = "block";
-      document.getElementById("submitButton").style.display   = "inline-block";
-      document.getElementById("inputanSection").style.display = "none";
-      // Tampilkan loading spinner
-      showSpinner("kirimButton");
+      setTimeout(() => hideSpinner("kirimButton"), 1000);
+      //document.getElementById("inputanSection").style.display = "none";
     })
     .catch(err => {
       console.error("Error kirim:", err);
