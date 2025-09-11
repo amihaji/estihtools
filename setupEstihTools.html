@@ -225,6 +225,7 @@ tr:hover .action-icon {
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
     </div>
     <div class="modal-body">
+        <!--
         <input type="hidden" id="mode" value="add">
         <div class="mb-2"><label>No Stok</label><input type="text" id="noStok" class="form-control" required></div>
         <div class="mb-2"><label>Kategori</label><input type="text" id="kategoriName" class="form-control" required></div>
@@ -236,6 +237,48 @@ tr:hover .action-icon {
         <div class="mb-2"><label>Harga 35%</label><input type="number" id="sc35" class="form-control" required></div>
         <div class="mb-2"><label>Harga 42%</label><input type="number" id="sb42" class="form-control" required></div>
         <div class="mb-2"><label>Harga 50%</label><input type="number" id="spv50" class="form-control" required></div>
+        -->
+        <input type="hidden" id="mode" value="add"> 
+        <div class="input-group mb-2">
+            <span class="input-group-text">No Stok</span>
+            <input type="text" id="noStok" class="form-control" placeholder="Masukkan no stok (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Kategori</span>
+            <input type="text" id="kategoriName" class="form-control" placeholder="Masukkan kategori (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">Produk  </span>
+            <input type="text" id="produkName" class="form-control" placeholder="Masukkan nama produk (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">VP      </span>
+            <input type="number" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">HD      </span>
+            <input type="number" id="hargaDasar" class="form-control" placeholder="Masukkan harga dasar (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">HE      </span>
+            <input type="number" id="hargaEceran" class="form-control" placeholder="Masukkan harga eceran (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">H25     </span>
+            <input type="number" id="member25" class="form-control" placeholder="Masukkan harga 25% (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">H35     </span>
+            <input type="number" id="sc35" class="form-control" placeholder="Masukkan harga 35% (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">H42     </span>
+            <input type="number" id="sb42" class="form-control" placeholder="Masukkan harga 42% (wajib isi)" required>
+        </div>
+        <div class="input-group mb-2">
+            <span class="input-group-text">H50     </span>
+            <input type="number" id="spv50" class="form-control" placeholder="Masukkan harga 50% (wajib isi)" required>
+        </div>
     </div>
     <div class="modal-footer flex-column align-items-start">
         <!-- Notifikasi Pesan -->
