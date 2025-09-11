@@ -744,9 +744,9 @@ function formatAngka(value, isVP = false) {
 // *****************************************
 function formatInputCurrency(input) {
   const selectionStart = input.selectionStart;
-  const raw = input.value.replace(/[^0-9,]/g, ''); // hanya angka & koma
-  let parts = raw.split(',');
-  let integer = parts[0].replace(/^0+/, '') || '0';
+  const raw     = input.value.replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts     = raw.split(',');
+  let integer   = parts[0].replace(/^0+/, '') || '0';
   let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   if (parts.length > 1) {
     formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
@@ -759,7 +759,6 @@ function formatInputCurrency(input) {
     input.setSelectionRange(selectionStart + diff, selectionStart + diff);
   }
 }
-
 
 </SCRIPT>
 </body>
