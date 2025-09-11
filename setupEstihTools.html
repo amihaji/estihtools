@@ -247,59 +247,16 @@ tr:hover .action-icon {
     </div>
     <div class="modal-body">
         <input type="hidden" id="mode" value="add">
-        <div class="mb-2"><label>Produk ID</label><input type="text" id="noStok" class="form-control" required></div>
-        <div class="mb-2"><label>Nama Produk</label><input type="text" id="ProdukName" class="form-control" required></div>
-        <div class="mb-2"><label>Email</label><input type="email" id="ProdukEmail" class="form-control" required></div>
-        <div class="mb-2"><label>HP</label><input type="text" id="ProdukHP" class="form-control" required></div>
-        <div class="mb-2"><label>Password</label><input type="text" id="ProdukPass" class="form-control" required></div>
-        <div class="mb-2"><label>Level</label>
-            <select id="ProdukLevel" class="form-select" required>
-                <option value="Admin">Admin</option>
-                <option value="Member">Member</option>
-                <option value="Produk">Produk</option>
-            </select>
-        </div>
-        <div class="mb-2"><label>Salah</label><input type="number" id="ProdukSalah" class="form-control" value="0" min="0" max="3" required></div>
-        <div class="form-group">
-            <label>Hak Akses, pilih (Y/N):</label>
-            <div class="hak-akses-group">
-                <div class="hak-akses-item">
-                <label>1. Login :</label>
-                    <label><input type="radio" name="aksesLogin" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesLogin" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>2. Setting :</label>
-                    <label><input type="radio" name="aksesSetting" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesSetting" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>3. FLC :</label>
-                    <label><input type="radio" name="aksesFLC" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesFLC" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>4. EstiH :</label>
-                    <label><input type="radio" name="aksesEstiH" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesEstiH" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>5. WE :</label>
-                    <label><input type="radio" name="aksesWE" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesWE" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>6. Follow :</label>
-                    <label><input type="radio" name="aksesFollow" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesFollow" value="N"> No</label>
-                </div>
-                <div class="hak-akses-item">
-                <label>7. CRM :</label>
-                    <label><input type="radio" name="aksesCRM" value="Y" checked> Yes</label>
-                    <label><input type="radio" name="aksesCRM" value="N"> No</label>
-                </div>
-            </div>
-        </div>
+        <div class="mb-2"><label>No Stok</label><input type="text" id="noStok" class="form-control" required></div>
+        <div class="mb-2"><label>Kategori</label><input type="text" id="kategoriName" class="form-control" required></div>
+        <div class="mb-2"><label>Nama Produk</label><input type="text" id="produkName" class="form-control" required></div>
+        <div class="mb-2"><label>VP</label><input type="number" id="volumePoint" class="form-control" required></div>
+        <div class="mb-2"><label>Harga Dasar</label><input type="number" id="hargaDasar" class="form-control" required></div>
+        <div class="mb-2"><label>Harga Eceran</label><input type="number" id="hargaEceran" class="form-control" required></div>
+        <div class="mb-2"><label>Harga 25%</label><input type="number" id="member25" class="form-control" required></div>
+        <div class="mb-2"><label>Harga 35%</label><input type="number" id="sc35" class="form-control" required></div>
+        <div class="mb-2"><label>Harga 42%</label><input type="number" id="sb42" class="form-control" required></div>
+        <div class="mb-2"><label>Harga 50%</label><input type="number" id="spv50" class="form-control" required></div>
     </div>
     <div class="modal-footer flex-column align-items-start">
         <!-- Notifikasi Pesan -->
@@ -316,64 +273,7 @@ tr:hover .action-icon {
 </div>
 </div>
 
-<!-- Form Log Notifikasi -->
-<div id="logNotifForm" class="container" style="display:none">
-    <div class="title-box mb-3">
-        <i class="fas fa-list-alt fa-lg"></i>
-        <h6 class="mb-0">Log Notifikasi</h6>
-    </div>
 
-    <!-- Baris Tombol Filtere dan Aksi Form Log Notifikasi -->
-    <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">    
-        <div class="dropdown">
-            <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-filter"></i> Filter Status
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('AKTIFASI')">Aktifasi</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERESET')">Tereset</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('TERKUNCI')">Terkunci</a></li>
-                <li><a class="dropdown-item" href="#" onclick="filterLogNotif('SEMUA')">Semua</a></li>
-            </ul>
-        </div>
-        <div>    
-            <button class="btn btn-danger btn-sm mb-2" onclick="deleteAllLogNotif()">
-                <i class="fas fa-trash"></i> Hapus Semua
-            </button>
-            <button class="btn btn-secondary btn-sm mb-2" onclick="kembaliKeSetupProduk()">
-                <i class="fas fa-sign-out-alt"></i> Kembali
-            </button>
-        </div>
-    </div>
-    
-    <!-- Pesan notifikasi -->
-    <div id="pesanNotification" class="notification-message">
-        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
-    </div>
-    
-    <!-- Tabel Log Notifikasi -->
-    <div class="table-box">
-        <div class="table-wrapper">
-            <table class="table table-hover table-striped table-bordered align-middle text-center">
-                <thead class="sticky-header"><h6 class="mb-0">DAFTAR LOG Produk</h6>    
-                <tr>
-                    <th>Waktu</th>
-                    <th>Produk ID</th>
-                    <th>Nama</th>
-                    <th>Email</th>
-                    <th>No HP</th>
-                    <th>Pass</th>
-                    <th>Status</th>
-                </tr>
-                </thead>
-                <!-- Loading Overlay -->
-                <div id="loadingOverlayLog" class="loading-overlay" style="display:none; align-content: center ;">
-                    <div class="spinner-border text-primary" role="status"></div>
-                </div>
-                <tbody id="logNotifTableBody" style="font-size: small;"><tr><td colspan="7">Memuat log notifikasi...</td></tr></tbody>
-            </table>
-        </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <SCRIPT>
@@ -403,8 +303,8 @@ document.addEventListener('DOMContentLoaded', loadProdukTable);
 });
 
 // **********************************
-// Tambahkan sebelum loadProdukTable
-// Untuk menghindari error atau tampilan karakter khusus di data dari sheet
+// Tambahkan sebelum loadProdukTable Untuk menghindari error atau 
+// tampilan karakter khusus di data dari sheet
 // *********************************
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
@@ -488,7 +388,6 @@ function loadProdukTable() {
   document.body.appendChild(script);
 }
 
-
 // **********************************
 // Fungsi untuk kembali ke setup Produk
 // **********************************
@@ -496,54 +395,6 @@ function kembaliKeSetupProduk() {
   document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
   document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
   loadProdukTable(); // Refresh data Produk
-}
-
-// ********************************************
-// Fungsi untuk memanggil Tabel Log Notifikasi 
-// ********************************************
-function loadLogNotifTable() {
-  showLoading(true, 'log');
-  const callbackName = 'cb_' + Date.now();
-  const script       = document.createElement('script');
-  script.src         = `${URL_APPS_SCRIPT}?action=getLogNotif&callback=${callbackName}`;
-
-  window[callbackName] = function(data) {
-    const tbody = document.getElementById('logNotifTableBody');
-    tbody.innerHTML = '';
-
-    if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7">Tidak ada log notifikasi.</td></tr>';
-      showLoading(false, 'log');
-      return;
-    }
-
-    data.forEach(row => {
-      const [waktu, noStok, nama, email, hp, pass, status] = row;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${waktu}</td>
-        <td>${noStok}</td>
-        <td>${nama}</td>
-        <td>${email}</td>
-        <td>${hp}</td>
-        <td>${pass}</td>
-        <td>${status}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-    showLoading(false, 'log');
-    delete window[callbackName];
-    document.body.removeChild(script);
-  };
-
-  script.onerror = function() {
-    showPesan('error', ' ERROR : Gagal mengambil data log notifikasi!');
-    showLoading(true, 'log');
-    delete window[callbackName];
-    document.body.removeChild(script);
-  };
-
-  document.body.appendChild(script);
 }
 
 // ***************************************************
@@ -707,36 +558,6 @@ function updateRowIcons(row, mode) {
     }
 }
 
-// ********************************
-// Menghapus Seluruh log Notifikasi
-// ********************************
-function deleteAllLogNotif() {
-  if (!confirm("Yakin ingin menghapus semua log notifikasi?")) return;
-
-  const callback = 'cb_' + Date.now();
-  const script   = document.createElement('script');
-  script.src     = `${URL_APPS_SCRIPT}?action=deleteAllLogNotif&callback=${callback}`;
-
-  window[callback] = function(response) {
-    if (response.status === 'success') {
-      showPesan("success", "Semua log berhasil dihapus");
-      loadLogNotifTable(); // Refresh tabel log
-    } else {
-      showPesan("error", "Gagal menghapus log");
-    }
-    delete window[callback];
-    document.body.removeChild(script);
-  };
-
-  script.onerror = function() {
-    showPesan("error", "Tidak dapat terhubung ke server");
-    delete window[callback];
-    document.body.removeChild(script);
-  };
-
-  document.body.appendChild(script);
-}
-
 // *****************************************
 // Pesan Notifikasi untuk di Form Tabel Produk
 // *****************************************
@@ -862,21 +683,6 @@ function validateProdukForm() {
         return false;
     }
     return true;
-}
-
-// *****************************
-// Filter Log Notifikasi
-// *****************************   
-function filterLogNotif(status) {
-    const rows = document.querySelectorAll('#logNotifTableBody tr');
-    rows.forEach(row => {
-        const statusText = row.cells[6]?.textContent?.trim().toUpperCase();
-        if (status === 'SEMUA' || statusText === status.toUpperCase()) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
 }
 
 // Format angka sesuai lokal Indonesia (selalu 2 desimal, koma sebagai pemisah)
