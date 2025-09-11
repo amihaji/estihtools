@@ -232,11 +232,11 @@ tr:hover .action-icon {
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">KT  </span>
-            <input type="text" id="kategoriName" class="form-control" placeholder="Masukkan kategori (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="20" required>
+            <input type="text" id="namaKategori" class="form-control" placeholder="Masukkan kategori (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="20" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">PD </span>
-            <input type="text" id="produkName" class="form-control" placeholder="Masukkan nama produk (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" required>
+            <input type="text" id="namaProduk" class="form-control" placeholder="Masukkan nama produk (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">PV  </span>
@@ -285,7 +285,7 @@ tr:hover .action-icon {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyAP7uDSqBVzB5IaK_Cp_ChGEq2eIR1Ehp70fY-ok9afD2Wytn_pStBwr0QLauNdDgW2A/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxlyxJUU6x04AIV6jGo5_23gbKQjidCt8lefnVXMieaTIiZsW0WfmDLU4Q4Z66QAMSR7A/exec';
 // **************************************
 
 // **********************************
@@ -442,11 +442,11 @@ function addProduk() {
   const noStok = document.getElementById('noStok').value.trim().toLowerCase();
   document.getElementById('noStok').value = noStok;
 
-  const kategori = document.getElementById('kategoriName').value.trim();
-  document.getElementById('kategoriName').value = kategori;
+  const kategori = document.getElementById('namaKategori').value.trim();
+  document.getElementById('namaKategori').value = kategori;
 
-  const produkName = document.getElementById('produkName').value.trim().toUpperCase();
-  document.getElementById('produkName').value = produkName;
+  const namaProduk = document.getElementById('namaProduk').value.trim().toUpperCase();
+  document.getElementById('namaProduk').value = namaProduk;
 
   const volumePoint = document.getElementById('volumePoint').value.trim();
   const hargaDasar  = document.getElementById('hargaDasar').value.trim();
@@ -487,7 +487,7 @@ function addProduk() {
 
   const params = new URLSearchParams({
     action: 'addProduk',
-    noStok, kategori, produkName, volumePoint, hargaDasar, hargaEceran,
+    noStok, namaKategori, namaProduk, volumePoint, hargaDasar, hargaEceran,
     member25, sc35, sb42, spv50,
     callback: callbackName
   });
@@ -505,11 +505,11 @@ function editProduk() {
   const noStok = document.getElementById('noStok').value.trim().toLowerCase();
   document.getElementById('noStok').value = noStok;
 
-  const kategori = document.getElementById('kategoriName').value.trim();
-  document.getElementById('kategoriName').value = kategori;
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  document.getElementById('namaKategori').value = namaKategori;
 
-  const produkName = document.getElementById('produkName').value.trim().toUpperCase();
-  document.getElementById('produkName').value = produkName;
+  const namaProduk = document.getElementById('namaProduk').value.trim().toUpperCase();
+  document.getElementById('namaProduk').value = namaProduk;
 
   const volumePoint = document.getElementById('volumePoint').value.trim();
   const hargaDasar  = document.getElementById('hargaDasar').value.trim();
@@ -540,7 +540,7 @@ function editProduk() {
 
   const params = new URLSearchParams({
     action: 'editProduk',
-    noStok, kategori, produkName, volumePoint, hargaDasar, hargaEceran,
+    noStok, namaKategori, namaProduk, volumePoint, hargaDasar, hargaEceran,
     member25, sc35, sb42, spv50,
     callback: callbackName
   });
@@ -669,12 +669,12 @@ function showEditModal(ProdukData) {
   // judul
   document.getElementById('judulModal').textContent = 'EDIT Produk';
 
-  // Isi field — toleran terhadap nama properti berbeda (namaProduk / produkName / VP / etc.)
+  // Isi field — toleran terhadap nama properti berbeda (namaProduk / namaProduk / VP / etc.)
   document.getElementById('noStok').value = ProdukData.noStok || ProdukData.no_stok || '';
   document.getElementById('noStok').disabled = true; // jangan ubah primary key saat edit
 
-  document.getElementById('kategoriName').value = ProdukData.kategori || ProdukData.Kategori || (ProdukData.kategoriName || '');
-  document.getElementById('produkName').value   = ProdukData.namaProduk || ProdukData.produkName || '';
+  document.getElementById('namaKategori').value = ProdukData.namaKategori || ProdukData.namaKategori || (ProdukData.namaKategori || '');
+  document.getElementById('namaProduk').value   = ProdukData.namaProduk || ProdukData.namaProduk || '';
   document.getElementById('volumePoint').value  = ProdukData.volumePoint || ProdukData.VP || '';
   document.getElementById('hargaDasar').value   = ProdukData.hargaDasar || '';
   document.getElementById('hargaEceran').value  = ProdukData.hargaEceran || '';
@@ -693,12 +693,12 @@ function showEditModal(ProdukData) {
 // ********************** 
 function validateProdukForm() {
   const noStok = document.getElementById('noStok').value.trim();
-  const produkName = document.getElementById('produkName').value.trim();
+  const namaProduk = document.getElementById('namaProduk').value.trim();
   if (!noStok) {
     showPesanModal("warning", " WARNING : No Stok wajib diisi.");
     return false;
   }
-  if (!produkName) {
+  if (!namaProduk) {
     showPesanModal("warning", " WARNING : Nama Produk wajib diisi.");
     return false;
   }
@@ -743,15 +743,23 @@ function formatAngka(value, isVP = false) {
 // Fungsi untuk Auto-format angka saat ketik
 // *****************************************
 function formatInputCurrency(input) {
-  let value = input.value.replace(/[^0-9,]/g, ''); // hapus semua kecuali angka & koma
-  let parts = value.split(',');
-  let integer = parts[0].replace(/^0+/, ''); // hapus nol di depan
+  const selectionStart = input.selectionStart;
+  const raw = input.value.replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts = raw.split(',');
+  let integer = parts[0].replace(/^0+/, '') || '0';
   let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   if (parts.length > 1) {
     formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
   }
   input.value = formatted;
+
+  // Kembalikan kursor ke posisi relatif yang benar
+  if (selectionStart !== null) {
+    const diff = formatted.length - raw.length;
+    input.setSelectionRange(selectionStart + diff, selectionStart + diff);
+  }
 }
+
 
 </SCRIPT>
 </body>
