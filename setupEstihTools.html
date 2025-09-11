@@ -25,7 +25,6 @@ body {
 /* Pengaturan Icon-icon */
 /************************/
 /* Default semua icon (enabled & disabled) tidak terlihat */
-/* Ikon default (hidden) */
 .action-icon {
     display: inline-flex;
     justify-content: center;
@@ -98,10 +97,8 @@ tr:hover .action-icon {
 .table-wrapper { 
     max-height: 450px; 
     overflow-y: auto;  /* Scrools vertikal */
-    /* max-width: 100%;   /* Tambahan */
-    /* overflow-x: auto;  /* Tambahan scrools horisontal*/
 }
-/* TAMBAHAN Menjaga sel pindah baris */
+/* Menjaga sel pindah baris */
 .table th, .table td {
    white-space: nowrap;
 }
@@ -131,23 +128,6 @@ tr:hover .action-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-/* Hak Akses */
-.hak-akses-group {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 5px;
-}
-.hak-akses-item {
-  display: flex;
-  align-items: center;
-  padding-right: 60px;
-  padding-left: 3px;
-}
-.hak-akses-item label {
-  margin-left: 10px;
-  min-width: 75px;
 }
 
 /****************************/
@@ -195,7 +175,6 @@ tr:hover .action-icon {
        <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="far fa-list-alt"></i> Kategori</button>
        <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-shipping-fast"></i> By Kirim</button>
        <button class="btn btn-primary btn-sm mb-1" id="addImportProduk"><i class="fas fa-file-import"></i> Import </button>
-       <!-- <button class="btn btn-primary btn-sm mb-1" onclick="showLogNotifForm()"><i class="fas fa-list"></i> Log Notif</button>-->
     </div>
     <div>
        <a href="https://amihaji.github.io/kitworks/index.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
@@ -272,8 +251,6 @@ tr:hover .action-icon {
 </form>
 </div>
 </div>
-
-
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <SCRIPT>
@@ -615,28 +592,22 @@ function showPesanModal(type, message, duration = 3000) {
   }, duration);
 }
 
-
 // **************************
 // Tampilkan Modal Edit Produk
 // ************************** 
 function showEditModal(ProdukData) {
   // Isi input dari ProdukData
   document.getElementById('judulModal').textContent = 'EDIT Produk';
-  document.getElementById('noStok').disabled = true;
-  document.getElementById("noStok").value    = ProdukData.noStok;
-  document.getElementById("ProdukName").value  = ProdukData.ProdukName;
-  document.getElementById("ProdukEmail").value = ProdukData.ProdukEmail;
-  document.getElementById("ProdukHP").value    = ProdukData.ProdukHP;
-  document.getElementById("ProdukPass").value  = ProdukData.ProdukPass;
-  document.getElementById("ProdukLevel").value = ProdukData.ProdukLevel;
 
-  // Set radio akses
-  const akses = ['Login','Setting','FLC','EstiH','WE','Followup','CRM'];
-  akses.forEach(aksesName => {
-    const val   = ProdukData['akses'+aksesName] || 'N';
-    const radio = document.querySelector(`input[name="akses${aksesName}"][value="${val}"]`);
-    if (radio) radio.checked = true;
-  });
+  document.getElementById('noStok').value = ProdukData.noStok;
+  document.getElementById('produkName').value = ProdukData.produkName;
+  document.getElementById('volumePoint').value = ProdukData.volumePoint;
+  document.getElementById('hargaDasar').value = ProdukData.hargaDasar;
+  document.getElementById('hargaEceran').value = ProdukData.hargaEceran;
+  document.getElementById('member25').value = ProdukData.member25;
+  document.getElementById('sc35').value = ProdukData.sc35;
+  document.getElementById('sb42').value = ProdukData.sb42;
+  document.getElementById('spv50').value = ProdukData.spv50;
 
   // Tampilkan modal & ubah mode
   document.getElementById("modalProduk").setAttribute("data-mode", "edit");
