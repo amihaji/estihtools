@@ -96,10 +96,14 @@ tr:hover .action-icon {
     padding: 10px; 
 }
 .table-wrapper { 
-    max-width: 100%;   /*Tambahan */
-    overflow-x: auto;  /* Tambahan scrools horisontal*/
     max-height: 450px; 
     overflow-y: auto;  /* Scrools vertikal */
+    max-width: 100%;   /* Tambahan */
+    overflow-x: auto;  /* Tambahan scrools horisontal*/
+}
+/* TAMBAHAN Menjaga sel tidak membungkus isi */
+.table th, .table td {
+   white-space: nowrap;
 }
 
 /* Notifikasi Message Box */
