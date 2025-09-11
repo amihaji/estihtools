@@ -414,19 +414,19 @@ function escapeHtml(text) {
 // Fungsi untuk memanggil Tabel Produk Id
 // *************************************
 function loadProdukTable() {
-  showLoading(true,'Produk');
+  showLoading(true, 'Produk');
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
   script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
 
-  window[callbackName] = function(data) {
+  window[callbackName] = function (data) {
     const tbody = document.getElementById('produkTableBody');
     tbody.innerHTML = '';
 
     if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11">Tidak ada data produk.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data produk.</td></tr>';
       cleanup();
-      showLoading(false,'Produk');
+      showLoading(false, 'Produk');
       return;
     }
 
@@ -452,7 +452,7 @@ function loadProdukTable() {
         <td class="text-end">${escapeHtml(sc35)}</td>
         <td class="text-end">${escapeHtml(sb42)}</td>
         <td class="text-end">${escapeHtml(spv50)}</td>
-        <td class="actions-col text-center">    
+        <td class="actions-col text-center">
           <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
             noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
             volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
@@ -465,17 +465,17 @@ function loadProdukTable() {
     });
 
     cleanup();
-    showLoading(false,'Produk');
+    showLoading(false, 'Produk');
   };
 
-  script.onerror = function() {
-    showPesan('error',' ERROR : Gagal mengambil data Produk!');
+  script.onerror = function () {
+    showPesan('error', ' ERROR : Gagal mengambil data Produk!');
     cleanup();
-    showLoading(false,'Produk');
+    showLoading(false, 'Produk');
   };
 
   function cleanup() {
-    try { delete window[callbackName]; } catch(e) {}
+    try { delete window[callbackName]; } catch (e) {}
     if (script.parentNode) script.parentNode.removeChild(script);
   }
 
