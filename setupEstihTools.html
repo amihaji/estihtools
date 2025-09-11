@@ -241,15 +241,15 @@ tr:hover .action-icon {
         <input type="hidden" id="mode" value="add"> 
         <div class="input-group mb-2">
             <span class="input-group-text">No Stok</span>
-            <input type="text" id="noStok" class="form-control" placeholder="Masukkan no stok (wajib isi)" required>
+            <input type="text" id="noStok" class="form-control" placeholder="Masukkan no stok (wajib isi)" minlength="3" maxlength="6" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">Kategori</span>
-            <input type="text" id="kategoriName" class="form-control" placeholder="Masukkan kategori (wajib isi)" required>
+            <input type="text" id="kategoriName" class="form-control" placeholder="Masukkan kategori (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="20" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">Produk  </span>
-            <input type="text" id="produkName" class="form-control" placeholder="Masukkan nama produk (wajib isi)" required>
+            <input type="text" id="produkName" class="form-control" placeholder="Masukkan nama produk (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">VP      </span>
