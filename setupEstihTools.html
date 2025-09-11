@@ -58,13 +58,14 @@ tr:hover .action-icon {
     background-color: transparent !important;
 }
 
-.sticky-header th { 
+.sticky-header th tr { 
     position: sticky; 
     top: 0; 
     background-color: #003366; 
     color: white; 
     z-index: 2; 
     font-size:15px;
+    white-space: nowrap !important; /* tambahan */
 }
 .title-box { 
     background-color: #003366; 
@@ -96,8 +97,10 @@ tr:hover .action-icon {
     padding: 10px; 
 }
 .table-wrapper { 
+    max-width: 100%;   /*Tambahan */
+    overflow-x: auto;  /* Tambahan scrools horisontal*/
     max-height: 450px; 
-    overflow-y: auto; 
+    overflow-y: auto;  /* Scrools vertikal */
 }
 
 /* Notifikasi Message Box */
