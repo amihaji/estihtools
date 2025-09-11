@@ -395,79 +395,94 @@ document.addEventListener('DOMContentLoaded', loadProdukTable);
   new bootstrap.Modal(document.getElementById('modalProduk')).show();
 });
 
+// **********************************
+// Tambahkan sebelum loadProdukTable
+// Untuk menghindari error atau tampilan karakter khusus di data dari sheet
+// *********************************
+function escapeHtml(text) {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;');
+}
+
 // *************************************
 // Fungsi untuk memanggil Tabel Produk Id
 // *************************************
 function loadProdukTable() {
-    showLoading(true,'Produk');
-    const callbackName = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
+  showLoading(true,'Produk');
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
 
-    window[callbackName] = function(data) {
-        const tbody = document.getElementById('produkTableBody');
-        tbody.innerHTML = '';
+  window[callbackName] = function(data) {
+    const tbody = document.getElementById('produkTableBody');
+    tbody.innerHTML = '';
 
-        if (!data || data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="14">Tidak ada data produk.</td></tr>';
-            showLoading(false,'Produk');
-            return;
-        }
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11">Tidak ada data produk.</td></tr>';
+      cleanup();
+      showLoading(false,'Produk');
+      return;
+    }
 
-        data.forEach(row => {
-            const [ noStok, produkName, volumePoint, hargaDasar, hargaEceran,
-                    member25, sc35, sb42, spv50] = row;
+    data.forEach(row => {
+      while (row.length < 10) row.push('');
 
-            let editState     = '';
-            let deleteState   = '';
-            
-            const salahCount = parseInt(salah) || 0;
-            const unlockFlag = localStorage.getItem('notifReady_' + noStok);
+      const [
+        noStok, kategori, namaProduk, volumePoint, hargaDasar,
+        hargaEceran, member25, sc35, sb42, spv50
+      ] = row;
 
-            if (salahCount >= 3) {
-                editState     = 'disabled';
-                deleteState   = 'disabled';
-            } else if (unlockFlag === 'true') {
-                editState     = 'disabled';
-                deleteState   = 'disabled';
-            }
+      const tr = document.createElement('tr');
+      tr.id = `row_${noStok}`;
 
-            const tr = document.createElement('tr');
-            tr.id = `row_${noStok}`; // Untuk mengupdate baris record di tabel 
+      tr.innerHTML = `
+        <td>${escapeHtml(noStok)}</td>
+        <td>${escapeHtml(kategori)}</td>
+        <td>${escapeHtml(namaProduk)}</td>
+        <td>${escapeHtml(volumePoint)}</td>
+        <td>${escapeHtml(hargaDasar)}</td>
+        <td>${escapeHtml(hargaEceran)}</td>
+        <td>${escapeHtml(member25)}</td>
+        <td>${escapeHtml(sc35)}</td>
+        <td>${escapeHtml(sb42)}</td>
+        <td>${escapeHtml(spv50)}</td>
+        <td class="actions-col">
+          <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
+            noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
+            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
+            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
+          })"></i>
+          <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
 
-            tr.innerHTML = `
-                <td>${noStok}</td>
-                <td>${produkName}</td>
-                <td>${volumePoint}</td>
-                <td>${hargaDasar}</td>
-                <td>${hargaEceran}</td>
-                <td>${member25}</td>
-                <td>${sc35}</td>
-                <td>${sb42}</td>
-                <td>${spv50}</td>
-                <td class="actions-col">
-                    <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
-                        noStok: '${noStok}', produkName: '${produkName}', volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}',
-                        member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}' 
-                    })"></i>
-                    <i class="fas fa-trash-alt action-icon ${deleteState}" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
-                </td>
-            `;
+    cleanup();
+    showLoading(false,'Produk');
+  };
 
-            tbody.appendChild(tr);
-        });
-        showLoading(false,'Produk');
-        delete window[callbackName];
-        document.body.removeChild(script);
-    };
+  script.onerror = function() {
+    showPesan('error',' ERROR : Gagal mengambil data Produk!');
+    cleanup();
+    showLoading(false,'Produk');
+  };
 
-    script.onerror = function() {
-        showPesan('error',' ERROR : Gagal mengambil data Produk!');
-        showLoading(false,'Produk');
-        delete window[callbackName];
-    };
-    document.body.appendChild(script);
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e) {}
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  document.body.appendChild(script);
 }
+
+
+
 
 // **********************************
 // Fungsi untuk kembali ke setup Produk
