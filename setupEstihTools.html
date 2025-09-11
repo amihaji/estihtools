@@ -442,17 +442,17 @@ function loadProdukTable() {
       tr.id = `row_${noStok}`;
 
       tr.innerHTML = `
-        <td>${escapeHtml(noStok)}</td>
-        <td>${escapeHtml(kategori)}</td>
-        <td>${escapeHtml(namaProduk)}</td>
-        <td>${escapeHtml(volumePoint)}</td>
-        <td>${escapeHtml(hargaDasar)}</td>
-        <td>${escapeHtml(hargaEceran)}</td>
-        <td>${escapeHtml(member25)}</td>
-        <td>${escapeHtml(sc35)}</td>
-        <td>${escapeHtml(sb42)}</td>
-        <td>${escapeHtml(spv50)}</td>
-        <td class="actions-col">
+        <td class="text-start">${escapeHtml(noStok)}</td>
+        <td class="text-start">${escapeHtml(kategori)}</td>
+        <td class="text-start">${escapeHtml(namaProduk)}</td>
+        <td class="text-start">${escapeHtml(volumePoint)}</td>
+        <td class="text-end">${escapeHtml(hargaDasar)}</td>
+        <td class="text-end">${escapeHtml(hargaEceran)}</td>
+        <td class="text-end">${escapeHtml(member25)}</td>
+        <td class="text-end">${escapeHtml(sc35)}</td>
+        <td class="text-end">${escapeHtml(sb42)}</td>
+        <td class="text-end">${escapeHtml(spv50)}</td>
+        <td class="actions-col text-center">    
           <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
             noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
             volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
