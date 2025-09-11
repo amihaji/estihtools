@@ -444,13 +444,13 @@ function loadProdukTable() {
         <td class="text-start">${escapeHtml(noStok)}</td>
         <td class="text-start">${escapeHtml(kategori)}</td>
         <td class="text-start">${escapeHtml(namaProduk)}</td>
-        <td class="text-end">${formatAngka(volumePoint, 2, true)}</td> <!-- VP pakai isVP = true -->
-        <td class="text-end">${formatAngka(hargaDasar, 2)}</td>
-        <td class="text-end">${formatAngka(hargaEceran, 2)}</td>
-        <td class="text-end">${formatAngka(member25, 2)}</td>
-        <td class="text-end">${formatAngka(sc35, 2)}</td>
-        <td class="text-end">${formatAngka(sb42, 2)}</td>
-        <td class="text-end">${formatAngka(spv50, 2)}</td>
+        <td class="text-end">${formatAngka(volumePoint, true)}</td> <!-- VP -->
+        <td class="text-end">${formatAngka(hargaDasar)}</td>
+        <td class="text-end">${formatAngka(hargaEceran)}</td>
+        <td class="text-end">${formatAngka(member25)}</td>
+        <td class="text-end">${formatAngka(sc35)}</td>
+        <td class="text-end">${formatAngka(sb42)}</td>
+        <td class="text-end">${formatAngka(spv50)}</td>
         <td class="actions-col text-center">
             <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
             noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
@@ -460,6 +460,7 @@ function loadProdukTable() {
             <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
         </td>
         `;
+
         tbody.appendChild(tr);
     });
 
@@ -872,25 +873,24 @@ function filterLogNotif(status) {
     });
 }
 
-// Format angka sesuai lokal Indonesia (dengan koma sebagai desimal)
-// Format angka sesuai lokal Indonesia
-function formatAngka(value, fractionDigits = 2, isVP = false) {
+// Format angka sesuai lokal Indonesia (selalu 2 desimal, koma sebagai pemisah)
+function formatAngka(value, isVP = false) {
   if (value === null || value === undefined || value === '') return '';
 
   let num;
   if (isVP) {
-    // VP hanya punya koma desimal, tidak ada pemisah ribuan → cukup replace koma
+    // VP hanya punya koma desimal, tidak ada pemisah ribuan
     num = parseFloat(value.toString().replace(',', '.'));
   } else {
-    // Harga/harga lain → hapus titik (ribuan) baru replace koma (desimal)
+    // Harga/harga lain: hapus titik (ribuan), ganti koma dengan titik (desimal)
     num = parseFloat(value.toString().replace(/\./g, '').replace(',', '.'));
   }
 
   if (isNaN(num)) return '';
 
   return new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: num % 1 === 0 ? 0 : fractionDigits,
-    maximumFractionDigits: fractionDigits
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(num);
 }
 
