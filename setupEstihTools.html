@@ -440,26 +440,25 @@ function loadProdukTable() {
 
         const tr = document.createElement('tr');
         tr.id = `row_${noStok}`;
-
         tr.innerHTML = `
-            <td class="text-start">${escapeHtml(noStok)}</td>
-            <td class="text-start">${escapeHtml(kategori)}</td>
-            <td class="text-start">${escapeHtml(namaProduk)}</td>
-            <td class="text-end">${formatAngka(volumePoint, 2)}</td>
-            <td class="text-end">${formatAngka(hargaDasar, 2)}</td>
-            <td class="text-end">${formatAngka(hargaEceran, 2)}</td>
-            <td class="text-end">${formatAngka(member25, 2)}</td>
-            <td class="text-end">${formatAngka(sc35, 2)}</td>
-            <td class="text-end">${formatAngka(sb42, 2)}</td>
-            <td class="text-end">${formatAngka(spv50, 2)}</td>
-            <td class="actions-col text-center">
+        <td class="text-start">${escapeHtml(noStok)}</td>
+        <td class="text-start">${escapeHtml(kategori)}</td>
+        <td class="text-start">${escapeHtml(namaProduk)}</td>
+        <td class="text-end">${formatAngka(volumePoint, 2, true)}</td> <!-- VP pakai isVP = true -->
+        <td class="text-end">${formatAngka(hargaDasar, 2)}</td>
+        <td class="text-end">${formatAngka(hargaEceran, 2)}</td>
+        <td class="text-end">${formatAngka(member25, 2)}</td>
+        <td class="text-end">${formatAngka(sc35, 2)}</td>
+        <td class="text-end">${formatAngka(sb42, 2)}</td>
+        <td class="text-end">${formatAngka(spv50, 2)}</td>
+        <td class="actions-col text-center">
             <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
-                noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
-                volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
-                member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
+            noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
+            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
+            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
             })"></i>
             <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
-            </td>
+        </td>
         `;
         tbody.appendChild(tr);
     });
@@ -874,18 +873,27 @@ function filterLogNotif(status) {
 }
 
 // Format angka sesuai lokal Indonesia (dengan koma sebagai desimal)
-function formatAngka(value, fractionDigits = 2) {
+// Format angka sesuai lokal Indonesia
+function formatAngka(value, fractionDigits = 2, isVP = false) {
   if (value === null || value === undefined || value === '') return '';
-  
-  // Pastikan jadi angka (handle string dengan koma/titik)
-  const num = parseFloat(value.toString().replace(/\./g, '').replace(',', '.'));
+
+  let num;
+  if (isVP) {
+    // VP hanya punya koma desimal, tidak ada pemisah ribuan → cukup replace koma
+    num = parseFloat(value.toString().replace(',', '.'));
+  } else {
+    // Harga/harga lain → hapus titik (ribuan) baru replace koma (desimal)
+    num = parseFloat(value.toString().replace(/\./g, '').replace(',', '.'));
+  }
+
   if (isNaN(num)) return '';
-  
+
   return new Intl.NumberFormat("id-ID", {
     minimumFractionDigits: num % 1 === 0 ? 0 : fractionDigits,
     maximumFractionDigits: fractionDigits
   }).format(num);
 }
+
 
 </SCRIPT>
 </body>
