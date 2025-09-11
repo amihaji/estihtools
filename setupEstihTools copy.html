@@ -274,7 +274,7 @@ tr:hover .action-icon {
         </div>
         <!-- Tombol-tombol untuk Modal Add dan Edit -->
         <div class="w-100 d-flex justify-content-end gap-2">
-            <button type="submit" class="btn btn-primary btn-sm" id="btnSimpanProduk"><i class="fas fa-save"></i> Simpan</button>
+            <button type="submit" class="btn btn-primary btn-sm" id="saveProdukBtn"><i class="fas fa-save"></i> Simpan</button>
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
         </div>
     </div>
@@ -304,40 +304,36 @@ function showLoading(show, target = 'Produk') {
 document.addEventListener('DOMContentLoaded', () => {
   loadProdukTable();
 
-  // tombol Tambah
+  // tombol Tambah Produk
   const addBtn = document.getElementById('addProdukButton');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
+      // set mode add
       document.getElementById('mode').value = 'add';
       document.getElementById('modalProduk').setAttribute('data-mode', 'add');
-      document.getElementById('produkForm').reset();
-      document.getElementById('noStok').disabled = false;
-      document.getElementById('judulModal').textContent = 'TAMBAH Produk';
+
+      // reset form dengan id yang benar
+      const form = document.getElementById('produkForm');
+      if (form) form.reset();
+
+      // pastikan numeric inputs kosong (kecuali jika mau default tertentu)
+      ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'].forEach(id=>{
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+
+      // enable noStok untuk entry baru
+      const noStokEl = document.getElementById('noStok');
+      if (noStokEl) noStokEl.disabled = false;
+
+      // judul modal
+      const judul = document.getElementById('judulModal');
+      if (judul) judul.textContent = 'TAMBAH PRODUK';
+
+      // tampilkan modal
       new bootstrap.Modal(document.getElementById('modalProduk')).show();
     });
   }
-
-  // tombol Simpan
-  const btnSimpan = document.getElementById('btnSimpanProduk');
-  if (btnSimpan) {
-    btnSimpan.addEventListener('click', () => {
-      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
-      if (mode === 'edit') {
-        editProduk();
-      } else {
-        addProduk();
-      }
-    });
-  }
-
-  // auto-format angka saat input
-  const hargaFields = ['hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
-  hargaFields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', () => formatInputCurrency(el));
-    }
-  });
 });
 
 // **********************************
