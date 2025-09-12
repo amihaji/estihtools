@@ -240,33 +240,34 @@ tr:hover .action-icon {
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">PV  </span>
-            <input type="number" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">HD </span>
-            <input type="number" id="hargaDasar" class="form-control" placeholder="Masukkan harga dasar (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="hargaDasar" class="form-control" placeholder="Masukkan harga dasar (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">HE  </span>
-            <input type="number" id="hargaEceran" class="form-control" placeholder="Masukkan harga eceran (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="hargaEceran" class="form-control" placeholder="Masukkan harga eceran (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">H25</span>
-            <input type="number" id="member25" class="form-control" placeholder="Masukkan harga member (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="member25" class="form-control" placeholder="Masukkan harga member (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">H35</span>
-            <input type="number" id="sc35" class="form-control" placeholder="Masukkan harga sc (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="sc35" class="form-control" placeholder="Masukkan harga sc (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">H42</span>
-            <input type="number" id="sb42" class="form-control" placeholder="Masukkan harga sb (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="sb42" class="form-control" placeholder="Masukkan harga sb (wajib isi)" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">H50</span>
-            <input type="number" id="spv50" class="form-control" placeholder="Masukkan harga spv (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="spv50" class="form-control" placeholder="Masukkan harga spv (wajib isi)" required>
         </div>
     </div>
+
     <div class="modal-footer flex-column align-items-start">
         <!-- Notifikasi Pesan -->
         <div id="pesanNotifModalBox" class="notification-message w-100 mb-2" style="display: none;">
@@ -274,7 +275,7 @@ tr:hover .action-icon {
         </div>
         <!-- Tombol-tombol untuk Modal Add dan Edit -->
         <div class="w-100 d-flex justify-content-end gap-2">
-            <button type="submit" class="btn btn-primary btn-sm" id="btnSimpanProduk"><i class="fas fa-save"></i> Simpan</button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnSimpanProduk"><i class="fas fa-save"></i> Simpan</button>
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
         </div>
     </div>
@@ -285,22 +286,21 @@ tr:hover .action-icon {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxlyxJUU6x04AIV6jGo5_23gbKQjidCt8lefnVXMieaTIiZsW0WfmDLU4Q4Z66QAMSR7A/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxQzUqTH8_sdw9JJMRDfF8Z8uzmX-8erIbc3iFGIY9GLBYYFhlOfx-C5OO3ehg_96fgYw/exec';
 // **************************************
 
 // **********************************
 // Tampilkan Spinner Loading Overlay
-// **************************************
+// **********************************
 function showLoading(show, target = 'Produk') {
   const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayProduk';
   const overlay = document.getElementById(overlayId);
   if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
 
-// *************************************
-// Fungsi untuk load awal Tabel Produk id
-// *************************************
-// safe init: tunggu DOM siap, lalu load table & attach event handlers
+// ************************************************************
+// Fungsi untuk load awal Tabel Produk & attach event handlers
+// ************************************************************
 document.addEventListener('DOMContentLoaded', () => {
   loadProdukTable();
 
@@ -340,10 +340,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// **********************************
+// ***************************************************************
 // Tambahkan sebelum loadProdukTable Untuk menghindari error atau 
 // tampilan karakter khusus di data dari sheet
-// *********************************
+// ***************************************************************
 function escapeHtml(text) {
   if (text === null || text === undefined) return '';
   return String(text)
@@ -354,9 +354,9 @@ function escapeHtml(text) {
     .replace(/"/g, '&quot;');
 }
 
-// *************************************
-// Fungsi untuk memanggil Tabel Produk Id
-// *************************************
+// ************************************
+// Fungsi untuk memanggil Tabel Produk 
+// ************************************
 function loadProdukTable() {
   showLoading(true, 'Produk');
   const callbackName = 'cb_' + Date.now();
@@ -426,28 +426,23 @@ function loadProdukTable() {
   document.body.appendChild(script);
 }
 
-// **********************************
+// ************************************
 // Fungsi untuk kembali ke setup Produk
-// **********************************
+// ************************************
 function kembaliKeSetupProduk() {
   document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
   document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
   loadProdukTable(); // Refresh data Produk
 }
 
-// **************************
+// ****************************
 // Fungsi untuk menambah Produk
-// **************************
+// ****************************
 function addProduk() {
+  // Ambil data input
   const noStok = document.getElementById('noStok').value.trim().toLowerCase();
-  document.getElementById('noStok').value = noStok;
-
-  const kategori = document.getElementById('namaKategori').value.trim();
-  document.getElementById('namaKategori').value = kategori;
-
-  const namaProduk = document.getElementById('namaProduk').value.trim().toUpperCase();
-  document.getElementById('namaProduk').value = namaProduk;
-
+  const namaKategori = document.getElementById('kategoriName').value.trim();
+  const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
   const volumePoint = document.getElementById('volumePoint').value.trim();
   const hargaDasar  = document.getElementById('hargaDasar').value.trim();
   const hargaEceran = document.getElementById('hargaEceran').value.trim();
@@ -456,61 +451,79 @@ function addProduk() {
   const sb42        = document.getElementById('sb42').value.trim();
   const spv50       = document.getElementById('spv50').value.trim();
 
-  // Validasi sederhana
+  // Validasi form
   if (!validateProdukForm()) return;
 
-  // Cek duplikasi noStok pada tabel (visual)
+  // Cek duplikasi NoStok pada tabel saat ini
   const rows = document.querySelectorAll('#produkTableBody tr');
   for (let row of rows) {
-    const cellnoStok = row.children[0]?.textContent?.trim();
-    if (cellnoStok === noStok) {
-      showPesanModal("warning", " WARNING : Produk ID sudah digunakan.");
+    const cellNoStok = row.children[0]?.textContent?.trim().toLowerCase();
+    if (cellNoStok === noStok) {
+      showPesanModal("warning", " WARNING : No Stok sudah digunakan.");
       return;
     }
   }
 
+  // Konversi angka ke format kirim (hilangkan titik ribuan, pakai . sebagai desimal)
+  const vpRaw  = unformatNumber(volumePoint, true);
+  const hdRaw  = unformatNumber(hargaDasar, false);
+  const heRaw  = unformatNumber(hargaEceran, false);
+  const m25Raw = unformatNumber(member25, false);
+  const sc35Raw= unformatNumber(sc35, false);
+  const sb42Raw= unformatNumber(sb42, false);
+  const spv50Raw=unformatNumber(spv50, false);
+
   const callbackName = 'cb_' + Date.now();
+
   window[callbackName] = function(response) {
-    const ok = response && (response.success === true || response.status === 'success');
-    if (ok) {
-      showPesanModal('success', ' SUKSES : ' + (response.message || 'Produk berhasil ditambahkan'));
+    console.log("Respon server addProduk:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
+      showPesanModal("success", " SUKSES : " + (response.message || 'Produk berhasil ditambahkan'));
       const modalEl = document.getElementById("modalProduk");
-      const mi = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-      mi.hide();
+      bootstrap.Modal.getInstance(modalEl)?.hide();
       loadProdukTable();
     } else {
-      showPesanModal('error', ' ERROR : ' + (response.message || 'Gagal menyimpan data'));
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal menambahkan produk'));
     }
-    try { delete window[callbackName]; } catch(e){}
-    const s = document.getElementById(callbackName + '_script'); if (s) s.remove();
+    cleanup();
   };
 
   const params = new URLSearchParams({
     action: 'addProduk',
-    noStok, namaKategori, namaProduk, volumePoint, hargaDasar, hargaEceran,
-    member25, sc35, sb42, spv50,
+    noStok,
+    namaKategori,
+    namaProduk,
+    volumePoint: vpRaw,
+    hargaDasar: hdRaw,
+    hargaEceran: heRaw,
+    member25: m25Raw,
+    sc35: sc35Raw,
+    sb42: sb42Raw,
+    spv50: spv50Raw,
     callback: callbackName
   });
+
+  console.log("addProduk -> data dikirim:", Object.fromEntries(params.entries()));
 
   const script = document.createElement('script');
   script.id = callbackName + '_script';
   script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e){}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
 }
 
 // *******************************
 // Fungsi untuk mengedit Produk id
 // *******************************
 function editProduk() {
+  // Ambil data input
   const noStok = document.getElementById('noStok').value.trim().toLowerCase();
-  document.getElementById('noStok').value = noStok;
-
-  const namaKategori = document.getElementById('namaKategori').value.trim();
-  document.getElementById('namaKategori').value = namaKategori;
-
-  const namaProduk = document.getElementById('namaProduk').value.trim().toUpperCase();
-  document.getElementById('namaProduk').value = namaProduk;
-
+  const namaKategori = document.getElementById('kategoriName').value.trim();
+  const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
   const volumePoint = document.getElementById('volumePoint').value.trim();
   const hargaDasar  = document.getElementById('hargaDasar').value.trim();
   const hargaEceran = document.getElementById('hargaEceran').value.trim();
@@ -519,36 +532,60 @@ function editProduk() {
   const sb42        = document.getElementById('sb42').value.trim();
   const spv50       = document.getElementById('spv50').value.trim();
 
+  // Validasi form
   if (!validateProdukForm()) return;
 
+  // Konversi angka
+  const vpRaw  = unformatNumber(volumePoint, true);
+  const hdRaw  = unformatNumber(hargaDasar, false);
+  const heRaw  = unformatNumber(hargaEceran, false);
+  const m25Raw = unformatNumber(member25, false);
+  const sc35Raw= unformatNumber(sc35, false);
+  const sb42Raw= unformatNumber(sb42, false);
+  const spv50Raw=unformatNumber(spv50, false);
+
   const callbackName = 'cb_' + Date.now();
+
   window[callbackName] = function(response) {
-    const ok = response && (response.status === 'success' || response.success === true);
-    if (ok) {
+    console.log("Respon server editProduk:", response);
+    if (response && (response.status === 'success' || response.success === true)) {
       showPesanModal("success", " SUKSES : " + (response.message || 'Produk berhasil diupdate'));
       const modalEl = document.getElementById("modalProduk");
-      const mi = bootstrap.Modal.getInstance(modalEl);
-      if (mi) mi.hide();
-      loadProdukTable();
+      bootstrap.Modal.getInstance(modalEl)?.hide();
       document.getElementById("modalProduk").setAttribute("data-mode", "add");
+      loadProdukTable();
     } else {
-      showPesanModal("error", " ERROR : " + (response.message || 'Gagal mengupdate produk'));
+      showPesanModal("error", " ERROR : " + (response?.message || 'Gagal mengupdate produk'));
     }
-    try { delete window[callbackName]; } catch(e){}
-    const s = document.getElementById(callbackName + '_script'); if (s) s.remove();
+    cleanup();
   };
 
   const params = new URLSearchParams({
     action: 'editProduk',
-    noStok, namaKategori, namaProduk, volumePoint, hargaDasar, hargaEceran,
-    member25, sc35, sb42, spv50,
+    noStok,
+    namaKategori,
+    namaProduk,
+    volumePoint: vpRaw,
+    hargaDasar: hdRaw,
+    hargaEceran: heRaw,
+    member25: m25Raw,
+    sc35: sc35Raw,
+    sb42: sb42Raw,
+    spv50: spv50Raw,
     callback: callbackName
   });
+
+  console.log("editProduk -> data dikirim:", Object.fromEntries(params.entries()));
 
   const script = document.createElement('script');
   script.id = callbackName + '_script';
   script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e){}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
 }
 
 // **************************************
@@ -569,9 +606,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// ******************************
+// ********************************
 // Fungsi untuk menghapus Produk id
-// ******************************
+// ********************************
 function deleteProduk(noStok) {
   if (!confirm("Yakin ingin menghapus Produk ini?")) return;
 
@@ -605,9 +642,9 @@ function updateRowIcons(row, mode) {
     }
 }
 
-// *****************************************
+// *******************************************
 // Pesan Notifikasi untuk di Form Tabel Produk
-// *****************************************
+// *******************************************
 function showPesan(type, message, duration = 3000) {
   const box      = document.getElementById('pesanNotification');
   const icon     = document.getElementById('pesanNotifIcon');
@@ -662,9 +699,9 @@ function showPesanModal(type, message, duration = 3000) {
   }, duration);
 }
 
-// **************************
+// ***************************
 // Tampilkan Modal Edit Produk
-// ************************** 
+// *************************** 
 function showEditModal(ProdukData) {
   // judul
   document.getElementById('judulModal').textContent = 'EDIT Produk';
@@ -688,9 +725,9 @@ function showEditModal(ProdukData) {
   new bootstrap.Modal(document.getElementById("modalProduk")).show();
 }
 
-// **********************
+// *********************
 // Validasi Form Produk
-// ********************** 
+// ********************* 
 function validateProdukForm() {
   const noStok = document.getElementById('noStok').value.trim();
   const namaProduk = document.getElementById('namaProduk').value.trim();
@@ -718,7 +755,9 @@ function validateProdukForm() {
   return true;
 }
 
-// Format angka sesuai lokal Indonesia (selalu 2 desimal, koma sebagai pemisah)
+// *****************************************************
+// Format angka sesuai lokal Indonesia (selalu 2 desimal
+// *****************************************************
 function formatAngka(value, isVP = false) {
   if (value === null || value === undefined || value === '') return '';
 
@@ -739,25 +778,39 @@ function formatAngka(value, isVP = false) {
   }).format(num);
 }
 
-// *****************************************
-// Fungsi untuk Auto-format angka saat ketik
-// *****************************************
+// *************************************************
+// Fungsi untuk ubah formatted string (2.123.700,12) 
+// menjadi angka untuk dikirim ke server
+// *************************************************
+function unformatNumber(formatted, isVP = false) {
+  if (formatted === null || formatted === undefined) return '';
+  let s = String(formatted).trim();
+  if (s === '') return '';
+  if (isVP) {
+    // VP: "21,50" -> "21.50"
+    s = s.replace(/\s/g, '').replace(',', '.');
+  } else {
+    // Harga: "2.123.700,12" -> "2123700.12"
+    s = s.replace(/\./g, '').replace(',', '.').replace(/\s/g, '');
+  }
+  return s;
+}
+
+// **************************************************************
+// auto-format saat input (menulis titik ribuan dan koma desimal)
+// NOTE: kini input type = text sehingga aman untuk menulis titik
+// **************************************************************
 function formatInputCurrency(input) {
-  const selectionStart = input.selectionStart;
-  const raw     = input.value.replace(/[^0-9,]/g, ''); // hanya angka & koma
-  let parts     = raw.split(',');
-  let integer   = parts[0].replace(/^0+/, '') || '0';
+  const raw = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts = raw.split(',');
+  let integer = parts[0].replace(/^0+/, '') || '0';
   let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   if (parts.length > 1) {
     formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
   }
   input.value = formatted;
-
-  // Kembalikan kursor ke posisi relatif yang benar
-  if (selectionStart !== null) {
-    const diff = formatted.length - raw.length;
-    input.setSelectionRange(selectionStart + diff, selectionStart + diff);
-  }
+  // letakkan kursor di akhir (sederhana & stabil)
+  input.setSelectionRange(formatted.length, formatted.length);
 }
 
 </SCRIPT>
