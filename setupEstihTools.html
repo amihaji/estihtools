@@ -284,9 +284,10 @@ tr:hover .action-icon {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxQzUqTH8_sdw9JJMRDfF8Z8uzmX-8erIbc3iFGIY9GLBYYFhlOfx-C5OO3ehg_96fgYw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzW7C1PIL2gLq6nv8SLG2b33m9oZqGVkHI5iaH5YNTT02CXq1FYKIw_681PU-v_r2s41A/exec';
 // **************************************
 
 // **********************************
@@ -378,7 +379,7 @@ function loadProdukTable() {
         while (row.length < 10) row.push('');
 
         const [
-            noStok, kategori, namaProduk, volumePoint, hargaDasar,
+            noStok, namaKategori, namaProduk, volumePoint, hargaDasar,
             hargaEceran, member25, sc35, sb42, spv50
         ] = row;
 
@@ -386,7 +387,7 @@ function loadProdukTable() {
         tr.id = `row_${noStok}`;
         tr.innerHTML = `
         <td class="text-start">${escapeHtml(noStok)}</td>
-        <td class="text-start">${escapeHtml(kategori)}</td>
+        <td class="text-start">${escapeHtml(namaKategori)}</td>
         <td class="text-start">${escapeHtml(namaProduk)}</td>
         <td class="text-end">${formatAngka(volumePoint, true)}</td> <!-- VP -->
         <td class="text-end">${formatAngka(hargaDasar)}</td>
@@ -397,7 +398,7 @@ function loadProdukTable() {
         <td class="text-end">${formatAngka(spv50)}</td>
         <td class="actions-col text-center">
             <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
-            noStok: '${noStok}', kategori: '${kategori}', namaProduk: '${namaProduk}',
+            noStok: '${noStok}', namaKategori: '${namaKategori}', namaProduk: '${namaProduk}',
             volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
             member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
             })"></i>
@@ -440,16 +441,16 @@ function kembaliKeSetupProduk() {
 // ****************************
 function addProduk() {
   // Ambil data input
-  const noStok = document.getElementById('noStok').value.trim().toLowerCase();
-  const namaKategori = document.getElementById('kategoriName').value.trim();
-  const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
-  const volumePoint = document.getElementById('volumePoint').value.trim();
-  const hargaDasar  = document.getElementById('hargaDasar').value.trim();
-  const hargaEceran = document.getElementById('hargaEceran').value.trim();
-  const member25    = document.getElementById('member25').value.trim();
-  const sc35        = document.getElementById('sc35').value.trim();
-  const sb42        = document.getElementById('sb42').value.trim();
-  const spv50       = document.getElementById('spv50').value.trim();
+  const noStok       = document.getElementById('noStok').value.trim().toLowerCase();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim().toUpperCase();
+  const volumePoint  = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
 
   // Validasi form
   if (!validateProdukForm()) return;
@@ -465,13 +466,13 @@ function addProduk() {
   }
 
   // Konversi angka ke format kirim (hilangkan titik ribuan, pakai . sebagai desimal)
-  const vpRaw  = unformatNumber(volumePoint, true);
-  const hdRaw  = unformatNumber(hargaDasar, false);
-  const heRaw  = unformatNumber(hargaEceran, false);
-  const m25Raw = unformatNumber(member25, false);
-  const sc35Raw= unformatNumber(sc35, false);
-  const sb42Raw= unformatNumber(sb42, false);
-  const spv50Raw=unformatNumber(spv50, false);
+  const vpRaw    = unformatNumber(volumePoint, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
 
   const callbackName = 'cb_' + Date.now();
 
@@ -521,28 +522,28 @@ function addProduk() {
 // *******************************
 function editProduk() {
   // Ambil data input
-  const noStok = document.getElementById('noStok').value.trim().toLowerCase();
-  const namaKategori = document.getElementById('kategoriName').value.trim();
-  const namaProduk = document.getElementById('produkName').value.trim().toUpperCase();
-  const volumePoint = document.getElementById('volumePoint').value.trim();
-  const hargaDasar  = document.getElementById('hargaDasar').value.trim();
-  const hargaEceran = document.getElementById('hargaEceran').value.trim();
-  const member25    = document.getElementById('member25').value.trim();
-  const sc35        = document.getElementById('sc35').value.trim();
-  const sb42        = document.getElementById('sb42').value.trim();
-  const spv50       = document.getElementById('spv50').value.trim();
+  const noStok       = document.getElementById('noStok').value.trim().toLowerCase();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim().toUpperCase();
+  const volumePoint  = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
 
   // Validasi form
   if (!validateProdukForm()) return;
 
   // Konversi angka
-  const vpRaw  = unformatNumber(volumePoint, true);
-  const hdRaw  = unformatNumber(hargaDasar, false);
-  const heRaw  = unformatNumber(hargaEceran, false);
-  const m25Raw = unformatNumber(member25, false);
-  const sc35Raw= unformatNumber(sc35, false);
-  const sb42Raw= unformatNumber(sb42, false);
-  const spv50Raw=unformatNumber(spv50, false);
+  const vpRaw    = unformatNumber(volumePoint, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
 
   const callbackName = 'cb_' + Date.now();
 
