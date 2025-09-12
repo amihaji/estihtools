@@ -359,6 +359,142 @@ function escapeHtml(text) {
 // Fungsi untuk memanggil Tabel Produk 
 // ************************************
 function loadProdukTable() {
+  showLoading(true, 'Produk');
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
+
+  window[callbackName] = function (data) {
+    const tbody = document.getElementById('produkTableBody');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data produk.</td></tr>';
+      cleanup();
+      showLoading(false, 'Produk');
+      return;
+    }
+
+    data.forEach(row => {
+        while (row.length < 10) row.push('');
+
+        const [
+            noStok, namaKategori, namaProduk, volumePoint, hargaDasar,
+            hargaEceran, member25, sc35, sb42, spv50
+        ] = row;
+
+        const tr = document.createElement('tr');
+        tr.id = `row_${noStok}`;
+        tr.innerHTML = `
+        <td class="text-start">${escapeHtml(noStok)}</td>
+        <td class="text-start">${escapeHtml(namaKategori)}</td>
+        <td class="text-start">${escapeHtml(namaProduk)}</td>
+        <td class="text-end">${formatAngka(volumePoint, true)}</td> <!-- VP -->
+        <td class="text-end">${formatAngka(hargaDasar)}</td>
+        <td class="text-end">${formatAngka(hargaEceran)}</td>
+        <td class="text-end">${formatAngka(member25)}</td>
+        <td class="text-end">${formatAngka(sc35)}</td>
+        <td class="text-end">${formatAngka(sb42)}</td>
+        <td class="text-end">${formatAngka(spv50)}</td>
+        <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
+            noStok: '${noStok}', namaKategori: '${namaKategori}', namaProduk: '${namaProduk}',
+            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
+            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
+            })"></i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
+        </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.onerror = function () {
+    showPesan('error', ' ERROR : Gagal mengambil data Produk!');
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  document.body.appendChild(script);
+}
+
+function BACKUP2_loadProdukTable() {
+  const tableBody = document.getElementById("produkTableBody");
+  if (!tableBody) return;
+  tableBody.innerHTML = `<tr><td colspan="15">Memuat data produk ...</td></tr>`;
+
+  const callbackName = 'cb_' + Date.now();
+
+  window[callbackName] = function (response) {
+    console.log("Respon server loadProdukTable:", response);
+    if (!response || !response.data || response.data.length <= 1) {
+      tableBody.innerHTML = `<tr><td colspan="15" class="text-center text-muted">Tidak ada data produk.</td></tr>`;
+      cleanup();
+      return;
+    }
+
+    let rowsHtml = "";
+    const rows = response.data;
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      rowsHtml += `
+        <tr>
+          <td class="text-start">${escapeHtml(row[0] || '')}</td>
+          <td class="text-start">${escapeHtml(row[1] || '')}</td>
+          <td class="text-start">${escapeHtml(row[2] || '')}</td>
+          <td class="text-end">${formatAngka(row[3], true)}</td>
+          <td class="text-end">${formatAngka(row[4])}</td>
+          <td class="text-end">${formatAngka(row[5])}</td>
+          <td class="text-end">${formatAngka(row[6])}</td>
+          <td class="text-end">${formatAngka(row[7])}</td>
+          <td class="text-end">${formatAngka(row[8])}</td>
+          <td class="text-end">${formatAngka(row[9])}</td>
+          <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit Produk"
+              onclick="showEditModal({
+                noStok: '${row[0]}', namaKategori: '${row[1]}', namaProduk: '${row[2]}',
+                volumePoint: '${row[3]}', hargaDasar: '${row[4]}', hargaEceran: '${row[5]}',
+                member25: '${row[6]}', sc35: '${row[7]}', sb42: '${row[8]}', spv50: '${row[9]}'
+              })">
+            </i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus Produk"
+              onclick="deleteProduk('${row[0]}')">
+            </i>
+          </td>
+        </tr>`;
+    }
+
+    tableBody.innerHTML = rowsHtml;
+    cleanup();
+  };
+
+  // Ganti action sesuai yang ada di GAS kamu
+  const params = new URLSearchParams({
+    action: 'getProdukTable', // pastikan sama dengan yang ada di code.gs
+    callback: callbackName
+  });
+
+  const script = document.createElement('script');
+  script.id = callbackName + '_script';
+  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
+}
+
+function BACKUP_loadProdukTable() {
   const tableBody = document.getElementById("produkTableBody");
   if (!tableBody) return;
 
