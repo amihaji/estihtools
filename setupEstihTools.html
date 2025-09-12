@@ -230,10 +230,19 @@ tr:hover .action-icon {
             <span class="input-group-text">NS </span>
             <input type="text" id="noStok" class="form-control" placeholder="Masukkan no stok (wajib isi)" minlength="3" maxlength="6" required>
         </div>
+        <!--
         <div class="input-group mb-2">
             <span class="input-group-text">KT  </span>
             <input type="text" id="namaKategori" class="form-control" placeholder="Masukkan kategori (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="20" required>
         </div>
+        -->
+        <div class="input-group mb-2">
+            <span class="input-group-text">KT  </span>
+            <select id="namaKategori" class="form-control form-select" name="namaKategori" required>
+               <!-- Opsi akan diisi oleh JavaScript -->
+            </select>
+        </div>
+
         <div class="input-group mb-2">
             <span class="input-group-text">PD </span>
             <input type="text" id="namaProduk" class="form-control" placeholder="Masukkan nama produk (wajib isi)" oninput="this.value = this.value.toUpperCase()" maxlength="30" required>
@@ -287,7 +296,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzW7C1PIL2gLq6nv8SLG2b33m9oZqGVkHI5iaH5YNTT02CXq1FYKIw_681PU-v_r2s41A/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwaVAD9R6I98VWWWm5JSRFhErfKRr5p09Eo6THet8GOZDqnBO2-EHjhcF4BhQeYR4eXOg/exec';
 // **************************************
 
 // **********************************
@@ -298,48 +307,6 @@ function showLoading(show, target = 'Produk') {
   const overlay = document.getElementById(overlayId);
   if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
-
-// ************************************************************
-// Fungsi untuk load awal Tabel Produk & attach event handlers
-// ************************************************************
-document.addEventListener('DOMContentLoaded', () => {
-  loadProdukTable();
-
-  // tombol Tambah
-  const addBtn = document.getElementById('addProdukButton');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => {
-      document.getElementById('mode').value = 'add';
-      document.getElementById('modalProduk').setAttribute('data-mode', 'add');
-      document.getElementById('produkForm').reset();
-      document.getElementById('noStok').disabled = false;
-      document.getElementById('judulModal').textContent = 'TAMBAH Produk';
-      new bootstrap.Modal(document.getElementById('modalProduk')).show();
-    });
-  }
-
-  // tombol Simpan
-  const btnSimpan = document.getElementById('btnSimpanProduk');
-  if (btnSimpan) {
-    btnSimpan.addEventListener('click', () => {
-      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
-      if (mode === 'edit') {
-        editProduk();
-      } else {
-        addProduk();
-      }
-    });
-  }
-
-  // auto-format angka saat input
-  const hargaFields = ['hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
-  hargaFields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', () => formatInputCurrency(el));
-    }
-  });
-});
 
 // ***************************************************************
 // Tambahkan sebelum loadProdukTable Untuk menghindari error atau 
@@ -353,6 +320,300 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/'/g, '&#39;')
     .replace(/"/g, '&quot;');
+}
+
+// ************************************
+// Fungsi untuk kembali ke setup Produk
+// ************************************
+function kembaliKeSetupProduk() {
+  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
+  document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
+  loadProdukTable(); // Refresh data Produk
+}
+
+// **********************
+// Mengupdate Baris Icon
+// *********************
+function updateRowIcons(row, mode) {
+    const icons = row.querySelectorAll('.action-icon');
+    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
+
+    if (mode === 'unlock') {
+        editIcon.classList.add('disabled');
+        delIcon.classList.add('disabled');
+    } else if (mode === 'kirim') {
+        editIcon.classList.remove('disabled');
+        delIcon.classList.remove('disabled');
+    }
+}
+
+// *******************************************
+// Pesan Notifikasi untuk di Form Tabel Produk
+// *******************************************
+function showPesan(type, message, duration = 3000) {
+  const box      = document.getElementById('pesanNotification');
+  const icon     = document.getElementById('pesanNotifIcon');
+  const text     = document.getElementById('pesanNotifText');
+
+  // Reset class
+  box.className  = 'notification-message';
+  icon.className = 'pesan-notif-icon';
+
+  if (type === 'error') {
+    box.classList.add('notification-error');
+    icon.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    box.classList.add('notification-success');
+    icon.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    box.classList.add('notification-warning');
+    icon.classList.add('fas', 'fa-exclamation-circle');
+  }
+  text.textContent  = message;
+  box.style.display = 'flex';
+  setTimeout(() => {box.style.display = 'none';}, duration);
+}
+
+// **************************************************
+// Pesan Notifikasi untuk di Form Modal Add dan Edit
+// **************************************************
+function showPesanModal(type, message, duration = 3000) {
+  const boxModal  = document.getElementById('pesanNotifModalBox');
+  const iconModal = document.getElementById('pesanNotifModalIcon');
+  const textModal = document.getElementById('pesanNotifModalText');
+
+  // Reset class
+  boxModal.className  = 'notification-message w-100 mb-2';
+  iconModal.className = 'pesan-notif-icon me-2';
+
+  if (type === 'error') {
+    boxModal.classList.add('notification-error');
+    iconModal.classList.add('fas', 'fa-times-circle');
+  } else if (type === 'success') {
+    boxModal.classList.add('notification-success');
+    iconModal.classList.add('fas', 'fa-check-circle');
+  } else if (type === 'warning') {
+    boxModal.classList.add('notification-warning');
+    iconModal.classList.add('fas', 'fa-exclamation-circle');
+  }
+
+  textModal.textContent  = message;
+  boxModal.style.display = 'flex';
+  setTimeout(() => {
+    boxModal.style.display = 'none';
+  }, duration);
+}
+
+// ***************************
+// Tampilkan Modal Edit Produk
+// *************************** 
+function showEditModal(data) {
+  console.log("Edit Produk:", data);
+
+  const modal = document.getElementById("modalProduk");
+  const form = document.getElementById("produkForm");
+  if (!modal || !form) return;
+
+  // Set mode edit
+  modal.setAttribute("data-mode", "edit");
+  document.getElementById('judulModal').textContent = 'EDIT Produk';
+
+  // Load dropdown kategori lalu isi form setelah dropdown selesai diisi
+  loadKategoriDropdownWithCallback(() => {
+    // Set kategori terpilih sesuai data
+    document.getElementById('namaKategori').value = data.namaKategori || "";
+
+    // Isi field lainnya
+    document.getElementById('noStok').value = data.noStok || "";
+    document.getElementById('noStok').disabled = true;
+
+    document.getElementById('namaProduk').value = data.namaProduk || "";
+    document.getElementById('volumePoint').value = formatAngka(data.volumePoint, true);
+    document.getElementById('hargaDasar').value = formatAngka(data.hargaDasar);
+    document.getElementById('hargaEceran').value = formatAngka(data.hargaEceran);
+    document.getElementById('member25').value = formatAngka(data.member25);
+    document.getElementById('sc35').value = formatAngka(data.sc35);
+    document.getElementById('sb42').value = formatAngka(data.sb42);
+    document.getElementById('spv50').value = formatAngka(data.spv50);
+
+    new bootstrap.Modal(modal).show();
+  });
+}
+
+// *********************
+// Validasi Form Produk
+// ********************* 
+function validateProdukForm() {
+  const noStok       = document.getElementById('noStok').value.trim();
+  const namaKategori = document.getElementById('namaKategori').value.trim();
+  const namaProduk   = document.getElementById('namaProduk').value.trim();
+  const vp           = document.getElementById('volumePoint').value.trim();
+  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
+  const member25     = document.getElementById('member25').value.trim();
+  const sc35         = document.getElementById('sc35').value.trim();
+  const sb42         = document.getElementById('sb42').value.trim();
+  const spv50        = document.getElementById('spv50').value.trim();
+
+  // Validasi field wajib (tidak boleh kosong)
+  if (!noStok) {
+    showPesanModal("warning", " WARNING : Field No Stok wajib diisi.");
+    return false;
+  }
+  if (!namaKategori) {
+    showPesanModal("warning", " WARNING : Field Kategori wajib diisi.");
+    return false;
+  }
+  if (!namaProduk) {
+    showPesanModal("warning", " WARNING : Field Nama Produk wajib diisi.");
+    return false;
+  }
+
+  // Unformat angka sebelum validasi
+  const vpRaw    = unformatNumber(vp, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
+
+  if (vpRaw === '' || isNaN(vpRaw)) {
+    showPesanModal("warning", " WARNING : Field VP harus berisi angka.");
+    return false;
+  }
+  if (hdRaw === '' || isNaN(hdRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Dasar harus berisi angka.");
+    return false;
+  }
+  if (heRaw === '' || isNaN(heRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Eceran harus berisi angka.");
+    return false;
+  }
+  if (m25Raw === '' || isNaN(m25Raw)) {
+    showPesanModal("warning", " WARNING : Field Member 25 harus berisi angka.");
+    return false;
+  }
+  if (sc35Raw === '' || isNaN(sc35Raw)) {
+    showPesanModal("warning", " WARNING : Field SC35 harus berisi angka.");
+    return false;
+  }
+  if (sb42Raw === '' || isNaN(sb42Raw)) {
+    showPesanModal("warning", " WARNING : Field SB42 harus berisi angka.");
+    return false;
+  }
+  if (spv50Raw === '' || isNaN(spv50Raw)) {
+    showPesanModal("warning", " WARNING : Field SPV50 harus berisi angka.");
+    return false;
+  }
+
+  return true; // Semua valid
+}
+
+// *****************************************************
+// Format angka sesuai lokal Indonesia (selalu 2 desimal
+// *****************************************************
+function formatAngka(value, isVP = false) {
+  if (value === null || value === undefined || value === '') return '';
+
+  let num;
+
+  if (typeof value === 'number') {
+    num = value;
+  } else {
+    let s = value.toString().trim();
+    if (!isVP) {
+      // untuk harga: hapus titik ribuan lalu ganti koma dengan titik
+      s = s.replace(/\./g, '').replace(',', '.');
+    } else {
+      // VP biasanya cuma ada koma desimal
+      s = s.replace(',', '.');
+    }
+    num = parseFloat(s);
+  }
+
+  if (isNaN(num)) return '';
+
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+}
+
+// *************************************************
+// Fungsi untuk ubah formatted string (2.123.700,12) 
+// menjadi angka untuk dikirim ke server
+// *************************************************
+function unformatNumber(formatted, isVP = false) {
+  if (formatted === null || formatted === undefined) return '';
+  let s = String(formatted).trim();
+  if (s === '') return '';
+  if (isVP) {
+    // VP: "21,50" -> "21.50"
+    s = s.replace(/\s/g, '').replace(',', '.');
+  } else {
+    // Harga: "2.123.700,12" -> "2123700.12"
+    s = s.replace(/\./g, '').replace(',', '.').replace(/\s/g, '');
+  }
+  return s;
+}
+
+// **************************************************************
+// auto-format saat input (menulis titik ribuan dan koma desimal)
+// NOTE: kini input type = text sehingga aman untuk menulis titik
+// **************************************************************
+function formatInputCurrency(input) {
+  const raw     = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts     = raw.split(',');
+  let integer   = parts[0].replace(/^0+/, '') || '0';
+  let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  if (parts.length > 1) {
+    formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
+  }
+  input.value = formatted;
+  // letakkan kursor di akhir (sederhana & stabil)
+  input.setSelectionRange(formatted.length, formatted.length);
+}
+
+// *************************************************************
+// Fungsi untuk jalankan callback setelah dropdown selesai diisi
+// *************************************************************
+function loadKategoriDropdownWithCallback(callback) {
+  const callbackName = 'cb_kat_' + Date.now();
+
+  window[callbackName] = function (response) {
+    const select = document.getElementById('namaKategori');
+    if (!select) return;
+
+    select.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+
+    if (response && response.data && response.data.length > 0) {
+      response.data.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.kategori;
+        opt.textContent = `${item.kode} - ${item.kategori}`;
+        select.appendChild(opt);
+      });
+    }
+
+    cleanup();
+    if (typeof callback === "function") callback(); // jalankan callback setelah dropdown selesai diisi
+  };
+
+  const params = new URLSearchParams({
+    action: 'getTabelKategori',
+    callback: callbackName
+  });
+
+  const script = document.createElement('script');
+  script.id = callbackName + '_script';
+  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    document.getElementById(callbackName + '_script')?.remove();
+  }
 }
 
 // ************************************
@@ -425,82 +686,6 @@ function loadProdukTable() {
   }
 
   document.body.appendChild(script);
-}
-
-function BACKUP_loadProdukTable() {
-  const tableBody = document.getElementById("produkTableBody");
-  if (!tableBody) return;
-  tableBody.innerHTML = `<tr><td colspan="15">Memuat data produk ...</td></tr>`;
-
-  const callbackName = 'cb_' + Date.now();
-
-  window[callbackName] = function (response) {
-    console.log("Respon server loadProdukTable:", response);
-    if (!response || !response.data || response.data.length <= 1) {
-      tableBody.innerHTML = `<tr><td colspan="15" class="text-center text-muted">Tidak ada data produk.</td></tr>`;
-      cleanup();
-      return;
-    }
-
-    let rowsHtml = "";
-    const rows = response.data;
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      rowsHtml += `
-        <tr>
-          <td class="text-start">${escapeHtml(row[0] || '')}</td>
-          <td class="text-start">${escapeHtml(row[1] || '')}</td>
-          <td class="text-start">${escapeHtml(row[2] || '')}</td>
-          <td class="text-end">${formatAngka(row[3], true)}</td>
-          <td class="text-end">${formatAngka(row[4])}</td>
-          <td class="text-end">${formatAngka(row[5])}</td>
-          <td class="text-end">${formatAngka(row[6])}</td>
-          <td class="text-end">${formatAngka(row[7])}</td>
-          <td class="text-end">${formatAngka(row[8])}</td>
-          <td class="text-end">${formatAngka(row[9])}</td>
-          <td class="actions-col text-center">
-            <i class="fas fa-edit action-icon" title="Edit Produk"
-              onclick="showEditModal({
-                noStok: '${row[0]}', namaKategori: '${row[1]}', namaProduk: '${row[2]}',
-                volumePoint: '${row[3]}', hargaDasar: '${row[4]}', hargaEceran: '${row[5]}',
-                member25: '${row[6]}', sc35: '${row[7]}', sb42: '${row[8]}', spv50: '${row[9]}'
-              })">
-            </i>
-            <i class="fas fa-trash-alt action-icon" title="Hapus Produk"
-              onclick="deleteProduk('${row[0]}')">
-            </i>
-          </td>
-        </tr>`;
-    }
-
-    tableBody.innerHTML = rowsHtml;
-    cleanup();
-  };
-
-  // Ganti action sesuai yang ada di GAS kamu
-  const params = new URLSearchParams({
-    action: 'getProdukTable', // pastikan sama dengan yang ada di code.gs
-    callback: callbackName
-  });
-
-  const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
-  document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch (e) {}
-    document.getElementById(callbackName + '_script')?.remove();
-  }
-}
-
-// ************************************
-// Fungsi untuk kembali ke setup Produk
-// ************************************
-function kembaliKeSetupProduk() {
-  document.querySelector('.container').style.display    = 'block';  // Tampilkan semua form Setup Produk
-  document.getElementById('logNotifForm').style.display = 'none';   // Sembunyikan form Log Notifikasi
-  loadProdukTable(); // Refresh data Produk
 }
 
 // ****************************
@@ -694,240 +879,50 @@ function deleteProduk(noStok) {
   document.body.appendChild(script);
 }
 
-// **********************
-// Mengupdate Baris Icon
-// *********************
-function updateRowIcons(row, mode) {
-    const icons = row.querySelectorAll('.action-icon');
-    const [editIcon, aktifasiIcon, delIcon, unlockIcon, kirimIcon] = icons;
+// ************************************************************
+// Fungsi untuk load awal Tabel Produk & attach event handlers
+// ************************************************************
+document.addEventListener('DOMContentLoaded', () => {
+  // Panggil tabel produk saat halaman selesai dimuat
+  loadProdukTable();
 
-    if (mode === 'unlock') {
-        editIcon.classList.add('disabled');
-        delIcon.classList.add('disabled');
-    } else if (mode === 'kirim') {
-        editIcon.classList.remove('disabled');
-        delIcon.classList.remove('disabled');
-    }
-}
+  // --- Event tombol Tambah Produk ---
+  const addBtn = document.getElementById('addProdukButton');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      document.getElementById('mode').value = 'add';
+      document.getElementById('modalProduk').setAttribute('data-mode', 'add');
+      document.getElementById('produkForm').reset();
+      document.getElementById('noStok').disabled = false;
+      document.getElementById('judulModal').textContent = 'TAMBAH Produk';
 
-// *******************************************
-// Pesan Notifikasi untuk di Form Tabel Produk
-// *******************************************
-function showPesan(type, message, duration = 3000) {
-  const box      = document.getElementById('pesanNotification');
-  const icon     = document.getElementById('pesanNotifIcon');
-  const text     = document.getElementById('pesanNotifText');
-
-  // Reset class
-  box.className  = 'notification-message';
-  icon.className = 'pesan-notif-icon';
-
-  if (type === 'error') {
-    box.classList.add('notification-error');
-    icon.classList.add('fas', 'fa-times-circle');
-  } else if (type === 'success') {
-    box.classList.add('notification-success');
-    icon.classList.add('fas', 'fa-check-circle');
-  } else if (type === 'warning') {
-    box.classList.add('notification-warning');
-    icon.classList.add('fas', 'fa-exclamation-circle');
-  }
-  text.textContent  = message;
-  box.style.display = 'flex';
-  setTimeout(() => {box.style.display = 'none';}, duration);
-}
-
-// **************************************************
-// Pesan Notifikasi untuk di Form Modal Add dan Edit
-// **************************************************
-function showPesanModal(type, message, duration = 3000) {
-  const boxModal  = document.getElementById('pesanNotifModalBox');
-  const iconModal = document.getElementById('pesanNotifModalIcon');
-  const textModal = document.getElementById('pesanNotifModalText');
-
-  // Reset class
-  boxModal.className  = 'notification-message w-100 mb-2';
-  iconModal.className = 'pesan-notif-icon me-2';
-
-  if (type === 'error') {
-    boxModal.classList.add('notification-error');
-    iconModal.classList.add('fas', 'fa-times-circle');
-  } else if (type === 'success') {
-    boxModal.classList.add('notification-success');
-    iconModal.classList.add('fas', 'fa-check-circle');
-  } else if (type === 'warning') {
-    boxModal.classList.add('notification-warning');
-    iconModal.classList.add('fas', 'fa-exclamation-circle');
+      // ⬇️ load dropdown kategori sebelum modal tampil
+      loadKategoriDropdownWithCallback(() => {
+        new bootstrap.Modal(document.getElementById('modalProduk')).show();
+      });
+    });
   }
 
-  textModal.textContent  = message;
-  boxModal.style.display = 'flex';
-  setTimeout(() => {
-    boxModal.style.display = 'none';
-  }, duration);
-}
-
-// ***************************
-// Tampilkan Modal Edit Produk
-// *************************** 
-function showEditModal(ProdukData) {
-  // judul
-  document.getElementById('judulModal').textContent = 'EDIT Produk';
-
-  // Isi field — toleran terhadap nama properti berbeda (namaProduk / namaProduk / VP / etc.)
-  document.getElementById('noStok').value = ProdukData.noStok || ProdukData.no_stok || '';
-  document.getElementById('noStok').disabled = true; // jangan ubah primary key saat edit
-
-  document.getElementById('namaKategori').value = ProdukData.namaKategori || ProdukData.namaKategori || (ProdukData.namaKategori || '');
-  document.getElementById('namaProduk').value   = ProdukData.namaProduk || ProdukData.namaProduk || '';
-  document.getElementById('volumePoint').value  = ProdukData.volumePoint || ProdukData.VP || '';
-  document.getElementById('hargaDasar').value   = ProdukData.hargaDasar || '';
-  document.getElementById('hargaEceran').value  = ProdukData.hargaEceran || '';
-  document.getElementById('member25').value     = ProdukData.member25 || '';
-  document.getElementById('sc35').value         = ProdukData.sc35 || '';
-  document.getElementById('sb42').value         = ProdukData.sb42 || '';
-  document.getElementById('spv50').value        = ProdukData.spv50 || '';
-
-  // set mode edit & show modal
-  document.getElementById("modalProduk").setAttribute("data-mode", "edit");
-  new bootstrap.Modal(document.getElementById("modalProduk")).show();
-}
-
-// *********************
-// Validasi Form Produk
-// ********************* 
-function validateProdukForm() {
-  const noStok       = document.getElementById('noStok').value.trim();
-  const namaKategori = document.getElementById('namaKategori').value.trim();
-  const namaProduk   = document.getElementById('namaProduk').value.trim();
-  const vp           = document.getElementById('volumePoint').value.trim();
-  const hargaDasar   = document.getElementById('hargaDasar').value.trim();
-  const hargaEceran  = document.getElementById('hargaEceran').value.trim();
-  const member25     = document.getElementById('member25').value.trim();
-  const sc35         = document.getElementById('sc35').value.trim();
-  const sb42         = document.getElementById('sb42').value.trim();
-  const spv50        = document.getElementById('spv50').value.trim();
-
-  // Validasi field wajib (tidak boleh kosong)
-  if (!noStok) {
-    showPesanModal("warning", " WARNING : Field No Stok wajib diisi.");
-    return false;
-  }
-  if (!namaKategori) {
-    showPesanModal("warning", " WARNING : Field Kategori wajib diisi.");
-    return false;
-  }
-  if (!namaProduk) {
-    showPesanModal("warning", " WARNING : Field Nama Produk wajib diisi.");
-    return false;
+  // --- Event tombol Simpan Produk ---
+  const btnSimpan = document.getElementById('btnSimpanProduk');
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', () => {
+      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
+      if (mode === 'edit') {
+        editProduk();
+      } else {
+        addProduk();
+      }
+    });
   }
 
-  // Unformat angka sebelum validasi
-  const vpRaw    = unformatNumber(vp, true);
-  const hdRaw    = unformatNumber(hargaDasar, false);
-  const heRaw    = unformatNumber(hargaEceran, false);
-  const m25Raw   = unformatNumber(member25, false);
-  const sc35Raw  = unformatNumber(sc35, false);
-  const sb42Raw  = unformatNumber(sb42, false);
-  const spv50Raw = unformatNumber(spv50, false);
-
-  if (vpRaw === '' || isNaN(vpRaw)) {
-    showPesanModal("warning", " WARNING : Field VP harus berisi angka.");
-    return false;
-  }
-  if (hdRaw === '' || isNaN(hdRaw)) {
-    showPesanModal("warning", " WARNING : Field Harga Dasar harus berisi angka.");
-    return false;
-  }
-  if (heRaw === '' || isNaN(heRaw)) {
-    showPesanModal("warning", " WARNING : Field Harga Eceran harus berisi angka.");
-    return false;
-  }
-  if (m25Raw === '' || isNaN(m25Raw)) {
-    showPesanModal("warning", " WARNING : Field Member 25 harus berisi angka.");
-    return false;
-  }
-  if (sc35Raw === '' || isNaN(sc35Raw)) {
-    showPesanModal("warning", " WARNING : Field SC35 harus berisi angka.");
-    return false;
-  }
-  if (sb42Raw === '' || isNaN(sb42Raw)) {
-    showPesanModal("warning", " WARNING : Field SB42 harus berisi angka.");
-    return false;
-  }
-  if (spv50Raw === '' || isNaN(spv50Raw)) {
-    showPesanModal("warning", " WARNING : Field SPV50 harus berisi angka.");
-    return false;
-  }
-
-  return true; // Semua valid
-}
-
-// *****************************************************
-// Format angka sesuai lokal Indonesia (selalu 2 desimal
-// *****************************************************
-function formatAngka(value, isVP = false) {
-  if (value === null || value === undefined || value === '') return '';
-
-  let num;
-
-  if (typeof value === 'number') {
-    num = value;
-  } else {
-    let s = value.toString().trim();
-    if (!isVP) {
-      // untuk harga: hapus titik ribuan lalu ganti koma dengan titik
-      s = s.replace(/\./g, '').replace(',', '.');
-    } else {
-      // VP biasanya cuma ada koma desimal
-      s = s.replace(',', '.');
-    }
-    num = parseFloat(s);
-  }
-
-  if (isNaN(num)) return '';
-
-  return new Intl.NumberFormat("id-ID", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(num);
-}
-
-
-// *************************************************
-// Fungsi untuk ubah formatted string (2.123.700,12) 
-// menjadi angka untuk dikirim ke server
-// *************************************************
-function unformatNumber(formatted, isVP = false) {
-  if (formatted === null || formatted === undefined) return '';
-  let s = String(formatted).trim();
-  if (s === '') return '';
-  if (isVP) {
-    // VP: "21,50" -> "21.50"
-    s = s.replace(/\s/g, '').replace(',', '.');
-  } else {
-    // Harga: "2.123.700,12" -> "2123700.12"
-    s = s.replace(/\./g, '').replace(',', '.').replace(/\s/g, '');
-  }
-  return s;
-}
-
-// **************************************************************
-// auto-format saat input (menulis titik ribuan dan koma desimal)
-// NOTE: kini input type = text sehingga aman untuk menulis titik
-// **************************************************************
-function formatInputCurrency(input) {
-  const raw     = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
-  let parts     = raw.split(',');
-  let integer   = parts[0].replace(/^0+/, '') || '0';
-  let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  if (parts.length > 1) {
-    formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
-  }
-  input.value = formatted;
-  // letakkan kursor di akhir (sederhana & stabil)
-  input.setSelectionRange(formatted.length, formatted.length);
-}
+  // --- Auto format angka saat input ---
+  const hargaFields = ['hargaDasar','hargaEceran','member25','sc35','sb42','spv50','volumePoint'];
+  hargaFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => formatInputCurrency(el));
+  });
+});
 
 </SCRIPT>
 </body>
