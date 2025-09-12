@@ -240,7 +240,7 @@ tr:hover .action-icon {
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">PV  </span>
-            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" required>
+            <input type="text" inputmode="decimal" pattern="[0-9.,]*" id="volumePoint" class="form-control" placeholder="Masukkan volume point (wajib isi)" maxlength="6" required>
         </div>
         <div class="input-group mb-2">
             <span class="input-group-text">HD </span>
@@ -507,8 +507,8 @@ function addProduk() {
   console.log("addProduk -> data dikirim:", Object.fromEntries(params.entries()));
 
   const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+  script.id    = callbackName + '_script';
+  script.src   = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
 
   function cleanup() {
@@ -730,30 +730,70 @@ function showEditModal(ProdukData) {
 // Validasi Form Produk
 // ********************* 
 function validateProdukForm() {
-  const noStok = document.getElementById('noStok').value.trim();
-  const namaProduk = document.getElementById('namaProduk').value.trim();
+  const noStok      = document.getElementById('noStok').value.trim();
+  const namaKategori= document.getElementById('kategori').value.trim();
+  const namaProduk  = document.getElementById('namaProduk').value.trim();
+  const vp          = document.getElementById('volumePoint').value.trim();
+  const hargaDasar  = document.getElementById('hargaDasar').value.trim();
+  const hargaEceran = document.getElementById('hargaEceran').value.trim();
+  const member25    = document.getElementById('member25').value.trim();
+  const sc35        = document.getElementById('sc35').value.trim();
+  const sb42        = document.getElementById('sb42').value.trim();
+  const spv50       = document.getElementById('spv50').value.trim();
+
+  // Validasi field wajib (tidak boleh kosong)
   if (!noStok) {
-    showPesanModal("warning", " WARNING : No Stok wajib diisi.");
+    showPesanModal("warning", " WARNING : Field No Stok wajib diisi.");
+    return false;
+  }
+  if (!namaKategori) {
+    showPesanModal("warning", " WARNING : Field Kategori wajib diisi.");
     return false;
   }
   if (!namaProduk) {
-    showPesanModal("warning", " WARNING : Nama Produk wajib diisi.");
+    showPesanModal("warning", " WARNING : Field Nama Produk wajib diisi.");
     return false;
   }
 
-  // cek numeric fields (boleh kosong, tapi kalau terisi harus angka)
-  const numericIds = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
-  for (const id of numericIds) {
-    const el = document.getElementById(id);
-    if (!el) continue;
-    const v = String(el.value).trim();
-    if (v !== '' && isNaN(v.toString().replace(',', '.'))) {
-      showPesanModal("warning", ` WARNING : Field ${id} harus berisi angka.`);
-      return false;
-    }
+  // Unformat angka sebelum validasi
+  const vpRaw    = unformatNumber(vp, true);
+  const hdRaw    = unformatNumber(hargaDasar, false);
+  const heRaw    = unformatNumber(hargaEceran, false);
+  const m25Raw   = unformatNumber(member25, false);
+  const sc35Raw  = unformatNumber(sc35, false);
+  const sb42Raw  = unformatNumber(sb42, false);
+  const spv50Raw = unformatNumber(spv50, false);
+
+  if (vpRaw === '' || isNaN(vpRaw)) {
+    showPesanModal("warning", " WARNING : Field VP harus berisi angka.");
+    return false;
+  }
+  if (hdRaw === '' || isNaN(hdRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Dasar harus berisi angka.");
+    return false;
+  }
+  if (heRaw === '' || isNaN(heRaw)) {
+    showPesanModal("warning", " WARNING : Field Harga Eceran harus berisi angka.");
+    return false;
+  }
+  if (m25Raw === '' || isNaN(m25Raw)) {
+    showPesanModal("warning", " WARNING : Field Member 25 harus berisi angka.");
+    return false;
+  }
+  if (sc35Raw === '' || isNaN(sc35Raw)) {
+    showPesanModal("warning", " WARNING : Field SC35 harus berisi angka.");
+    return false;
+  }
+  if (sb42Raw === '' || isNaN(sb42Raw)) {
+    showPesanModal("warning", " WARNING : Field SB42 harus berisi angka.");
+    return false;
+  }
+  if (spv50Raw === '' || isNaN(spv50Raw)) {
+    showPesanModal("warning", " WARNING : Field SPV50 harus berisi angka.");
+    return false;
   }
 
-  return true;
+  return true; // Semua valid
 }
 
 // *****************************************************
@@ -802,9 +842,9 @@ function unformatNumber(formatted, isVP = false) {
 // NOTE: kini input type = text sehingga aman untuk menulis titik
 // **************************************************************
 function formatInputCurrency(input) {
-  const raw = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
-  let parts = raw.split(',');
-  let integer = parts[0].replace(/^0+/, '') || '0';
+  const raw     = (input.value || '').replace(/[^0-9,]/g, ''); // hanya angka & koma
+  let parts     = raw.split(',');
+  let integer   = parts[0].replace(/^0+/, '') || '0';
   let formatted = integer.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   if (parts.length > 1) {
     formatted += ',' + parts[1].slice(0, 2); // max 2 desimal
