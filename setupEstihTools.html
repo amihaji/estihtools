@@ -358,7 +358,7 @@ function escapeHtml(text) {
 // ************************************
 // Fungsi untuk memanggil Tabel Produk 
 // ************************************
-function BACKUP_loadProdukTable() {
+function loadProdukTable() {
   showLoading(true, 'Produk');
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
@@ -427,7 +427,7 @@ function BACKUP_loadProdukTable() {
   document.body.appendChild(script);
 }
 
-function loadProdukTable() {
+function BACKUP_loadProdukTable() {
   const tableBody = document.getElementById("produkTableBody");
   if (!tableBody) return;
   tableBody.innerHTML = `<tr><td colspan="15">Memuat data produk ...</td></tr>`;
