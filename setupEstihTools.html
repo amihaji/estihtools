@@ -881,11 +881,20 @@ function deleteProduk(noStok) {
   document.body.appendChild(script);
 }
 
+// *******************************************************
+// Fungsi Auto Format Nama Produk hanya huruf awal kapital
+// *******************************************************
+function capitalizeWords(str) {
+  return str.replace(/\b\w+/g, word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  );
+}
+
 // ************************************************************
 // Fungsi untuk load awal Tabel Produk & attach event handlers
 // ************************************************************
 document.addEventListener('DOMContentLoaded', () => {
-  // Panggil tabel produk saat halaman selesai dimuat
+  // --- Load tabel produk saat halaman siap ---
   loadProdukTable();
 
   // --- Event tombol Tambah Produk ---
@@ -898,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('noStok').disabled = false;
       document.getElementById('judulModal').textContent = 'TAMBAH Produk';
 
-      // ⬇️ load dropdown kategori sebelum modal tampil
+      // Load dropdown kategori lalu buka modal setelah siap
       loadKategoriDropdownWithCallback(() => {
         new bootstrap.Modal(document.getElementById('modalProduk')).show();
       });
@@ -918,12 +927,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Auto format angka saat input ---
-  const hargaFields = ['hargaDasar','hargaEceran','member25','sc35','sb42','spv50','volumePoint'];
+  // --- Auto-format angka saat input ---
+  const hargaFields = ['volumePoint', 'hargaDasar', 'hargaEceran', 'member25', 'sc35', 'sb42', 'spv50'];
   hargaFields.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('input', () => formatInputCurrency(el));
+    if (el) {
+      el.addEventListener('input', () => formatInputCurrency(el));
+    }
   });
+
+  // --- Auto-format Nama Produk (capitalize setiap kata) ---
+  const namaProdukInput = document.getElementById('namaProduk');
+  if (namaProdukInput) {
+    namaProdukInput.addEventListener('input', () => {
+      const pos = namaProdukInput.selectionStart; // simpan posisi kursor
+      namaProdukInput.value = capitalizeWords(namaProdukInput.value);
+      namaProdukInput.setSelectionRange(pos, pos); // kembalikan posisi kursor
+    });
+  }
 });
 
 </SCRIPT>
