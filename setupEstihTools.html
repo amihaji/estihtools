@@ -358,7 +358,7 @@ function escapeHtml(text) {
 // ************************************
 // Fungsi untuk memanggil Tabel Produk 
 // ************************************
-function loadProdukTable() {
+function BACKUP_loadProdukTable() {
   showLoading(true, 'Produk');
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
@@ -427,7 +427,7 @@ function loadProdukTable() {
   document.body.appendChild(script);
 }
 
-function BACKUP2_loadProdukTable() {
+function loadProdukTable() {
   const tableBody = document.getElementById("produkTableBody");
   if (!tableBody) return;
   tableBody.innerHTML = `<tr><td colspan="15">Memuat data produk ...</td></tr>`;
@@ -480,94 +480,6 @@ function BACKUP2_loadProdukTable() {
   // Ganti action sesuai yang ada di GAS kamu
   const params = new URLSearchParams({
     action: 'getProdukTable', // pastikan sama dengan yang ada di code.gs
-    callback: callbackName
-  });
-
-  const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
-  document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch (e) {}
-    document.getElementById(callbackName + '_script')?.remove();
-  }
-}
-
-function BACKUP_loadProdukTable() {
-  const tableBody = document.getElementById("produkTableBody");
-  if (!tableBody) return;
-
-  tableBody.innerHTML = `<tr><td colspan="15">Memuat data produk ...</td></tr>`;
-
-  const callbackName = 'cb_' + Date.now();
-
-  window[callbackName] = function (data) {
-    console.log("Respon server loadProdukTable:", data);
-
-    if (!data || !data.data || data.data.length <= 1) {
-      tableBody.innerHTML = `<tr><td colspan="15" class="text-center text-muted">Tidak ada data produk.</td></tr>`;
-      cleanup();
-      return;
-    }
-
-    let rowsHtml = "";
-    const rows = data.data;
-    for (let i = 1; i < rows.length; i++) {  // skip header row
-      const row = rows[i];
-
-      const noStok = escapeHtml(row[0] || '');
-      const namaKategori = escapeHtml(row[1] || '');
-      const namaProduk = escapeHtml(row[2] || '');
-      const volumePoint = row[3];
-      const hargaDasar  = row[4];
-      const hargaEceran = row[5];
-      const member25    = row[6];
-      const sc35        = row[7];
-      const sb42        = row[8];
-      const spv50       = row[9];
-
-      rowsHtml += `
-        <tr>
-          <td class="text-start">${noStok}</td>
-          <td class="text-start">${namaKategori}</td>
-          <td class="text-start">${namaProduk}</td>
-          <td class="text-end">${formatAngka(volumePoint, true)}</td>
-          <td class="text-end">${formatAngka(hargaDasar)}</td>
-          <td class="text-end">${formatAngka(hargaEceran)}</td>
-          <td class="text-end">${formatAngka(member25)}</td>
-          <td class="text-end">${formatAngka(sc35)}</td>
-          <td class="text-end">${formatAngka(sb42)}</td>
-          <td class="text-end">${formatAngka(spv50)}</td>
-          <td class="actions-col text-center">
-            <i class="fas fa-edit action-icon" title="Edit Produk" 
-              onclick="showEditModal({
-                noStok: '${noStok}', 
-                kategori: '${namaKategori}', 
-                namaProduk: '${namaProduk}',
-                volumePoint: '${volumePoint}', 
-                hargaDasar: '${hargaDasar}', 
-                hargaEceran: '${hargaEceran}',
-                member25: '${member25}', 
-                sc35: '${sc35}', 
-                sb42: '${sb42}', 
-                spv50: '${spv50}'
-              })">
-            </i>
-            <i class="fas fa-trash-alt action-icon" title="Hapus Produk" 
-              onclick="deleteProduk('${noStok}')">
-            </i>
-          </td>
-        </tr>
-      `;
-    }
-
-    tableBody.innerHTML = rowsHtml;
-    cleanup();
-  };
-
-  const params = new URLSearchParams({
-    action: 'getProdukTable',
     callback: callbackName
   });
 
