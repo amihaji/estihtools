@@ -88,11 +88,12 @@ tr:hover .action-icon {
     gap: 10px; 
 }
 
-.table-box { 
-    background: white; 
-    border-radius: 5px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
-    padding: 10px; 
+.table-box {
+    position: relative; /* <-- tambahkan ini */
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
 }
 .table-wrapper { 
     max-height: 450px; 
@@ -191,6 +192,12 @@ tr:hover .action-icon {
 
    <!-- Tabel Daftar Produk -->
     <div class="table-box">
+        <!-- Loading Overlay (nama id sesuai showLoading JS) -->
+        <div id="loadingOverlayProduk" class="loading-overlay" style="display: none;">
+          <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+          <span class="visually-hidden">Memuat Data...</span>
+        </div>
+        
         <div class="table-wrapper">
         <table class="table table-hover table-striped table-bordered align-middle " style="table-layout:auto; width:auto;">
             <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Harga Produk</h6>
@@ -208,12 +215,6 @@ tr:hover .action-icon {
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <!-- Loading Overlay -->
-            <div id="loadingOverlayproduk" class="loading-overlay" style="display: none;">
-              <div class="spinner-border text-primary" style="align-content: center;" role="status"></div>
-              <tr><td colspan="15">Memuat data produk ...</td></tr>
-            </div>      
-
             <tbody id="produkTableBody" style="font-size: small; align-content: center;"></tbody>
                 <!-- Data akan diisi oleh JavaScript di sini -->  
             </tbody>
@@ -303,7 +304,7 @@ const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwaVAD9R6I98VWW
 // **********************************
 function showLoading(show, target = 'Produk') {
   const overlayId = target === 'log' ? 'loadingOverlayLog' : 'loadingOverlayProduk';
-  const overlay = document.getElementById(overlayId);
+  let overlay = document.getElementById(overlayId) || document.getElementById(overlayId.toLowerCase());
   if (overlay) overlay.style.display = show ? 'flex' : 'none';
 }
 
