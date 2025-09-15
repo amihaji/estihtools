@@ -295,11 +295,33 @@ tr:hover .action-icon {
             <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
         </div>
     </div>
+
+    <!-- Modal Import Excel -->
+    <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="judulModalImport" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="judulModalImport">Import Tabel Harga</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="file" id="fileImport" accept=".xlsx,.xls" class="form-control">
+            <small class="text-muted">Pilih file Excel yang sesuai format sheet TabelHarga.</small>
+          </div>
+          <div class="modal-footer">
+            <button id="btnProsesImport" class="btn btn-primary">Import</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </form>
 </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
@@ -950,7 +972,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Load kategori untuk filter (dropdown di toolbar) ---
   loadKategoriFilterDropdown();
 
+  // -----------------------------------
   // --- Event pilih kategori filter ---
+  // -----------------------------------
   const kategoriMenu = document.getElementById('kategoriFilterMenu');
   if (kategoriMenu) {
     kategoriMenu.addEventListener('click', (e) => {
@@ -961,8 +985,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // -----------------------------------
   // --- Event tombol Tambah Produk ---
-  const addBtn = document.getElementById('addProdukButton');
+  // -----------------------------------
+    const addBtn = document.getElementById('addProdukButton');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
       document.getElementById('mode').value = 'add';
@@ -978,7 +1004,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // -----------------------------------
   // --- Event tombol Simpan Produk ---
+  // -----------------------------------
   const btnSimpan = document.getElementById('btnSimpanProduk');
   if (btnSimpan) {
     btnSimpan.addEventListener('click', () => {
@@ -991,14 +1019,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // -----------------------------------
   // --- Auto-format angka saat input ---
+  // -----------------------------------
   const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
   hargaFields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => formatInputCurrency(el));
   });
 
+  // -----------------------------------
   // --- Auto-format Nama Produk ---
+  // -----------------------------------
   const namaProdukInput = document.getElementById('namaProduk');
   if (namaProdukInput) {
     namaProdukInput.addEventListener('input', () => {
@@ -1007,6 +1039,70 @@ document.addEventListener('DOMContentLoaded', () => {
       namaProdukInput.setSelectionRange(pos, pos);
     });
   }
+  
+  // ---------------------------
+  // --- Event tombol Import ---
+  // ---------------------------
+  const btnImport = document.getElementById('btnImport'); // id tombol import di toolbar
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ''; // reset input
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
+
+  // --- Event proses Import ---
+  const btnProsesImport = document.getElementById('btnProsesImport');
+  if (btnProsesImport) {
+    btnProsesImport.addEventListener('click', () => {
+      const fileInput = document.getElementById('fileImport');
+      if (!fileInput.files.length) {
+        showPesanModal('warning', ' WARNING : Silakan pilih file Excel terlebih dahulu.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          const sheetName = workbook.SheetNames[0]; // ambil sheet pertama
+          const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+          if (!sheetData || sheetData.length === 0) {
+            showPesanModal('warning', ' WARNING : File Excel kosong atau tidak terbaca.');
+            return;
+          }
+
+          // Kirim data ke Apps Script
+          showLoading(true, 'Produk');
+          google.script.run
+            .withSuccessHandler(msg => {
+              showLoading(false, 'Produk');
+              if (msg.status === 'ok') {
+                showPesan('success', ' Import berhasil!');
+                loadProdukTable(); // reload tabel
+              } else {
+                showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
+              }
+            })
+            .withFailureHandler(err => {
+              showLoading(false, 'Produk');
+              showPesan('error', ' ERROR : ' + err.message);
+            })
+            .importTabelHarga(sheetData);
+        } catch (err) {
+          showPesanModal('error', ' ERROR : ' + err.message);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
 });
 
 
