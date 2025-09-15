@@ -173,12 +173,26 @@ tr:hover .action-icon {
 <!-- Tombol Form Setup produk -->
 <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
     <div>
-       <button class="btn btn-primary btn-sm mb-1" id="kategoriFilter"><i class="fas fa-filter"></i> Filter</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Produk</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addImportProduk"><i class="fas fa-file-import"></i> Import </button>
-       <button class="btn btn-primary btn-sm mb-1" id="addExportProduk"><i class="fas fa-file-export"></i> Export </button>
-       <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="far fa-list-alt"></i> Kategori</button>
-       <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-shipping-fast"></i> By Kirim</button>
+        <!--
+        <button class="btn btn-primary btn-sm mb-1" id="kategoriFilter"><i class="fas fa-filter"></i> Filter</button>
+        -->
+        
+        <!-- Tombol Kategori dengan Dropdown -->
+        <div class="btn-group">
+          <button id="btnKategoriFilter" type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Kategori
+          </button>
+          <ul class="dropdown-menu" id="kategoriFilterMenu">
+              <li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>
+              <!-- kategori lainnya diisi lewat JS -->
+          </ul>
+        </div>
+
+        <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Produk</button>
+        <button class="btn btn-primary btn-sm mb-1" id="addImportProduk"><i class="fas fa-file-import"></i> Import </button>
+        <button class="btn btn-primary btn-sm mb-1" id="addExportProduk"><i class="fas fa-file-export"></i> Export </button>
+        <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="far fa-list-alt"></i> Kategori</button>
+        <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-shipping-fast"></i> By Kirim</button>
     </div>
     <div>
        <a href="https://amihaji.github.io/kitworks/index.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
@@ -616,10 +630,113 @@ function loadKategoriDropdownWithCallback(callback) {
   }
 }
 
+// ********************************************
+// Fungsi Load Kategori Filter + Event Listener
+// *******************************************
+function loadKategoriFilterDropdown() {
+  loadKategoriDropdownWithCallback(() => {
+    const menu = document.getElementById('kategoriFilterMenu');
+    if (!menu) return;
+
+    // reset isi menu (sisakan "Semua Kategori")
+    menu.innerHTML = '<li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>';
+
+    // isi kategori dari dropdown input
+    const kategoriSelect = document.getElementById('namaKategori');
+    if (!kategoriSelect) return;
+
+    Array.from(kategoriSelect.options).forEach(opt => {
+      if (opt.value) {
+        const li = document.createElement('li');
+        li.innerHTML = `<a class="dropdown-item" data-value="${opt.value}">${opt.value}</a>`;
+        menu.appendChild(li);
+      }
+    });
+  });
+}
+
+
 // ************************************
 // Fungsi untuk memanggil Tabel Produk 
 // ************************************
-function loadProdukTable() {
+function loadProdukTable(filterKategori = '') {
+  showLoading(true, 'Produk');
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
+
+  window[callbackName] = function (data) {
+    const tbody = document.getElementById('produkTableBody');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data produk.</td></tr>';
+      cleanup();
+      showLoading(false, 'Produk');
+      return;
+    }
+
+    // Filter data jika filterKategori ada
+    const filteredData = filterKategori
+      ? data.filter(row => row[1] === filterKategori) // row[1] = namaKategori
+      : data;
+
+    if (filteredData.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="11" class="text-center">Tidak ada data untuk kategori "${filterKategori}".</td></tr>`;
+      cleanup();
+      showLoading(false, 'Produk');
+      return;
+    }
+
+    filteredData.forEach(row => {
+      while (row.length < 10) row.push('');
+
+      const [
+        noStok, namaKategori, namaProduk, volumePoint, hargaDasar,
+        hargaEceran, member25, sc35, sb42, spv50
+      ] = row;
+
+      const tr = document.createElement('tr');
+      tr.id = `row_${noStok}`;
+      tr.innerHTML = `
+        <td class="text-start">${escapeHtml(noStok)}</td>
+        <td class="text-start">${escapeHtml(namaKategori)}</td>
+        <td class="text-start">${escapeHtml(namaProduk)}</td>
+        <td class="text-end">${formatAngka(volumePoint, true)}</td>
+        <td class="text-end">${formatAngka(hargaDasar)}</td>
+        <td class="text-end">${formatAngka(hargaEceran)}</td>
+        <td class="text-end">${formatAngka(member25)}</td>
+        <td class="text-end">${formatAngka(sc35)}</td>
+        <td class="text-end">${formatAngka(sb42)}</td>
+        <td class="text-end">${formatAngka(spv50)}</td>
+        <td class="actions-col text-center">
+          <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({...})"></i>
+          <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.onerror = function () {
+    showPesan('error', ' ERROR : Gagal mengambil data Produk!');
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch (e) {}
+    document.body.removeChild(script);
+  }
+
+  document.body.appendChild(script);
+}
+
+//==================================
+function BACKUP_loadProdukTable() {
   showLoading(true, 'Produk');
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
@@ -892,8 +1009,22 @@ function capitalizeWords(str) {
 // Fungsi untuk load awal Tabel Produk & attach event handlers
 // ************************************************************
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Load tabel produk saat halaman siap ---
+  // --- Load tabel produk awal ---
   loadProdukTable();
+
+  // --- Load kategori untuk filter (dropdown di toolbar) ---
+  loadKategoriFilterDropdown();
+
+  // --- Event pilih kategori filter ---
+  const kategoriMenu = document.getElementById('kategoriFilterMenu');
+  if (kategoriMenu) {
+    kategoriMenu.addEventListener('click', (e) => {
+      const target = e.target.closest('a.dropdown-item');
+      if (!target) return;
+      const selected = target.getAttribute('data-value') || '';
+      loadProdukTable(selected); // reload tabel sesuai kategori
+    });
+  }
 
   // --- Event tombol Tambah Produk ---
   const addBtn = document.getElementById('addProdukButton');
@@ -903,9 +1034,9 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalProduk').setAttribute('data-mode', 'add');
       document.getElementById('produkForm').reset();
       document.getElementById('noStok').disabled = false;
-      document.getElementById('judulModal').textContent = 'Tambah Produk';
+      document.getElementById('judulModal').textContent = 'TAMBAH Produk';
 
-      // Load dropdown kategori lalu buka modal setelah siap
+      // load dropdown kategori sebelum modal tampil
       loadKategoriDropdownWithCallback(() => {
         new bootstrap.Modal(document.getElementById('modalProduk')).show();
       });
@@ -926,24 +1057,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Auto-format angka saat input ---
-  const hargaFields = ['volumePoint', 'hargaDasar', 'hargaEceran', 'member25', 'sc35', 'sb42', 'spv50'];
+  const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
   hargaFields.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('input', () => formatInputCurrency(el));
-    }
+    if (el) el.addEventListener('input', () => formatInputCurrency(el));
   });
 
-  // --- Auto-format Nama Produk (capitalize setiap kata) ---
+  // --- Auto-format Nama Produk ---
   const namaProdukInput = document.getElementById('namaProduk');
   if (namaProdukInput) {
     namaProdukInput.addEventListener('input', () => {
-      const pos = namaProdukInput.selectionStart; // simpan posisi kursor
+      const pos = namaProdukInput.selectionStart;
       namaProdukInput.value = capitalizeWords(namaProdukInput.value);
-      namaProdukInput.setSelectionRange(pos, pos); // kembalikan posisi kursor
+      namaProdukInput.setSelectionRange(pos, pos);
     });
   }
 });
+
 
 </SCRIPT>
 </body>
