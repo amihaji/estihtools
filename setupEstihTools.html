@@ -652,7 +652,6 @@ function loadKategoriFilterDropdown() {
   });
 }
 
-
 // ************************************
 // Fungsi untuk memanggil Tabel Produk 
 // ************************************
@@ -673,7 +672,7 @@ function loadProdukTable(filterKategori = '') {
       return;
     }
 
-    // Filter data jika filterKategori ada
+    // Filter data jika ada filter kategori
     const filteredData = filterKategori
       ? data.filter(row => row[1] === filterKategori) // row[1] = namaKategori
       : data;
@@ -707,16 +706,21 @@ function loadProdukTable(filterKategori = '') {
         <td class="text-end">${formatAngka(sb42)}</td>
         <td class="text-end">${formatAngka(spv50)}</td>
         <td class="actions-col text-center">
-          <!-- 
-            <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({...})"></i>
-          -->
-          
-          <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
-            noStok: '${noStok}', namaKategori: '${namaKategori}', namaProduk: '${namaProduk}',
-            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
-            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
+          <i class="fas fa-edit action-icon" title="Edit Produk"
+            onclick="showEditModal({
+              noStok: '${escapeHtml(noStok)}',
+              namaKategori: '${escapeHtml(namaKategori)}',
+              namaProduk: '${escapeHtml(namaProduk)}',
+              volumePoint: '${volumePoint}',
+              hargaDasar: '${hargaDasar}',
+              hargaEceran: '${hargaEceran}',
+              member25: '${member25}',
+              sc35: '${sc35}',
+              sb42: '${sb42}',
+              spv50: '${spv50}'
             })"></i>
-          <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
+          <i class="fas fa-trash-alt action-icon" title="Hapus Produk" 
+            onclick="deleteProduk('${escapeHtml(noStok)}')"></i>
         </td>
       `;
       tbody.appendChild(tr);
