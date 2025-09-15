@@ -81,10 +81,6 @@ tr:hover .action-icon {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     padding: 10px;
     margin: 15px 0;
-    /* Perbaikan tambahan */
-    /*display: flex;          /* pastikan flex aktif */
-    /*flex-wrap: wrap;        /* tombol bisa turun ke baris berikut kalau layar kecil */
-    /*gap: 12px;               /* jarak antar tombol */
 }
 
 .btn-group-vertical-responsive { 
@@ -711,7 +707,15 @@ function loadProdukTable(filterKategori = '') {
         <td class="text-end">${formatAngka(sb42)}</td>
         <td class="text-end">${formatAngka(spv50)}</td>
         <td class="actions-col text-center">
-          <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({...})"></i>
+          <!-- 
+            <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({...})"></i>
+          -->
+          
+          <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
+            noStok: '${noStok}', namaKategori: '${namaKategori}', namaProduk: '${namaProduk}',
+            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
+            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
+            })"></i>
           <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
         </td>
       `;
@@ -1035,7 +1039,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('modalProduk').setAttribute('data-mode', 'add');
       document.getElementById('produkForm').reset();
       document.getElementById('noStok').disabled = false;
-      document.getElementById('judulModal').textContent = 'TAMBAH Produk';
+      document.getElementById('judulModal').textContent = 'Tambah Produk';
 
       // load dropdown kategori sebelum modal tampil
       loadKategoriDropdownWithCallback(() => {
