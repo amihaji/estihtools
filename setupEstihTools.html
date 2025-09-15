@@ -312,8 +312,8 @@ tr:hover .action-icon {
           <small class="text-muted">Pilih file Excel yang sesuai format sheet TabelHarga.</small>
         </div>
         <div class="modal-footer">
-          <button id="btnProsesImport" class="btn btn-primary">Import</button>
-          <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button id="btnProsesImport" class="btn btn-primary btn-sm"><i class="fas fa-file-import"></i> Import</button>
+          <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fas fa-close"></i> Batal</button>
         </div>
       </div>
     </div>
@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwldBp0Zm2eaWa8mkng1jQnUkrKnb3O2_PzNg8wCj3ig_GSG_6qmsCvgI_auskvzh6xSg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwoBM-h58-iVZaTdbn901QURFStkfC7--CqqY1tvoGiCKvvIg46b-MIrlwdVl-kPxXmxQ/exec';
 // **************************************
 
 // **********************************
@@ -1067,14 +1067,19 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: 'array' });
-
           const sheetName = workbook.SheetNames[0]; // ambil sheet pertama
-          const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
+          
+          let sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
           console.log("Data Excel yang akan diimport:", sheetData);
 
-          if (!sheetData || sheetData.length === 0) {
-            showPesanModal('warning', ' WARNING : File Excel kosong atau tidak terbaca.');
+          // Buang baris header (baris pertama)
+          if (sheetData.length > 0) {
+            sheetData = sheetData.slice(1);
+          }
+
+          // Hanya kirim data jika minimal ada 1 baris data
+          if (sheetData.length === 0) {
+            showPesanModal('warning', ' WARNING : File hanya berisi header, tidak ada data.');
             return;
           }
 
