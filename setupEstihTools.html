@@ -303,8 +303,8 @@ tr:hover .action-icon {
 <div class="modal fade" id="modalImport" tabindex="-1" aria-labelledby="judulModalImport" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="judulModalImport">Import Tabel Harga</h5>
+        <div class="modal-header" style="background-color:#003366; color:white;">
+          <h6 class="modal-title" id="judulModalImport">Import Tabel Harga</h6>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyf3qjtH6P_zh43KP-r6OrDo7aAsuZ_0-rbb39M16huoSAJemGIXRxHY3UQi5bCmSGi1w/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwpyh4gtswJvMHvOpYzjTErUUj_jLvTO0II5KIjNt5WwcFzKYsFqwa2Xt7AVf-G9KYRXg/exec';
 // **************************************
 
 // **********************************
@@ -1042,15 +1042,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------------------------
   // --- Event tombol Import ---
   // ---------------------------
-  const btnImport = document.getElementById('btnImport'); // id tombol import di toolbar
-  if (btnImport) {
-    btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = ''; // reset input
-      new bootstrap.Modal(document.getElementById('modalImport')).show();
-    });
-  }
-
-  // --- Event proses Import ---
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
     btnProsesImport.addEventListener('click', () => {
@@ -1071,6 +1062,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const sheetName = workbook.SheetNames[0]; // ambil sheet pertama
           const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
 
+          console.log("Data Excel yang akan diimport:", sheetData);
+
           if (!sheetData || sheetData.length === 0) {
             showPesanModal('warning', ' WARNING : File Excel kosong atau tidak terbaca.');
             return;
@@ -1081,18 +1074,25 @@ document.addEventListener('DOMContentLoaded', () => {
           google.script.run
             .withSuccessHandler(msg => {
               showLoading(false, 'Produk');
-              if (msg.status === 'ok') {
-                showPesan('success', ' Import berhasil!');
-                loadProdukTable(); // reload tabel
+              console.log("Respon server import:", msg);
+
+              if (msg && msg.status === 'ok') {
+                showPesan('success', msg.message || 'Import berhasil!');
+                // Tutup modal import
+                bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+                // Reload tabel
+                loadProdukTable();
               } else {
                 showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
               }
             })
             .withFailureHandler(err => {
               showLoading(false, 'Produk');
+              console.error("Import error:", err);
               showPesan('error', ' ERROR : ' + err.message);
             })
             .importTabelHarga(sheetData);
+
         } catch (err) {
           showPesanModal('error', ' ERROR : ' + err.message);
         }
@@ -1101,6 +1101,7 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.readAsArrayBuffer(file);
     });
   }
+
 
 });
 
