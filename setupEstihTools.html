@@ -75,13 +75,18 @@ tr:hover .action-icon {
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
 }
 .title-box i { margin-right: 10px; }
-.button-box { 
-    background: white; 
-    border-radius: 5px; 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1); 
-    padding: 10px ;  
-    margin: 15px 0; 
+.button-box {
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 10px;
+    margin: 15px 0;
+    /* Perbaikan tambahan */
+    display: flex;          /* pastikan flex aktif */
+    flex-wrap: wrap;        /* tombol bisa turun ke baris berikut kalau layar kecil */
+    gap: 8px;               /* jarak antar tombol */
 }
+
 .btn-group-vertical-responsive { 
     display: flex; 
     flex-direction: row; 
