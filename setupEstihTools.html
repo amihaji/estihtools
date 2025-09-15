@@ -175,7 +175,8 @@ tr:hover .action-icon {
 <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
     <div>
         <!-- Tombol Filter Kategori dengan Dropdown -->
-        <div class="btn-group">
+        <!-- <div class="btn-group"> -->
+          <div class="button-box">
           <button id="btnKategoriFilter" type="button" class="btn btn-outline-primary dropdown-toggle btn-sm mb-1" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="fas fa-filter"></i> Filter
           </button>
@@ -739,76 +740,6 @@ function loadProdukTable(filterKategori = '') {
   function cleanup() {
     try { delete window[callbackName]; } catch (e) {}
     document.body.removeChild(script);
-  }
-
-  document.body.appendChild(script);
-}
-
-//==================================
-function BACKUP_loadProdukTable() {
-  showLoading(true, 'Produk');
-  const callbackName = 'cb_' + Date.now();
-  const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=getTabelProduk&callback=${callbackName}`;
-
-  window[callbackName] = function (data) {
-    const tbody = document.getElementById('produkTableBody');
-    tbody.innerHTML = '';
-
-    if (!data || data.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" class="text-center">Tidak ada data produk.</td></tr>';
-      cleanup();
-      showLoading(false, 'Produk');
-      return;
-    }
-
-    data.forEach(row => {
-        while (row.length < 10) row.push('');
-
-        const [
-            noStok, namaKategori, namaProduk, volumePoint, hargaDasar,
-            hargaEceran, member25, sc35, sb42, spv50
-        ] = row;
-
-        const tr = document.createElement('tr');
-        tr.id = `row_${noStok}`;
-        tr.innerHTML = `
-        <td class="text-start">${escapeHtml(noStok)}</td>
-        <td class="text-start">${escapeHtml(namaKategori)}</td>
-        <td class="text-start">${escapeHtml(namaProduk)}</td>
-        <td class="text-end">${formatAngka(volumePoint, true)}</td> <!-- VP -->
-        <td class="text-end">${formatAngka(hargaDasar)}</td>
-        <td class="text-end">${formatAngka(hargaEceran)}</td>
-        <td class="text-end">${formatAngka(member25)}</td>
-        <td class="text-end">${formatAngka(sc35)}</td>
-        <td class="text-end">${formatAngka(sb42)}</td>
-        <td class="text-end">${formatAngka(spv50)}</td>
-        <td class="actions-col text-center">
-            <i class="fas fa-edit action-icon" title="Edit Produk" onclick="showEditModal({
-            noStok: '${noStok}', namaKategori: '${namaKategori}', namaProduk: '${namaProduk}',
-            volumePoint: '${volumePoint}', hargaDasar: '${hargaDasar}', hargaEceran: '${hargaEceran}',
-            member25: '${member25}', sc35: '${sc35}', sb42: '${sb42}', spv50: '${spv50}'
-            })"></i>
-            <i class="fas fa-trash-alt action-icon" title="Hapus Produk" onclick="deleteProduk('${noStok}')"></i>
-        </td>
-        `;
-
-        tbody.appendChild(tr);
-    });
-
-    cleanup();
-    showLoading(false, 'Produk');
-  };
-
-  script.onerror = function () {
-    showPesan('error', ' ERROR : Gagal mengambil data Produk!');
-    cleanup();
-    showLoading(false, 'Produk');
-  };
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch (e) {}
-    if (script.parentNode) script.parentNode.removeChild(script);
   }
 
   document.body.appendChild(script);
