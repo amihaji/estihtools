@@ -320,11 +320,10 @@ tr:hover .action-icon {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzh0ZRvjZX2Oqh-QAZNkfWfX7CwU9eEN7BIKU6A6cPzxhx39pr1IB5olSWea3_m6Rwv/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzX-eTltzeHaaodYwBOVHu8wSl_4J3ph90yDo9lNwut62NF6ItmglXYuJ7z2rq7DrM2HA/exec';
 // **************************************
 
 // **********************************
@@ -1050,7 +1049,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event proses Import ---
+  // === Event tombol Import ===
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
     btnProsesImport.addEventListener('click', () => {
@@ -1061,67 +1060,75 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const file = fileInput.files[0];
-      const reader = new FileReader();
+      const ext = file.name.split('.').pop().toLowerCase();
 
-      reader.onload = function (e) {
-        try {
-          const extension = file.name.split('.').pop().toLowerCase();
-          let sheetData = [];
-
-          if (extension === 'csv') {
-            // Parse CSV manual
-            const text = e.target.result;
-            sheetData = text.split(/\r?\n/).map(r => r.split(','));
-          } else {
-            // Parse Excel menggunakan XLSX
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-          }
-
-          // Bersihkan baris kosong
-          sheetData = sheetData.filter(r => r.join('').trim() !== '');
-          console.log("Data yang akan diimport:", sheetData);
-
-          if (!sheetData.length) {
-            showPesanModal('warning', ' WARNING : File kosong atau tidak terbaca.');
-            return;
-          }
-
-          // Kirim ke Apps Script
-          showLoading(true, 'Produk');
-          google.script.run
-            .withSuccessHandler(msg => {
-              showLoading(false, 'Produk');
-              if (msg.status === 'ok') {
-                showPesan('success', ` Import berhasil! ${msg.message || ''}`);
-                loadProdukTable();
-              } else {
-                showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
-              }
-            })
-            .withFailureHandler(err => {
-              showLoading(false, 'Produk');
-              showPesan('error', ' ERROR : ' + err.message);
-            })
-            .importTabelHarga(sheetData);
-        } catch (err) {
-          showPesanModal('error', ' ERROR : ' + err.message);
+      if (ext === 'csv') {
+        prosesCSV(file);
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        if (typeof XLSX === 'undefined') {
+          // Lazy-load library XLSX hanya jika belum ada
+          const script = document.createElement('script');
+          script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+          script.onload = () => prosesXLSX(file);
+          document.body.appendChild(script);
+        } else {
+          prosesXLSX(file);
         }
-      };
-
-      // Pilih mode baca sesuai ekstensi
-      if (file.name.toLowerCase().endsWith('.csv')) {
-        reader.readAsText(file, 'UTF-8');
       } else {
-        reader.readAsArrayBuffer(file);
+        showPesanModal('error', ' ERROR : Format file tidak didukung. Gunakan .csv atau .xlsx');
       }
     });
   }
 
-
 });
+
+// === Fungsi parsing XLSX dan konversi ke array seperti CSV ===
+function prosesXLSX(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+      const cleanRows = sheetData.filter(r => r.join('').trim() !== '');
+      kirimKeServer(cleanRows);
+    } catch (err) {
+      showPesanModal('error', ' ERROR : Gagal membaca file Excel. ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// === Fungsi kirim data ke Google Sheet ===
+function kirimKeServer(data) {
+  if (!data || !data.length) {
+    showPesanModal('warning', ' WARNING : File kosong atau tidak terbaca.');
+    return;
+  }
+
+  console.log("Data yang akan diimport:", data);
+
+  showLoading(true, 'Produk');
+  google.script.run
+    .withSuccessHandler(msg => {
+      showLoading(false, 'Produk');
+      if (msg.status === 'ok') {
+        showPesan('success', ` Import berhasil! ${msg.message}`);
+        loadProdukTable();
+        bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+      } else {
+        showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
+      }
+    })
+    .withFailureHandler(err => {
+      showLoading(false, 'Produk');
+      showPesan('error', ' ERROR : ' + err.message);
+    })
+    .importTabelHarga(data);
+}
+
 </SCRIPT>
 </body>
 </html>
