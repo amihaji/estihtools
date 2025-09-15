@@ -960,6 +960,67 @@ function capitalizeWords(str) {
   );
 }
 
+// === Fungsi parsing CSV ===
+function prosesCSV(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const text = e.target.result;
+    // deteksi pemisah , atau ;
+    const delimiter = text.includes(';') ? ';' : ',';
+    const rows = text.split(/\r?\n/).map(r => r.split(delimiter));
+    const cleanRows = rows.filter(r => r.join('').trim() !== '');
+    kirimKeServer(cleanRows);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// === Fungsi parsing XLSX ===
+function prosesXLSX(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+
+      const cleanRows = sheetData.filter(r => r.join('').trim() !== '');
+      kirimKeServer(cleanRows);
+    } catch (err) {
+      showPesanModal('error', ' ERROR : Gagal membaca file Excel. ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// === Fungsi kirim data ke Google Sheet ===
+function kirimKeServer(data) {
+  if (!data || !data.length) {
+    showPesanModal('warning', ' WARNING : File kosong atau tidak terbaca.');
+    return;
+  }
+
+  console.log("Data yang akan diimport:", data);
+
+  showLoading(true, 'Produk');
+  google.script.run
+    .withSuccessHandler(msg => {
+      showLoading(false, 'Produk');
+      if (msg.status === 'ok') {
+        showPesan('success', ` Import berhasil! ${msg.message}`);
+        loadProdukTable();
+        bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+      } else {
+        showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
+      }
+    })
+    .withFailureHandler(err => {
+      showLoading(false, 'Produk');
+      showPesan('error', ' ERROR : ' + err.message);
+    })
+    .importTabelHarga(data);
+}
+
 // ************************************************************
 // Fungsi untuk load awal Tabel Produk & attach event handlers
 // ************************************************************
@@ -1066,7 +1127,6 @@ document.addEventListener('DOMContentLoaded', () => {
         prosesCSV(file);
       } else if (ext === 'xlsx' || ext === 'xls') {
         if (typeof XLSX === 'undefined') {
-          // Lazy-load library XLSX hanya jika belum ada
           const script = document.createElement('script');
           script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
           script.onload = () => prosesXLSX(file);
@@ -1081,53 +1141,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 });
-
-// === Fungsi parsing XLSX dan konversi ke array seperti CSV ===
-function prosesXLSX(file) {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
-      const cleanRows = sheetData.filter(r => r.join('').trim() !== '');
-      kirimKeServer(cleanRows);
-    } catch (err) {
-      showPesanModal('error', ' ERROR : Gagal membaca file Excel. ' + err.message);
-    }
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-// === Fungsi kirim data ke Google Sheet ===
-function kirimKeServer(data) {
-  if (!data || !data.length) {
-    showPesanModal('warning', ' WARNING : File kosong atau tidak terbaca.');
-    return;
-  }
-
-  console.log("Data yang akan diimport:", data);
-
-  showLoading(true, 'Produk');
-  google.script.run
-    .withSuccessHandler(msg => {
-      showLoading(false, 'Produk');
-      if (msg.status === 'ok') {
-        showPesan('success', ` Import berhasil! ${msg.message}`);
-        loadProdukTable();
-        bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
-      } else {
-        showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
-      }
-    })
-    .withFailureHandler(err => {
-      showLoading(false, 'Produk');
-      showPesan('error', ' ERROR : ' + err.message);
-    })
-    .importTabelHarga(data);
-}
 
 </SCRIPT>
 </body>
