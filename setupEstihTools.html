@@ -1042,6 +1042,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------------------------
   // --- Event tombol Import ---
   // ---------------------------
+  const btnImport = document.getElementById('btnImport'); // id tombol import di toolbar
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ''; // reset input
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
+  
+  // --- Event proses Import ---
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
     btnProsesImport.addEventListener('click', () => {
@@ -1102,9 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-
 });
-
 </SCRIPT>
 </body>
 </html>
