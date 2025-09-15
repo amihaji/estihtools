@@ -173,18 +173,14 @@ tr:hover .action-icon {
 <!-- Tombol Form Setup produk -->
 <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
     <div>
-        <!--
-        <button class="btn btn-primary btn-sm mb-1" id="kategoriFilter"><i class="fas fa-filter"></i> Filter</button>
-        -->
-        
-        <!-- Tombol Kategori dengan Dropdown -->
+        <!-- Tombol Filter Kategori dengan Dropdown -->
         <div class="btn-group">
-          <button id="btnKategoriFilter" type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Kategori
+          <button id="btnKategoriFilter" type="button" class="btn btn-outline-primary dropdown-toggle btn-sm mb-1" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-filter"></i> Filter
           </button>
           <ul class="dropdown-menu" id="kategoriFilterMenu">
-              <li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>
-              <!-- kategori lainnya diisi lewat JS -->
+            <li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>
+            <!-- kategori lainnya diisi lewat JS -->
           </ul>
         </div>
 
