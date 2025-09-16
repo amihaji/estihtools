@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzhEALgKKn15stKjws_XgF1BFey72fDBAJ2t0RwEZ_RXq3RDkdLcqvA_AJkcmGloDB5Mw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwxQVZKojZbdi_LLP5PH4REihmeINyRfqScjOh6GWAguRbYKQckV_EI1jbVKJJdQTAnZA/exec';
 // **************************************
 
 // **********************************
@@ -1033,10 +1033,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event proses Import ---
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
-    btnProsesImport.addEventListener('click', async () => {
+    btnProsesImport.addEventListener('click', () => {
       const fileInput = document.getElementById('fileImport');
       if (!fileInput.files.length) {
         showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
@@ -1051,75 +1050,94 @@ document.addEventListener('DOMContentLoaded', () => {
           let csvString = "";
 
           if (file.name.endsWith(".csv")) {
-            // langsung pakai CSV
             csvString = e.target.result;
           } else if (file.name.endsWith(".xlsx")) {
-            // gunakan XLSX library untuk baca file Excel
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: "array" });
             const sheetName = workbook.SheetNames[0];
             const sheet = workbook.Sheets[sheetName];
-            const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
-            csvString = csv;
+            csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
           } else {
             showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
             return;
           }
 
-          console.log("Data yang akan diimport:", csvString);
-
-          // Tampilkan spinner
+          console.log("Data yang akan diimport:", csvString.substring(0, 500) + "...");
           showLoading(true, 'Produk');
 
-          // === PRE-FLIGHT CORS ===
-          try {
-            await fetch(`${URL_APPS_SCRIPT}?cors=1`);
-          } catch (err) {
-            console.warn("Preflight gagal, lanjutkan fetch langsung...");
+          // === PECAH CSV MENJADI BATCH ===
+          const rows = csvString.split("\n").filter(r => r.trim() !== "");
+          const header = rows.shift(); // buang header
+          const batchSize = 100;
+          let index = 0;
+
+          async function kirimBatch() {
+            if (index >= rows.length) {
+              showLoading(false, 'Produk');
+              showPesan('success', 'Import selesai!');
+              bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+              loadProdukTable();
+              return;
+            }
+
+            const batch = rows.slice(index, index + batchSize);
+            index += batchSize;
+
+            const batchCsv = [header, ...batch].join("\n");
+            console.log(`Kirim batch ${index / batchSize}: ${batch.length} baris`);
+
+            await kirimBatchJSONP(batchCsv, kirimBatch);
           }
 
-          // === Kirim data ke Google Apps Script via doPost ===
-          const response = await fetch(URL_APPS_SCRIPT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "importTabelHarga", csv: csvString })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
-          }
-
-          const result = await response.json();
-          console.log("Respon server import:", result);
-
-          if (result.status === "success") {
-            showPesan('success', result.message || 'Import berhasil!');
-            bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-            loadProdukTable(); // reload data tabel
-          } else {
-            showPesan('error', result.message || 'Import gagal!');
-          }
+          kirimBatch(); // mulai kirim batch pertama
 
         } catch (err) {
           console.error("Error Import:", err);
           showPesan('error', ' ERROR : ' + err.message);
-        } finally {
-          showLoading(false, 'Produk'); // pastikan spinner dimatikan
+          showLoading(false, 'Produk');
         }
       };
 
-      if (file.name.endsWith(".csv")) {
-        reader.readAsText(file, "UTF-8");
-      } else {
-        reader.readAsArrayBuffer(file);
-      }
+      if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
+      else reader.readAsArrayBuffer(file);
     });
   }
-
-  
+    
 });
 // **** Akhir Script Event DOMContent ****
 
+//**************************************************
+// Kirim batch data ke Google Apps Script via JSONP
+//**************************************************
+function kirimBatchJSONP(csvString, nextCallback) {
+  return new Promise((resolve) => {
+    const callbackName = "cb_import_" + Date.now();
+    window[callbackName] = function (response) {
+      console.log("Respon server:", response);
+      if (!response || response.status !== "success") {
+        showPesan("error", " ERROR : Gagal import batch");
+      }
+      cleanup();
+      if (typeof nextCallback === "function") nextCallback();
+      resolve();
+    };
+
+    const encoded = encodeURIComponent(csvString);
+    const script = document.createElement("script");
+    script.id = callbackName + "_script";
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&callback=${callbackName}`;
+    document.body.appendChild(script);
+
+    function cleanup() {
+      try { delete window[callbackName]; } catch (e) {}
+      document.getElementById(callbackName + "_script")?.remove();
+    }
+  });
+}
+
+//********************************
+// Fungsi kirim data baru import
+//********************************
 function kirimDataBaru(csvString) {
   console.log("Data yang akan diimport:", csvString);
 
@@ -1154,12 +1172,18 @@ function kirimDataBaru(csvString) {
   document.body.appendChild(script);
 }
 
+//***********************************
+// Fungsi Proses kirim file ke server 
+//***********************************
 function prosesFileCSV(file) {
   const reader = new FileReader();
   reader.onload = (e) => kirimDataBaru(e.target.result);
   reader.readAsText(file, 'UTF-8');
 }
 
+//**************************
+// Fungsi Proses file excel 
+//**************************
 function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
