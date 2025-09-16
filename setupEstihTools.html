@@ -960,40 +960,57 @@ function capitalizeWords(str) {
   );
 }
 
-// === Fungsi parsing CSV ===
-function prosesCSV(file) {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const text = e.target.result;
-    // deteksi pemisah , atau ;
-    const delimiter = text.includes(';') ? ';' : ',';
-    const rows = text.split(/\r?\n/).map(r => r.split(delimiter));
-    const cleanRows = rows.filter(r => r.join('').trim() !== '');
-    kirimKeServer(cleanRows);
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-// === Fungsi parsing XLSX ===
+// === Fungsi proses file XLSX (convert ke array 2D lalu kirim) ===
 function prosesXLSX(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
     try {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
+
+      const sheetName = workbook.SheetNames[0]; // ambil sheet pertama
       const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
 
-      const cleanRows = sheetData.filter(r => r.join('').trim() !== '');
-      kirimKeServer(cleanRows);
+      if (!sheetData || sheetData.length === 0) {
+        showPesanModal('warning', ' WARNING : File Excel kosong atau tidak terbaca.');
+        return;
+      }
+
+      kirimKeServer(sheetData); // ⬅️ panggil fungsi kirim yang baru
     } catch (err) {
-      showPesanModal('error', ' ERROR : Gagal membaca file Excel. ' + err.message);
+      showPesanModal('error', ' ERROR : Gagal memproses XLSX. ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-// === Fungsi kirim data ke Google Sheet ===
+// === Fungsi parsing CSV (robust, mendukung ; dan ,) ===
+function prosesCSV(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      let text = e.target.result || '';
+      // deteksi delimiter awal (prefer ; jika ada)
+      let delimiter = text.includes(';') ? ';' : ',';
+
+      let rows = text.split(/\r?\n/).map(r => r.split(delimiter).map(c => c.trim()));
+
+      // fallback: kadang CSV semua di 1 kolom → coba paksa ;
+      if (rows.length > 1 && rows[1].length === 1 && rows[1][0].includes(';')) {
+        delimiter = ';';
+        rows = text.split(/\r?\n/).map(r => r.split(delimiter).map(c => c.trim()));
+      }
+
+      const cleanRows = rows.filter(r => r.join('').trim() !== '');
+      kirimKeServer(cleanRows);
+    } catch (err) {
+      showPesanModal('error', ' ERROR : Gagal memproses CSV. ' + err.message);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+// === Fungsi kirim data ke Google Sheet (per baris via JSONP) ===
 function kirimKeServer(data) {
   if (!data || !data.length) {
     showPesanModal('warning', ' WARNING : File kosong atau tidak terbaca.');
@@ -1002,23 +1019,75 @@ function kirimKeServer(data) {
 
   console.log("Data yang akan diimport:", data);
 
+  // deteksi header
+  let startIndex = 0;
+  const firstRow = data[0].map(c => String(c || '').toLowerCase());
+  if (firstRow.includes('nostok') || firstRow.includes('no stok')) startIndex = 1;
+
+  const rowsToImport = data.slice(startIndex).filter(r => r.join('').trim() !== '');
+  const total = rowsToImport.length;
+  if (total === 0) {
+    showPesanModal('warning', ' WARNING : Tidak ada data untuk diimport.');
+    return;
+  }
+
   showLoading(true, 'Produk');
-  google.script.run
-    .withSuccessHandler(msg => {
+  let imported = 0;
+
+  const importRow = (i) => {
+    if (i >= total) {
       showLoading(false, 'Produk');
-      if (msg.status === 'ok') {
-        showPesan('success', ` Import berhasil! ${msg.message}`);
-        loadProdukTable();
-        bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
-      } else {
-        showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
+      showPesan('success', ` Import selesai: ${imported}/${total} baris.`);
+      loadProdukTable();
+      bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+      return;
+    }
+
+    const row = rowsToImport[i];
+    while (row.length < 10) row.push('');
+    const [noStok, namaKategori, namaProduk, volumePoint, hargaDasar, hargaEceran, member25, sc35, sb42, spv50] = row;
+
+    const callbackName = 'cb_imp_' + Date.now() + '_' + i;
+    window[callbackName] = function () {
+      try { delete window[callbackName]; } catch (e) {}
+      document.getElementById(callbackName + '_script')?.remove();
+
+      imported++;
+      if (imported % 10 === 0 || imported === total) {
+        console.log(`Progress: ${imported}/${total}`);
       }
-    })
-    .withFailureHandler(err => {
+
+      setTimeout(() => importRow(i + 1), 50);
+    };
+
+    const params = new URLSearchParams({
+      action: 'addProduk',
+      noStok: String(noStok || '').trim(),
+      namaKategori: String(namaKategori || ''),
+      namaProduk: String(namaProduk || ''),
+      volumePoint: String(volumePoint || ''),
+      hargaDasar: String(hargaDasar || ''),
+      hargaEceran: String(hargaEceran || ''),
+      member25: String(member25 || ''),
+      sc35: String(sc35 || ''),
+      sb42: String(sb42 || ''),
+      spv50: String(spv50 || ''),
+      callback: callbackName
+    });
+
+    const script = document.createElement('script');
+    script.id = callbackName + '_script';
+    script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
+    script.onerror = function () {
+      console.error('Gagal import baris ke-', i + 1);
+      showPesan('error', ` ERROR : Gagal import baris ke-${i + 1}`);
       showLoading(false, 'Produk');
-      showPesan('error', ' ERROR : ' + err.message);
-    })
-    .importTabelHarga(data);
+    };
+
+    document.body.appendChild(script);
+  };
+
+  importRow(0);
 }
 
 // ************************************************************
