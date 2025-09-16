@@ -323,7 +323,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwYktNdjgJ1iIChnZps126M5aCv8LtM-T8BONcodOwYKRXnQwm_qhutXHKXISbGEJP-Pg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwASMv3oNx3hSav9wEWPQupeyrJ1kDRJ1awxqtEmsAWIShsZvs3EUXdbjC-7on5dATw0g/exec';
 // **************************************
 
 // **********************************
@@ -1037,7 +1037,7 @@ function kirimKeServer(data) {
   const importRow = (i) => {
     if (i >= total) {
       showLoading(false, 'Produk');
-      showPesan('success', ` Import selesai: ${imported}/${total} baris.`);
+      showPesan('success', ` Import selesai: ${imported}/${total} record data.`);
       loadProdukTable();
       bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
       return;
@@ -1083,10 +1083,8 @@ function kirimKeServer(data) {
       showPesan('error', ` ERROR : Gagal import baris ke-${i + 1}`);
       showLoading(false, 'Produk');
     };
-
     document.body.appendChild(script);
   };
-
   importRow(0);
 }
 
@@ -1116,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // -----------------------------------
   // --- Event tombol Tambah Produk ---
   // -----------------------------------
-    const addBtn = document.getElementById('addProdukButton');
+  const addBtn = document.getElementById('addProdukButton');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
       document.getElementById('mode').value = 'add';
