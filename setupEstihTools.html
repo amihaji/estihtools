@@ -1026,6 +1026,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // --- Tombol utama Import (buka modal) ---
+  const btnImport = document.getElementById('btnImport');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ""; // reset file input
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
+  
   // --- Tombol Import ---
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
