@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwL2FP2cEW6VJUpycINMTvUxD2lDwVpaUlzo6V68ew_LNdqSYOGJYAczhv3GLV2TzfjiQ/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzufGrunhzkGhIq_qI4DFdJhkEe1cuUb77wcaf7KwzD9QIGp5iDcoz3kMJDd91pjwizNw/exec';
 // **************************************
 
 // **********************************
@@ -965,11 +965,13 @@ function capitalizeWords(str) {
 //  Fungsi Event untuk load Tabel Produk, Kategori, tombol-tombol serta event lainnya
 // **********************************************************************************
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Load tabel awal & kategori filter
+  // --- Load tabel produk awal ---
   loadProdukTable();
+
+  // --- Load kategori filter ---
   loadKategoriFilterDropdown();
 
-  // --- Event tombol Filter
+  // --- Event filter kategori ---
   const kategoriMenu = document.getElementById('kategoriFilterMenu');
   if (kategoriMenu) {
     kategoriMenu.addEventListener('click', (e) => {
@@ -980,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event tombol Tambah Produk
+  // --- Tombol Tambah Produk ---
   const addBtn = document.getElementById('addProdukButton');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
@@ -989,30 +991,34 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('produkForm').reset();
       document.getElementById('noStok').disabled = false;
       document.getElementById('judulModal').textContent = 'Tambah Produk';
+
       loadKategoriDropdownWithCallback(() => {
         new bootstrap.Modal(document.getElementById('modalProduk')).show();
       });
     });
   }
 
-  // --- Event tombol Simpan Produk
+  // --- Tombol Simpan Produk ---
   const btnSimpan = document.getElementById('btnSimpanProduk');
   if (btnSimpan) {
     btnSimpan.addEventListener('click', () => {
       const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
-      if (mode === 'edit') editProduk();
-      else addProduk();
+      if (mode === 'edit') {
+        editProduk();
+      } else {
+        addProduk();
+      }
     });
   }
 
-  // --- Auto-format angka saat input
+  // --- Auto-format angka saat input ---
   const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
   hargaFields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => formatInputCurrency(el));
   });
 
-  // --- Auto-format Nama Produk
+  // --- Auto-format Nama Produk ---
   const namaProdukInput = document.getElementById('namaProduk');
   if (namaProdukInput) {
     namaProdukInput.addEventListener('input', () => {
@@ -1022,72 +1028,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event tombol Import
-  const btnImport = document.getElementById('btnImport');
-  if (btnImport) {
-    btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = '';
-      new bootstrap.Modal(document.getElementById('modalImport')).show();
-    });
-  }
+  // Event tombol Import → tampilkan modal
+  document.getElementById('btnImport').addEventListener('click', () => {
+    document.getElementById('fileImport').value = ''; // reset input file
+    new bootstrap.Modal(document.getElementById('modalImport')).show();
+  });
 
-  // --- Event proses Import
+  // Event tombol Proses Import
+  document.addEventListener('DOMContentLoaded', () => {
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
-    btnProsesImport.addEventListener('click', async () => {
+    btnProsesImport.addEventListener('click', () => {
       const fileInput = document.getElementById('fileImport');
       if (!fileInput.files.length) {
-        showPesanModal('warning', ' WARNING : Pilih file terlebih dahulu.');
+        showPesanModal('warning', 'Pilih file CSV/XLSX terlebih dahulu!');
         return;
       }
 
       const file = fileInput.files[0];
-      showLoading(true, 'Produk');
+      const ext = file.name.split('.').pop().toLowerCase();
 
-      try {
-        let csvString = '';
-
-        if (file.name.endsWith('.csv')) {
-          csvString = await file.text();
-        } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-          const data = await file.arrayBuffer();
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";" });
-        } else {
-          showLoading(false, 'Produk');
-          showPesanModal('error', ' ERROR : Format file tidak didukung.');
-          return;
-        }
-
-        console.log("Data yang akan diimport:", csvString);
-
-        // --- Kirim hasil Import ke Apps Script via POST ---
-        const response = await fetch(URL_APPS_SCRIPT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: "importTabelHarga", csv: csvString })
-        });
-
-        const result = await response.json();
-        console.log("Hasil import:", result);
-
-        if (result.status === "success") {
-          showPesan('success', 'Import berhasil!');
-          bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-          loadProdukTable();
-        } else {
-          showPesan('error', 'ERROR : ' + (result.message || 'Gagal import data'));
-        }
-      } catch (err) {
-        console.error("Error Import:", err);
-        showPesan('error', 'ERROR : ' + err.message);
-      } finally {
-        showLoading(false, 'Produk');
+      if (ext === 'csv') {
+        prosesFileCSV(file);
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        prosesFileXLSX(file);
+      } else {
+        showPesanModal('error', 'Format file tidak didukung. Gunakan CSV atau XLSX.');
       }
     });
   }
+  });
+  
 });
 // **** Akhir Script Event DOMContent ****
 
