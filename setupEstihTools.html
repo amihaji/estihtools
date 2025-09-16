@@ -1036,27 +1036,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Event tombol Proses Import
   document.addEventListener('DOMContentLoaded', () => {
-    const btnProsesImport = document.getElementById('btnProsesImport');
-    if (btnProsesImport) {
-      btnProsesImport.addEventListener('click', () => {
-        const fileInput = document.getElementById('fileImport');
-        if (!fileInput.files.length) {
-          showPesanModal('warning', ' WARNING: Pilih file CSV atau XLSX terlebih dahulu.');
-          return;
-        }
+  const btnProsesImport = document.getElementById('btnProsesImport');
+  if (btnProsesImport) {
+    btnProsesImport.addEventListener('click', () => {
+      const fileInput = document.getElementById('fileImport');
+      if (!fileInput.files.length) {
+        showPesanModal('warning', 'Pilih file CSV/XLSX terlebih dahulu!');
+        return;
+      }
 
-        const file = fileInput.files[0];
-        const ext = file.name.split('.').pop().toLowerCase();
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop().toLowerCase();
 
-        if (ext === 'csv') {
-          prosesFileCSV(file);
-        } else if (ext === 'xlsx' || ext === 'xls') {
-          prosesFileXLSX(file);
-        } else {
-          showPesanModal('error', ' ERROR: Format file tidak didukung. Gunakan CSV atau XLSX.');
-        }
-      });
-    }
+      if (ext === 'csv') {
+        prosesFileCSV(file);
+      } else if (ext === 'xlsx' || ext === 'xls') {
+        prosesFileXLSX(file);
+      } else {
+        showPesanModal('error', 'Format file tidak didukung. Gunakan CSV atau XLSX.');
+      }
+    });
+  }
   });
   
 });
@@ -1069,15 +1069,19 @@ function kirimDataBaru(csvString) {
   const callbackName = 'cb_' + Date.now();
 
   window[callbackName] = function(response) {
+    console.log("Respon server:", response);
     showLoading(false, 'Produk');
-    if (response && response.status === 'success') {
-      showPesan('success', ' Import berhasil, data telah diganti!');
-      bootstrap.Modal.getInstance(document.getElementById('modalImport'))?.hide();
+
+    if (response.status === 'success') {
+      showPesan('success', response.message);
+      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
       loadProdukTable();
     } else {
-      showPesan('error', ' ERROR: Gagal import data');
+      showPesan('error', "Gagal import: " + (response.message || "Unknown error"));
     }
-    cleanup();
+
+    try { delete window[callbackName]; } catch(e){}
+    document.getElementById(callbackName + '_script')?.remove();
   };
 
   const params = new URLSearchParams({
@@ -1090,23 +1094,14 @@ function kirimDataBaru(csvString) {
   script.id = callbackName + '_script';
   script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch(e){}
-    document.getElementById(callbackName + '_script')?.remove();
-  }
 }
 
-// --- Fungsi untuk baca CSV ---
 function prosesFileCSV(file) {
   const reader = new FileReader();
-  reader.onload = (e) => {
-    kirimDataBaru(e.target.result); // langsung kirim
-  };
+  reader.onload = (e) => kirimDataBaru(e.target.result);
   reader.readAsText(file, 'UTF-8');
 }
 
-// --- Fungsi untuk baca XLSX ---
 function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -1115,14 +1110,13 @@ function prosesFileXLSX(file) {
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const csvString = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName], { FS: ';' });
-      kirimDataBaru(csvString); // langsung kirim
+      kirimDataBaru(csvString);
     } catch (err) {
       showPesanModal('error', ' ERROR: Gagal membaca file XLSX. ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
 }
-
 
 </SCRIPT>
 </body>
