@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwL2FP2cEW6VJUpycINMTvUxD2lDwVpaUlzo6V68ew_LNdqSYOGJYAczhv3GLV2TzfjiQ/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzhEALgKKn15stKjws_XgF1BFey72fDBAJ2t0RwEZ_RXq3RDkdLcqvA_AJkcmGloDB5Mw/exec';
 // **************************************
 
 // **********************************
@@ -1022,72 +1022,101 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Event tombol Import
+  // ---------------------------
+  // --- Event tombol Import ---
+  // ---------------------------
   const btnImport = document.getElementById('btnImport');
   if (btnImport) {
     btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = '';
+      document.getElementById('fileImport').value = ''; // reset input file
       new bootstrap.Modal(document.getElementById('modalImport')).show();
     });
   }
 
-  // --- Event proses Import
+  // --- Event proses Import ---
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
     btnProsesImport.addEventListener('click', async () => {
       const fileInput = document.getElementById('fileImport');
       if (!fileInput.files.length) {
-        showPesanModal('warning', ' WARNING : Pilih file terlebih dahulu.');
+        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
         return;
       }
 
       const file = fileInput.files[0];
-      showLoading(true, 'Produk');
+      const reader = new FileReader();
 
-      try {
-        let csvString = '';
+      reader.onload = async function (e) {
+        try {
+          let csvString = "";
 
-        if (file.name.endsWith('.csv')) {
-          csvString = await file.text();
-        } else if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-          const data = await file.arrayBuffer();
-          const workbook = XLSX.read(data, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";" });
-        } else {
-          showLoading(false, 'Produk');
-          showPesanModal('error', ' ERROR : Format file tidak didukung.');
-          return;
+          if (file.name.endsWith(".csv")) {
+            // langsung pakai CSV
+            csvString = e.target.result;
+          } else if (file.name.endsWith(".xlsx")) {
+            // gunakan XLSX library untuk baca file Excel
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const csv = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
+            csvString = csv;
+          } else {
+            showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
+            return;
+          }
+
+          console.log("Data yang akan diimport:", csvString);
+
+          // Tampilkan spinner
+          showLoading(true, 'Produk');
+
+          // === PRE-FLIGHT CORS ===
+          try {
+            await fetch(`${URL_APPS_SCRIPT}?cors=1`);
+          } catch (err) {
+            console.warn("Preflight gagal, lanjutkan fetch langsung...");
+          }
+
+          // === Kirim data ke Google Apps Script via doPost ===
+          const response = await fetch(URL_APPS_SCRIPT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "importTabelHarga", csv: csvString })
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log("Respon server import:", result);
+
+          if (result.status === "success") {
+            showPesan('success', result.message || 'Import berhasil!');
+            bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+            loadProdukTable(); // reload data tabel
+          } else {
+            showPesan('error', result.message || 'Import gagal!');
+          }
+
+        } catch (err) {
+          console.error("Error Import:", err);
+          showPesan('error', ' ERROR : ' + err.message);
+        } finally {
+          showLoading(false, 'Produk'); // pastikan spinner dimatikan
         }
+      };
 
-        console.log("Data yang akan diimport:", csvString);
-
-        // --- Kirim hasil Import ke Apps Script via POST ---
-        const response = await fetch(URL_APPS_SCRIPT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: "importTabelHarga", csv: csvString })
-        });
-
-        const result = await response.json();
-        console.log("Hasil import:", result);
-
-        if (result.status === "success") {
-          showPesan('success', 'Import berhasil!');
-          bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-          loadProdukTable();
-        } else {
-          showPesan('error', 'ERROR : ' + (result.message || 'Gagal import data'));
-        }
-      } catch (err) {
-        console.error("Error Import:", err);
-        showPesan('error', 'ERROR : ' + err.message);
-      } finally {
-        showLoading(false, 'Produk');
+      if (file.name.endsWith(".csv")) {
+        reader.readAsText(file, "UTF-8");
+      } else {
+        reader.readAsArrayBuffer(file);
       }
     });
   }
+
+  
 });
 // **** Akhir Script Event DOMContent ****
 
