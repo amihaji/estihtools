@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbyN4Zbnowl4wRWVnJ4pHm1tua8TLy60X9Zq6fZDToXeRWPTs7ZdHpb8cUa6-IG0P13zEg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbziDymlWGMdNbzxJeGDcpFCP65AF3RcfcYtKaRNmij8Xc-viqDCKHjbHQhh0YZHo1l-CQ/exec';
 // **************************************
 
 // **********************************
@@ -1099,9 +1099,9 @@ function prosesFileXLSX(file) {
   reader.readAsArrayBuffer(file);
 }
 
-// *****************************
+// *****************************************
 // Fungsi Kirim CSV ke server untuk disimpan
-// *****************************
+// *****************************************
 function prosesCSV(csvString) {
   try {
     // Bersihkan baris kosong
@@ -1116,12 +1116,21 @@ function prosesCSV(csvString) {
     showLoading(true, 'Produk');
 
     const callbackName = 'cb_' + Date.now();
+    const timeout = setTimeout(() => {
+      showLoading(false, 'Produk');
+      showPesan('error', 'Server tidak merespons, cek koneksi atau periksa log Google Apps Script.');
+    }, 15000); // timeout 15 detik
+
     window[callbackName] = function (response) {
+      clearTimeout(timeout);
       showLoading(false, 'Produk');
       console.log("Respon import:", response);
 
       if (response && response.status === 'success') {
         showPesan('success', response.message || 'Import berhasil!');
+        const modalEl = document.getElementById('modalImport');
+        const modalInstance = bootstrap.Modal.getInstance(modalEl);
+        if (modalInstance) modalInstance.hide();
         loadProdukTable();
       } else {
         showPesan('error', 'Gagal import: ' + (response?.message || 'Tidak ada pesan dari server.'));
@@ -1144,7 +1153,7 @@ function prosesCSV(csvString) {
 
   } catch (err) {
     showLoading(false, 'Produk');
-    showPesanModal('error', 'Gagal memproses CSV: ' + err.message);
+    showPesan('error', 'Gagal memproses CSV: ' + err.message);
   }
 }
 
