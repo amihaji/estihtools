@@ -322,7 +322,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxh-TntkMHXb-wG5MLwUNXNhsH-Exn9VdOyHBKrtoZi5QcLZ6W8C9FTWO3504VeulO7/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbydETmgyhvfhzFvGTnCcx0i7N22ZHb8_TmTpWxmhhw16wo7LNec1wZq3HSatvZ1Ntf21g/exec';
 // **************************************
 
 // **********************************
@@ -959,94 +959,81 @@ function capitalizeWords(str) {
   );
 }
 
-// *********************************************************
-// Fungsi proses file XLSX (convert ke array 2D lalu kirim)
-// *********************************************************
-function prosesXLSX(file) {
+// ***************************************************
+// * Proses file CSV -> clear sheet -> kirim ke server
+// ***************************************************
+function prosesFileCSV(file) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = e.target.result
+      .split(/\r?\n/)
+      .filter(r => r.trim() !== '')
+      .map(r => r.split(';').map(c => c.trim()));
+
+    console.log("Data CSV siap import:", data);
+    importDenganClear(data);
+  };
+  reader.readAsText(file);
+}
+
+// ****************************************************
+// * Proses file XLSX -> clear sheet -> kirim ke server
+// ****************************************************
+function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
     try {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 })
+        .filter(r => r.length > 0); // hapus baris kosong
 
-      const sheetName = workbook.SheetNames[0]; // ambil sheet pertama
-      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
-      if (!sheetData || sheetData.length === 0) {
-        showPesanModal('warning', ' WARNING : File Excel kosong atau tidak terbaca.');
-        return;
-      }
-
-      kirimKeServer(sheetData); // ⬅️ panggil fungsi kirim yang baru
+      console.log("Data XLSX siap import:", sheetData);
+      importDenganClear(sheetData);
     } catch (err) {
-      showPesanModal('error', ' ERROR : Gagal memproses XLSX. ' + err.message);
+      showLoading(false, 'Produk');
+      showPesanModal('error', ' ERROR : ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-// *********************************************** 
-// Fungsi parsing CSV (robust, mendukung ; dan ,) 
-// ***********************************************
-function prosesCSV(file) {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    try {
-      let text = e.target.result || '';
-      // deteksi delimiter awal (prefer ; jika ada)
-      let delimiter = text.includes(';') ? ';' : ',';
-
-      let rows = text.split(/\r?\n/).map(r => r.split(delimiter).map(c => c.trim()));
-
-      // fallback: kadang CSV semua di 1 kolom → coba paksa ;
-      if (rows.length > 1 && rows[1].length === 1 && rows[1][0].includes(';')) {
-        delimiter = ';';
-        rows = text.split(/\r?\n/).map(r => r.split(delimiter).map(c => c.trim()));
-      }
-
-      const cleanRows = rows.filter(r => r.join('').trim() !== '');
-      kirimKeServer(cleanRows);
-    } catch (err) {
-      showPesanModal('error', ' ERROR : Gagal memproses CSV. ' + err.message);
-    }
-  };
-  reader.readAsText(file, 'UTF-8');
-}
-
-// *************************************************
-// Memanggil Apps Script untuk menghapus data lama
-// *************************************************
-function clearTabelHarga(callback) {
-  const callbackName = 'cb_clear_' + Date.now();
-  window[callbackName] = function (response) {
-    console.log("Respon clearTabelHarga:", response);
-    if (response.status === "ok") {
-      console.log("✅ Sheet berhasil dikosongkan");
-      if (typeof callback === "function") callback();
+// *****************************
+// Clear sheet + kirim data baru
+// *****************************
+function importDenganClear(data) {
+  // 1️⃣ Clear sheet dulu
+  const cbClear = 'cb_clear_' + Date.now();
+  window[cbClear] = function (res) {
+    console.log("Respon clear sheet:", res);
+    if (res.status === "ok") {
+      // 2️⃣ Setelah clear sukses -> kirim data baru
+      kirimDataBaru(data);
     } else {
-      showPesanModal('error', ' ERROR : ' + (response.message || 'Gagal menghapus data lama.'));
       showLoading(false, 'Produk');
+      showPesanModal('error', ' ERROR : Gagal menghapus data lama. ' + (res.message || ''));
     }
-    cleanup();
+    cleanupClear();
   };
 
   const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?action=clearTabelHarga&callback=${callbackName}`;
+  script.id = cbClear + '_script';
+  script.src = `${URL_APPS_SCRIPT}?action=clearTabelHarga&callback=${cbClear}`;
   document.body.appendChild(script);
 
-  function cleanup() {
-    try { delete window[callbackName]; } catch (e) {}
-    document.getElementById(callbackName + '_script')?.remove();
+  function cleanupClear() {
+    try { delete window[cbClear]; } catch (e) {}
+    document.getElementById(cbClear + '_script')?.remove();
   }
 }
 
-// ***********************************************
-// Mengirim data baru hasil import ke Apps Script
-// ***********************************************
-function kirimKeServer(data) {
-  const callbackName = 'cb_import_' + Date.now();
-  window[callbackName] = function (msg) {
+// ********************************
+// Kirim data baru import ke server
+// ********************************
+function kirimDataBaru(data) {
+  const cbImport = 'cb_import_' + Date.now();
+  window[cbImport] = function (msg) {
     showLoading(false, 'Produk');
     if (msg.status === 'success' || msg.status === 'ok') {
       showPesan('success', ' Import berhasil!');
@@ -1055,23 +1042,23 @@ function kirimKeServer(data) {
     } else {
       showPesan('error', ' ERROR : ' + (msg.message || 'Gagal import data'));
     }
-    cleanup();
+    cleanupImport();
   };
 
   const params = new URLSearchParams({
     action: 'importTabelHarga',
     data: JSON.stringify(data),
-    callback: callbackName
+    callback: cbImport
   });
 
   const script = document.createElement('script');
-  script.id = callbackName + '_script';
+  script.id = cbImport + '_script';
   script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
 
-  function cleanup() {
-    try { delete window[callbackName]; } catch (e) {}
-    document.getElementById(callbackName + '_script')?.remove();
+  function cleanupImport() {
+    try { delete window[cbImport]; } catch (e) {}
+    document.getElementById(cbImport + '_script')?.remove();
   }
 }
 
@@ -1163,46 +1150,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const file = fileInput.files[0];
-      const ext  = file.name.split('.').pop().toLowerCase();
+      const ext = file.name.split('.').pop().toLowerCase();
       showLoading(true, 'Produk');
 
       if (ext === 'csv') {
-        // --- Proses file CSV ---
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const rows = e.target.result.split(/\r?\n/).map(r => r.split(';').map(c => c.trim()));
-          console.log("Data yang akan diimport:", rows);
-
-          // 1️⃣ Hapus data lama dulu
-          clearTabelHarga(() => {
-            // 2️⃣ Kirim data baru
-            kirimKeServer(rows);
-          });
-        };
-        reader.readAsText(file);
-
+        prosesFileCSV(file);
       } else if (ext === 'xlsx') {
-        // --- Proses file XLSX ---
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
-
-            console.log("Data yang akan diimport:", sheetData);
-
-            clearTabelHarga(() => {
-              kirimKeServer(sheetData);
-            });
-
-          } catch (err) {
-            showLoading(false, 'Produk');
-            showPesanModal('error', ' ERROR : ' + err.message);
-          }
-        };
-        reader.readAsArrayBuffer(file);
+        prosesFileXLSX(file);
       } else {
         showLoading(false, 'Produk');
         showPesanModal('warning', ' WARNING : Format file harus CSV atau XLSX.');
