@@ -1034,68 +1034,129 @@ document.addEventListener('DOMContentLoaded', () => {
       new bootstrap.Modal(document.getElementById('modalImport')).show();
     });
   }
-  
+
   // --- Tombol Import ---
-  const btnProsesImport = document.getElementById('btnProsesImport');
-  if (btnProsesImport) {
-    btnProsesImport.addEventListener('click', () => {
-      const fileInput = document.getElementById('fileImport');
-      if (!fileInput.files.length) {
-        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const ext = file.name.split('.').pop().toLowerCase();
-      showLoading(true, 'Produk');
-
-      if (ext === 'csv') {
-        prosesFileCSV(file);
-      } else if (ext === 'xlsx') {
-        prosesFileXLSX(file);
-      } else {
-        showLoading(false, 'Produk');
-        showPesanModal('warning', ' WARNING : Format file harus CSV atau XLSX.');
-      }
-    });
+  document.getElementById('btnProsesImport').addEventListener('click', () => {
+  const fileInput = document.getElementById('fileImport');
+  if (!fileInput.files.length) {
+    showPesanModal('warning', 'Silakan pilih file terlebih dahulu.');
+    return;
   }
+
+  const file = fileInput.files[0];
+  const fileName = file.name.toLowerCase();
+
+  if (fileName.endsWith('.csv')) {
+    prosesFileCSV(file);
+  } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+    prosesFileXLSX(file);
+  } else {
+    showPesanModal('warning', 'Format file tidak didukung. Pilih file CSV atau XLSX.');
+  }
+  });
+  
 });
+// **** Akhir Script Event DOMContent ****
 
 // *****************************
 // Fungsi Proses file import CSV
 // *****************************
+function prosesCSV(csvString) {
+  console.log("Data yang akan diimport:", csvString.substring(0, 200));
+  showLoading(true, 'Produk');
+
+  // 1. Clear data lama
+  const cbClear = 'cb_clear_' + Date.now();
+  window[cbClear] = function (res) {
+    console.log("Hasil clearTabelHarga:", res);
+    if (res.status === 'ok') {
+      // 2. Import data baru
+      const cbImport = 'cb_import_' + Date.now();
+      window[cbImport] = function (msg) {
+        console.log("Hasil importTabelHarga:", msg);
+        showLoading(false, 'Produk');
+        if (msg.status === 'ok') {
+          showPesan('success', 'Import berhasil!');
+          bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+          loadProdukTable();
+        } else {
+          showPesan('error', 'ERROR: ' + (msg.message || 'Gagal import'));
+        }
+        cleanup(cbImport);
+      };
+
+      const paramsImport = new URLSearchParams({
+        action: 'importTabelHarga',
+        csv: encodeURIComponent(csvString),
+        callback: cbImport
+      });
+
+      const scriptImport = document.createElement('script');
+      scriptImport.src = `${URL_APPS_SCRIPT}?${paramsImport.toString()}`;
+      document.body.appendChild(scriptImport);
+    } else {
+      showPesan('error', 'Gagal hapus data lama: ' + (res.message || 'Unknown'));
+      showLoading(false, 'Produk');
+    }
+    cleanup(cbClear);
+  };
+
+  const paramsClear = new URLSearchParams({
+    action: 'clearTabelHarga',
+    callback: cbClear
+  });
+
+  const scriptClear = document.createElement('script');
+  scriptClear.src = `${URL_APPS_SCRIPT}?${paramsClear.toString()}`;
+  document.body.appendChild(scriptClear);
+
+  function cleanup(cb) {
+    try { delete window[cb]; } catch(e) {}
+    const el = document.querySelector(`script[src*="${cb}"]`);
+    if (el) el.remove();
+  }
+}
+
+// ******************************
+// Fungsi untuk konversi file CSV
+// ******************************
 function prosesFileCSV(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
-    const data = e.target.result
-      .split(/\r?\n/)
-      .filter(r => r.trim() !== '')
-      .map(r => r.split(';').map(c => c.trim()));
-
-    console.log("Data CSV siap import:", data);
-    importDenganClear(data);
+    const csvString = e.target.result;
+    if (!csvString || csvString.trim() === '') {
+      showPesanModal('warning', 'File CSV kosong atau tidak terbaca.');
+      return;
+    }
+    prosesCSV(csvString); // langsung kirim ke fungsi import
   };
   reader.readAsText(file);
 }
 
-// ******************************
-// Fungsi Proses file import XLSX
-// ******************************
+// *******************************
+// Fungsi untuk konversi file XLSX
+// *******************************
 function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
     try {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 })
-        .filter(r => r.length > 0);
 
-      console.log("Data XLSX siap import:", sheetData);
-      importDenganClear(sheetData);
+      // Ambil sheet pertama dan konversi jadi CSV dengan delimiter semicolon (;)
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const csvString = XLSX.utils.sheet_to_csv(worksheet, { FS: ';' });
+
+      if (!csvString || csvString.trim() === '') {
+        showPesanModal('warning', 'File XLSX kosong atau tidak terbaca.');
+        return;
+      }
+
+      prosesCSV(csvString); // langsung kirim ke fungsi import
     } catch (err) {
-      showLoading(false, 'Produk');
-      showPesanModal('error', ' ERROR : ' + err.message);
+      console.error('Error baca XLSX:', err);
+      showPesanModal('error', 'Gagal membaca file XLSX: ' + err.message);
     }
   };
   reader.readAsArrayBuffer(file);
