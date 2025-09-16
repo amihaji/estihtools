@@ -959,9 +959,102 @@ function capitalizeWords(str) {
   );
 }
 
-// ***************************************************
-// * Proses file CSV -> clear sheet -> kirim ke server
-// ***************************************************
+// **********************************************************************************
+//  Fungsi Event untuk load Tabel Produk, Kategori, tombol-tombol serta event lainnya
+// **********************************************************************************
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Load tabel produk awal ---
+  loadProdukTable();
+
+  // --- Load kategori filter ---
+  loadKategoriFilterDropdown();
+
+  // --- Event filter kategori ---
+  const kategoriMenu = document.getElementById('kategoriFilterMenu');
+  if (kategoriMenu) {
+    kategoriMenu.addEventListener('click', (e) => {
+      const target = e.target.closest('a.dropdown-item');
+      if (!target) return;
+      const selected = target.getAttribute('data-value') || '';
+      loadProdukTable(selected);
+    });
+  }
+
+  // --- Tombol Tambah Produk ---
+  const addBtn = document.getElementById('addProdukButton');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      document.getElementById('mode').value = 'add';
+      document.getElementById('modalProduk').setAttribute('data-mode', 'add');
+      document.getElementById('produkForm').reset();
+      document.getElementById('noStok').disabled = false;
+      document.getElementById('judulModal').textContent = 'Tambah Produk';
+
+      loadKategoriDropdownWithCallback(() => {
+        new bootstrap.Modal(document.getElementById('modalProduk')).show();
+      });
+    });
+  }
+
+  // --- Tombol Simpan Produk ---
+  const btnSimpan = document.getElementById('btnSimpanProduk');
+  if (btnSimpan) {
+    btnSimpan.addEventListener('click', () => {
+      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
+      if (mode === 'edit') {
+        editProduk();
+      } else {
+        addProduk();
+      }
+    });
+  }
+
+  // --- Auto-format angka saat input ---
+  const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
+  hargaFields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => formatInputCurrency(el));
+  });
+
+  // --- Auto-format Nama Produk ---
+  const namaProdukInput = document.getElementById('namaProduk');
+  if (namaProdukInput) {
+    namaProdukInput.addEventListener('input', () => {
+      const pos = namaProdukInput.selectionStart;
+      namaProdukInput.value = capitalizeWords(namaProdukInput.value);
+      namaProdukInput.setSelectionRange(pos, pos);
+    });
+  }
+
+  // --- Tombol Import ---
+  const btnProsesImport = document.getElementById('btnProsesImport');
+  if (btnProsesImport) {
+    btnProsesImport.addEventListener('click', () => {
+      const fileInput = document.getElementById('fileImport');
+      if (!fileInput.files.length) {
+        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const ext = file.name.split('.').pop().toLowerCase();
+      showLoading(true, 'Produk');
+
+      if (ext === 'csv') {
+        prosesFileCSV(file);
+      } else if (ext === 'xlsx') {
+        prosesFileXLSX(file);
+      } else {
+        showLoading(false, 'Produk');
+        showPesanModal('warning', ' WARNING : Format file harus CSV atau XLSX.');
+      }
+    });
+  }
+});
+
+// *****************************
+// Fungsi Proses file import CSV
+// *****************************
 function prosesFileCSV(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
@@ -976,9 +1069,9 @@ function prosesFileCSV(file) {
   reader.readAsText(file);
 }
 
-// ****************************************************
-// * Proses file XLSX -> clear sheet -> kirim ke server
-// ****************************************************
+// ******************************
+// Fungsi Proses file import XLSX
+// ******************************
 function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = function (e) {
@@ -987,7 +1080,7 @@ function prosesFileXLSX(file) {
       const workbook = XLSX.read(data, { type: 'array' });
       const sheetName = workbook.SheetNames[0];
       const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 })
-        .filter(r => r.length > 0); // hapus baris kosong
+        .filter(r => r.length > 0);
 
       console.log("Data XLSX siap import:", sheetData);
       importDenganClear(sheetData);
@@ -999,16 +1092,14 @@ function prosesFileXLSX(file) {
   reader.readAsArrayBuffer(file);
 }
 
-// *****************************
-// Clear sheet + kirim data baru
-// *****************************
+// **************************************************
+// Fungsi untuk menghapus data lama, baru import data
+// **************************************************
 function importDenganClear(data) {
-  // 1️⃣ Clear sheet dulu
   const cbClear = 'cb_clear_' + Date.now();
   window[cbClear] = function (res) {
     console.log("Respon clear sheet:", res);
     if (res.status === "ok") {
-      // 2️⃣ Setelah clear sukses -> kirim data baru
       kirimDataBaru(data);
     } else {
       showLoading(false, 'Produk');
@@ -1028,9 +1119,9 @@ function importDenganClear(data) {
   }
 }
 
-// ********************************
-// Kirim data baru import ke server
-// ********************************
+// ************************************
+// Fungsi untuk Kirim data Baru Import
+// ************************************
 function kirimDataBaru(data) {
   const cbImport = 'cb_import_' + Date.now();
   window[cbImport] = function (msg) {
@@ -1061,109 +1152,6 @@ function kirimDataBaru(data) {
     document.getElementById(cbImport + '_script')?.remove();
   }
 }
-
-// ************************************************************************
-// Fungsi untuk load awal Tabel Produk, Kategori, Tombol, & event handlers
-// ************************************************************************
-document.addEventListener('DOMContentLoaded', () => {
-  // --- Load tabel produk awal ---
-  loadProdukTable();
-
-  // --- Load kategori untuk filter (dropdown di toolbar) ---
-  loadKategoriFilterDropdown();
-
-  // --- Event pilih kategori filter ---
-  const kategoriMenu = document.getElementById('kategoriFilterMenu');
-  if (kategoriMenu) {
-    kategoriMenu.addEventListener('click', (e) => {
-      const target = e.target.closest('a.dropdown-item');
-      if (!target) return;
-      const selected = target.getAttribute('data-value') || '';
-      loadProdukTable(selected); // reload tabel sesuai kategori
-    });
-  }
-
-  // --- Event tombol Tambah Produk ---
-  const addBtn = document.getElementById('addProdukButton');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => {
-      document.getElementById('mode').value = 'add';
-      document.getElementById('modalProduk').setAttribute('data-mode', 'add');
-      document.getElementById('produkForm').reset();
-      document.getElementById('noStok').disabled = false;
-      document.getElementById('judulModal').textContent = 'Tambah Produk';
-
-      // load dropdown kategori sebelum modal tampil
-      loadKategoriDropdownWithCallback(() => {
-        new bootstrap.Modal(document.getElementById('modalProduk')).show();
-      });
-    });
-  }
-
-  // --- Event tombol Simpan Produk ---
-  const btnSimpan = document.getElementById('btnSimpanProduk');
-  if (btnSimpan) {
-    btnSimpan.addEventListener('click', () => {
-      const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
-      if (mode === 'edit') {
-        editProduk();
-      } else {
-        addProduk();
-      }
-    });
-  }
-
-  // --- Auto-format angka saat input ---
-  const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
-  hargaFields.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', () => formatInputCurrency(el));
-  });
-
-  // --- Auto-format Nama Produk ---
-  const namaProdukInput = document.getElementById('namaProduk');
-  if (namaProdukInput) {
-    namaProdukInput.addEventListener('input', () => {
-      const pos = namaProdukInput.selectionStart;
-      namaProdukInput.value = capitalizeWords(namaProdukInput.value);
-      namaProdukInput.setSelectionRange(pos, pos);
-    });
-  }
-
-  // --- Event tombol Import ---
-  const btnImport = document.getElementById('btnImport');
-  if (btnImport) {
-    btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = ''; // reset input
-      new bootstrap.Modal(document.getElementById('modalImport')).show();
-    });
-  }
-
-  // --- Event proses Import ---
-  const btnProsesImport = document.getElementById('btnProsesImport');
-  if (btnProsesImport) {
-    btnProsesImport.addEventListener('click', () => {
-      const fileInput = document.getElementById('fileImport');
-      if (!fileInput.files.length) {
-        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
-        return;
-      }
-
-      const file = fileInput.files[0];
-      const ext = file.name.split('.').pop().toLowerCase();
-      showLoading(true, 'Produk');
-
-      if (ext === 'csv') {
-        prosesFileCSV(file);
-      } else if (ext === 'xlsx') {
-        prosesFileXLSX(file);
-      } else {
-        showLoading(false, 'Produk');
-        showPesanModal('warning', ' WARNING : Format file harus CSV atau XLSX.');
-      }
-    });
-  }
-});
 // ****** Akhir Script Event Handler *****
 
 </SCRIPT>
