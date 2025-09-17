@@ -334,7 +334,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbw3-ouw_symdrFSrCy2atDQ4igrSdFiDSIBUImYdHw-FprfQOMH6Dd70iqmP_k6Ekyodw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxMMGHc94_5Zav2MeYJCEgb90Zc6J3lQXxktAvsjtc8HnmGGaoZyAtXXY4OwX-UMoeZ3Q/exec';
 // **************************************
 
 // **********************************
@@ -1038,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnImport = document.getElementById('btnImport');
   if (btnImport) {
     btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = ''; // reset input file
+      document.getElementById('fileImport').value = ''; // reset file input
       new bootstrap.Modal(document.getElementById('modalImport')).show();
     });
   }
@@ -1072,11 +1072,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
 
-          console.log("📄 Data yang akan diimport:", csvString.substring(0, 500));
-          showLoading(true, 'Produk');
-
-          // 🔥 Panggil fungsi baru untuk mulai import
-          startImport(csvString);
+          console.log("📄 Data yang akan diimport:", csvString);
+          startImport(csvString); // ✅ Panggil fungsi baru untuk proses batch
 
         } catch (err) {
           console.error("Error Import:", err);
@@ -1089,6 +1086,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else reader.readAsArrayBuffer(file);
     });
   }
+
 
 });
 // **** Akhir Script Event DOMContent ****
@@ -1103,100 +1101,69 @@ function updateProgressBar(done, total) {
 // ----------------------------------
 //  Fungsi Untuk memulai import data
 // ----------------------------------
-  function startImport(csvString) {
-    // Split per baris, filter kosong
-    const rows = csvString.split("\n").filter(r => r.trim() !== "");
-    const header = rows.shift(); // ambil header
-    const batchSize = 50; // bisa diubah sesuai kebutuhan
-    let index = 0;
+function startImport(csvString) {
+  showLoading(true, 'Produk');
 
-    console.log("📌 Header:", header.split(";"));
+  // Pecah CSV per baris
+  const rows = csvString.split("\n").filter(r => r.trim() !== "");
+  const header = rows.shift(); // buang header
+  const batchSize = 50;
+  let index = 0;
 
-    async function kirimNextBatch() {
-      if (index >= rows.length) {
-        console.log("✅ Semua batch terkirim!");
-        showLoading(false, 'Produk');
-        showPesan('success', 'Import selesai!');
-        bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-        loadProdukTable();
-        return;
-      }
+  console.log("📌 Header:", header.split(";"));
 
-      const batchRows = rows.slice(index, index + batchSize);
-      index += batchSize;
-
-      console.log(`📤 Kirim batch ${Math.ceil(index / batchSize)} (${batchRows.length} baris)`);
-      const batchCsv = [header, ...batchRows].join("\n");
-
-      await kirimBatchJSONP(batchCsv, kirimNextBatch, index === batchRows.length);
+  async function kirimNextBatch() {
+    if (index >= rows.length) {
+      console.log("✅ Semua batch terkirim!");
+      showLoading(false, 'Produk');
+      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+      loadProdukTable(); // reload tabel di layar
+      return;
     }
 
-    kirimNextBatch(); // Mulai kirim batch pertama
+    const batch = rows.slice(index, index + batchSize);
+    index += batchSize;
+
+    console.log(`📤 Kirim batch ${index / batchSize} (${batch.length} baris)`);
+
+    // gabungkan header + batch untuk dikirim
+    const batchCsv = [header, ...batch].join("\n");
+
+    await kirimBatchJSONP(batchCsv, index === batchSize, kirimNextBatch);
   }
 
+  kirimNextBatch(); // mulai batch pertama
+}
+  
 // ---------------------------
 // --- kirimBatchJSONP ---
 // ---------------------------
-async function kirimBatchJSONP(batchCsv, callback, isFirstBatch = false) {
-  try {
-    console.log(`📤 kirimBatchJSONP (${batchCsv.split("\n").length - 1} baris, isFirst=${isFirstBatch})`);
+function kirimBatchJSONP(batchCsv, isFirst, onSuccess) {
+  return new Promise((resolve, reject) => {
+    if (!Array.isArray(batchCsv) && typeof batchCsv !== "string") {
+      console.error("❌ kirimBatchJSONP menerima data bukan array:", batchCsv);
+      reject(new Error("Format batch salah"));
+      return;
+    }
 
-    // Konversi CSV ke array objek untuk jaga-jaga
-    const lines = batchCsv.split("\n").filter(r => r.trim() !== "");
-    const header = lines.shift().split(";");
+    const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    window[callbackName] = function (result) {
+      console.log("✅ Respon server:", result);
+      delete window[callbackName];
 
-    const data = lines.map(line => {
-      const cols = line.split(";");
+      if (result.status === "success") {
+        resolve(result);
+        if (onSuccess) onSuccess();
+      } else {
+        reject(new Error(result.message || "Gagal import"));
+      }
+    };
 
-      // Jaga agar NoStok tidak diubah ke angka
-      const noStok = cols[0] ? String(cols[0]).trim() : "";
-
-      // Jaga format angka tetap format Indonesia (biarkan apa adanya)
-      const normalize = (val) => (val ? val.trim() : "");
-
-      return {
-        noStok: noStok,
-        kategori: normalize(cols[1]),
-        namaProduk: normalize(cols[2]),
-        vp: normalize(cols[3]),
-        hargaDasar: normalize(cols[4]),
-        hargaEceran: normalize(cols[5]),
-        member25: normalize(cols[6]),
-        sc35: normalize(cols[7]),
-        sb42: normalize(cols[8]),
-        spv50: normalize(cols[9]),
-      };
-    });
-
-    console.table(data);
-
-    // Kirim data ke Apps Script via JSONP
-    const callbackName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
-
-    return new Promise((resolve, reject) => {
-      window[callbackName] = function (response) {
-        console.log("✅ Respon server:", response);
-
-        if (response.status === "success") {
-          resolve(response);
-          if (callback) callback();
-        } else {
-          console.error("❌ Gagal simpan batch:", response.message);
-          reject(new Error(response.message));
-        }
-      };
-
-      const script = document.createElement("script");
-      script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}&first=${isFirstBatch}`;
-      script.onerror = () => reject(new Error("Script error (koneksi gagal?)"));
-
-      document.body.appendChild(script);
-    });
-  } catch (err) {
-    console.error("❌ kirimBatchJSONP ERROR:", err);
-    showPesan('error', "Gagal kirim batch: " + err.message);
-    throw err;
-  }
+    const script = document.createElement("script");
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}&isFirst=${isFirst}`;
+    script.onerror = () => reject(new Error("Script error (koneksi gagal?)"));
+    document.body.appendChild(script);
+  });
 }
 
 /**
@@ -1246,7 +1213,7 @@ function selesaikanImport() {
 //********************************
 // Fungsi kirim data baru import
 //********************************
-function kirimDataBaru(csvString) {
+function BACKUP_kirimDataBaru(csvString) {
   console.log("Data yang akan diimport:", csvString);
 
   showLoading(true, 'Produk');
