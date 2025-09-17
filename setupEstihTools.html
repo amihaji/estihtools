@@ -1035,88 +1035,60 @@ document.addEventListener('DOMContentLoaded', () => {
   // ---------------------------
   // --- Event tombol Import ---
   // ---------------------------
-  //document.addEventListener('DOMContentLoaded', () => {
-    const btnImport = document.getElementById('btnImport');
-    if (btnImport) {
-      btnImport.addEventListener('click', () => {
-        document.getElementById('fileImport').value = ''; // reset file input
-        new bootstrap.Modal(document.getElementById('modalImport')).show();
-      });
-    }
+  const btnImport = document.getElementById('btnImport');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ''; // reset input file
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
 
-    const btnProsesImport = document.getElementById('btnProsesImport');
-    if (btnProsesImport) {
-      btnProsesImport.addEventListener('click', () => {
-        const fileInput = document.getElementById('fileImport');
-        if (!fileInput.files.length) {
-          showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
-          return;
-        }
+  const btnProsesImport = document.getElementById('btnProsesImport');
+  if (btnProsesImport) {
+    btnProsesImport.addEventListener('click', () => {
+      const fileInput = document.getElementById('fileImport');
+      if (!fileInput.files.length) {
+        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
+        return;
+      }
 
-        const file = fileInput.files[0];
-        const reader = new FileReader();
+      const file = fileInput.files[0];
+      const reader = new FileReader();
 
-        reader.onload = function (e) {
-          try {
-            let csvString = "";
+      reader.onload = function (e) {
+        try {
+          let csvString = "";
 
-            if (file.name.endsWith(".csv")) {
-              csvString = e.target.result;
-            } else if (file.name.endsWith(".xlsx")) {
-              const data = new Uint8Array(e.target.result);
-              const workbook = XLSX.read(data, { type: "array" });
-              const sheetName = workbook.SheetNames[0];
-              const sheet = workbook.Sheets[sheetName];
-              csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
-            } else {
-              showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
-              return;
-            }
-
-            console.log("📄 Data yang akan diimport:", csvString.substring(0, 500) + "...");
-            showLoading(true, 'Produk');
-
-            // === PECAH CSV MENJADI BATCH ===
-            const rows = csvString.split("\n").filter(r => r.trim() !== "");
-            const header = rows.shift(); // ambil header, disimpan di batch pertama
-            const batchSize = 50;
-            let index = 0;
-            let isFirst = true;
-
-            async function kirimBatch() {
-              if (index >= rows.length) {
-                console.log("✅ Semua batch terkirim!");
-                showLoading(false, 'Produk');
-                showPesan('success', 'Import selesai!');
-                bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-                loadProdukTable();
-                return;
-              }
-
-              const batch = rows.slice(index, index + batchSize);
-              index += batchSize;
-
-              // Batch pertama: sertakan header
-              const batchData = isFirst ? [header, ...batch] : batch;
-              console.log(`📤 Kirim batch ${Math.ceil(index / batchSize)} (${batch.length} baris)`);
-
-              kirimBatchJSONP(batchData, kirimBatch, isFirst);
-              isFirst = false;
-            }
-
-            kirimBatch(); // mulai batch pertama
-
-          } catch (err) {
-            console.error("❌ Error Import:", err);
-            showPesan('error', ' ERROR : ' + err.message);
-            showLoading(false, 'Produk');
+          if (file.name.endsWith(".csv")) {
+            csvString = e.target.result;
+          } else if (file.name.endsWith(".xlsx")) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
+          } else {
+            showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
+            return;
           }
-        };
 
-        if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
-        else reader.readAsArrayBuffer(file);
-      });
-    }
+          console.log("📄 Data yang akan diimport:", csvString.substring(0, 500));
+          showLoading(true, 'Produk');
+
+          // 🔥 Panggil fungsi baru untuk mulai import
+          startImport(csvString);
+
+        } catch (err) {
+          console.error("Error Import:", err);
+          showPesan('error', ' ERROR : ' + err.message);
+          showLoading(false, 'Produk');
+        }
+      };
+
+      if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
+      else reader.readAsArrayBuffer(file);
+    });
+  }
 
 });
 // **** Akhir Script Event DOMContent ****
@@ -1127,6 +1099,40 @@ function updateProgressBar(done, total) {
   bar.style.width = percent + "%";
   bar.textContent = percent + "%";
 }
+
+// ----------------------------------
+//  Fungsi Untuk memulai import data
+// ----------------------------------
+  function startImport(csvString) {
+    // Split per baris, filter kosong
+    const rows = csvString.split("\n").filter(r => r.trim() !== "");
+    const header = rows.shift(); // ambil header
+    const batchSize = 50; // bisa diubah sesuai kebutuhan
+    let index = 0;
+
+    console.log("📌 Header:", header.split(";"));
+
+    async function kirimNextBatch() {
+      if (index >= rows.length) {
+        console.log("✅ Semua batch terkirim!");
+        showLoading(false, 'Produk');
+        showPesan('success', 'Import selesai!');
+        bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+        loadProdukTable();
+        return;
+      }
+
+      const batchRows = rows.slice(index, index + batchSize);
+      index += batchSize;
+
+      console.log(`📤 Kirim batch ${Math.ceil(index / batchSize)} (${batchRows.length} baris)`);
+      const batchCsv = [header, ...batchRows].join("\n");
+
+      await kirimBatchJSONP(batchCsv, kirimNextBatch, index === batchRows.length);
+    }
+
+    kirimNextBatch(); // Mulai kirim batch pertama
+  }
 
 // ---------------------------
 // --- kirimBatchJSONP ---
