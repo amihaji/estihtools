@@ -1137,28 +1137,66 @@ function updateProgressBar(done, total) {
 // ---------------------------
 // --- kirimBatchJSONP ---
 // ---------------------------
-function kirimBatchJSONP(batchArray, callback, isFirstBatch = false) {
-  if (!Array.isArray(batchArray)) {
-    console.error("❌ kirimBatchJSONP menerima data bukan array:", batchArray);
-    return;
+async function kirimBatchJSONP(batchCsv, callback, isFirstBatch = false) {
+  try {
+    console.log(`📤 kirimBatchJSONP (${batchCsv.split("\n").length - 1} baris, isFirst=${isFirstBatch})`);
+
+    // Konversi CSV ke array objek untuk jaga-jaga
+    const lines = batchCsv.split("\n").filter(r => r.trim() !== "");
+    const header = lines.shift().split(";");
+
+    const data = lines.map(line => {
+      const cols = line.split(";");
+
+      // Jaga agar NoStok tidak diubah ke angka
+      const noStok = cols[0] ? String(cols[0]).trim() : "";
+
+      // Jaga format angka tetap format Indonesia (biarkan apa adanya)
+      const normalize = (val) => (val ? val.trim() : "");
+
+      return {
+        noStok: noStok,
+        kategori: normalize(cols[1]),
+        namaProduk: normalize(cols[2]),
+        vp: normalize(cols[3]),
+        hargaDasar: normalize(cols[4]),
+        hargaEceran: normalize(cols[5]),
+        member25: normalize(cols[6]),
+        sc35: normalize(cols[7]),
+        sb42: normalize(cols[8]),
+        spv50: normalize(cols[9]),
+      };
+    });
+
+    console.table(data);
+
+    // Kirim data ke Apps Script via JSONP
+    const callbackName = "cb_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+
+    return new Promise((resolve, reject) => {
+      window[callbackName] = function (response) {
+        console.log("✅ Respon server:", response);
+
+        if (response.status === "success") {
+          resolve(response);
+          if (callback) callback();
+        } else {
+          console.error("❌ Gagal simpan batch:", response.message);
+          reject(new Error(response.message));
+        }
+      };
+
+      const script = document.createElement("script");
+      script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}&first=${isFirstBatch}`;
+      script.onerror = () => reject(new Error("Script error (koneksi gagal?)"));
+
+      document.body.appendChild(script);
+    });
+  } catch (err) {
+    console.error("❌ kirimBatchJSONP ERROR:", err);
+    showPesan('error', "Gagal kirim batch: " + err.message);
+    throw err;
   }
-
-  const callbackName = 'cb_' + Date.now();
-  window[callbackName] = function (res) {
-    console.log("✅ Respon server:", res);
-    if (res.status === "error") {
-      console.error("❌ Server Error:", res.message);
-      showPesan('error', 'ERROR: ' + res.message);
-    }
-    if (typeof callback === "function") callback();
-    delete window[callbackName];
-    document.body.removeChild(script);
-  };
-
-  const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchArray.join("\n"))}&isFirst=${isFirstBatch}`;
-  console.log(`📤 kirimBatchJSONP (${batchArray.length} baris, isFirst=${isFirstBatch})`);
-  document.body.appendChild(script);
 }
 
 /**
