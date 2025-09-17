@@ -334,7 +334,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxMMGHc94_5Zav2MeYJCEgb90Zc6J3lQXxktAvsjtc8HnmGGaoZyAtXXY4OwX-UMoeZ3Q/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxG0LVzY4mUNqzv7TGxer2pZ8xj7t83T0IQ6jYIuGlnaEtKBaJNcwKRVezRGUG4weIBNQ/exec';
 // **************************************
 
 // **********************************
@@ -1104,56 +1104,52 @@ function updateProgressBar(done, total) {
 function startImport(csvString) {
   showLoading(true, 'Produk');
 
-  // Pecah CSV per baris
+  // Pecah CSV menjadi baris
   const rows = csvString.split("\n").filter(r => r.trim() !== "");
-  const header = rows.shift(); // buang header
+  const header = rows.shift(); // buang header, jangan dikirim ke server
+  console.log("📌 Header:", header.split(";"));
+
   const batchSize = 50;
   let index = 0;
-
-  console.log("📌 Header:", header.split(";"));
 
   async function kirimNextBatch() {
     if (index >= rows.length) {
       console.log("✅ Semua batch terkirim!");
       showLoading(false, 'Produk');
       bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-      loadProdukTable(); // reload tabel di layar
+      loadProdukTable();
       return;
     }
 
     const batch = rows.slice(index, index + batchSize);
     index += batchSize;
 
-    console.log(`📤 Kirim batch ${index / batchSize} (${batch.length} baris)`);
+    console.log(`📤 Kirim batch (${batch.length} baris)`);
 
-    // gabungkan header + batch untuk dikirim
-    const batchCsv = [header, ...batch].join("\n");
-
-    await kirimBatchJSONP(batchCsv, index === batchSize, kirimNextBatch);
+    try {
+      await kirimBatchJSONP(batch.join("\n"), index <= batchSize, kirimNextBatch);
+    } catch (err) {
+      console.error("❌ Gagal kirim batch:", err);
+      showLoading(false, 'Produk');
+    }
   }
 
-  kirimNextBatch(); // mulai batch pertama
+  kirimNextBatch();
 }
-  
+
 // ---------------------------
 // --- kirimBatchJSONP ---
 // ---------------------------
 function kirimBatchJSONP(batchCsv, isFirst, onSuccess) {
   return new Promise((resolve, reject) => {
-    if (!Array.isArray(batchCsv) && typeof batchCsv !== "string") {
-      console.error("❌ kirimBatchJSONP menerima data bukan array:", batchCsv);
-      reject(new Error("Format batch salah"));
-      return;
-    }
-
     const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
     window[callbackName] = function (result) {
       console.log("✅ Respon server:", result);
       delete window[callbackName];
 
       if (result.status === "success") {
-        resolve(result);
         if (onSuccess) onSuccess();
+        resolve(result);
       } else {
         reject(new Error(result.message || "Gagal import"));
       }
@@ -1208,43 +1204,6 @@ function selesaikanImport() {
   bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
   loadProdukTable(); // refresh tabel
   showPesan('success', '✅ Import selesai!');
-}
-
-//********************************
-// Fungsi kirim data baru import
-//********************************
-function BACKUP_kirimDataBaru(csvString) {
-  console.log("Data yang akan diimport:", csvString);
-
-  showLoading(true, 'Produk');
-  const callbackName = 'cb_' + Date.now();
-
-  window[callbackName] = function(response) {
-    console.log("Respon server:", response);
-    showLoading(false, 'Produk');
-
-    if (response.status === 'success') {
-      showPesan('success', response.message);
-      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-      loadProdukTable();
-    } else {
-      showPesan('error', "Gagal import: " + (response.message || "Unknown error"));
-    }
-
-    try { delete window[callbackName]; } catch(e){}
-    document.getElementById(callbackName + '_script')?.remove();
-  };
-
-  const params = new URLSearchParams({
-    action: 'importTabelHarga',
-    csv: encodeURIComponent(csvString),
-    callback: callbackName
-  });
-
-  const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
-  document.body.appendChild(script);
 }
 
 //***********************************
