@@ -1162,6 +1162,7 @@ function selesaikanImport() {
   showLoading(false, 'Produk');
   bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
   document.getElementById('progressContainer').style.display = 'none';
+  showPesan('success', 'Import selesai! Semua data berhasil disimpan.');
   loadProdukTable(); // refresh tabel setelah import
 }
 
