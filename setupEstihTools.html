@@ -311,8 +311,13 @@ tr:hover .action-icon {
         <input type="file" id="fileImport" accept=".csv,.xlsx,.xls" class="form-control">
         <small class="text-muted">Pilih file CSV atau XLSX sesuai format Tabel Harga.</small>
       </div>
+      <div class="progress mt-3" style="height: 20px;">
+        <div id="importProgressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+          role="progressbar" style="width: 0%">0%
+        </div>
+      </div>
       <div class="modal-footer">
-        <button id="btnProsesImport" class="btn btn-primary"><i class="fas fa-upload"></i> Import</button>
+        <button id="btnProsesImport" class="btn btn-primary"><i class="fas fa-upload"></i> Proses</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
       </div>
     </div>
@@ -1105,8 +1110,39 @@ document.addEventListener('DOMContentLoaded', () => {
     
 });
 // **** Akhir Script Event DOMContent ****
-
 async function kirimBatch() {
+  const total = rows.length;
+  if (index >= total) {
+    // semua batch selesai
+    updateProgressBar(total, total); // pastikan 100%
+    showLoading(false, 'Produk');
+    showPesan('success', `Import selesai! Total ${total} baris tersimpan.`);
+    bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+    loadProdukTable(); // refresh tabel
+    return;
+  }
+
+  const batch = rows.slice(index, index + batchSize);
+  index += batchSize;
+
+  const batchCsv = [header, ...batch].join("\n");
+  const currentBatch = Math.ceil(index / batchSize);
+
+  console.log(`🔄 Kirim batch ke-${currentBatch}, jumlah baris: ${batch.length}`);
+
+  try {
+    await kirimBatchJSONP(batchCsv);
+    updateProgressBar(index, total);
+    // Tambahkan sedikit jeda agar tidak terlalu cepat bertubi-tubi
+    setTimeout(kirimBatch, 300);
+  } catch (err) {
+    console.error("❌ Batch gagal:", err);
+    showPesan("error", `ERROR : Batch ${currentBatch} gagal dikirim`);
+    showLoading(false, 'Produk');
+  }
+}
+
+async function BACKUP_kirimBatch() {
   if (index >= rows.length) {
     // semua batch selesai
     showLoading(false, 'Produk');
@@ -1142,6 +1178,37 @@ function kirimBatchJSONP(csvString) {
     const script = document.createElement("script");
 
     window[callbackName] = function (response) {
+      cleanup();
+      console.log("✅ Respon server:", response);
+      if (!response || response.status !== "success") {
+        reject(new Error(response?.message || "Batch gagal simpan"));
+      } else {
+        resolve(response);
+      }
+    };
+
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encodeURIComponent(csvString)}&callback=${callbackName}`;
+    script.id = callbackName + "_script";
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("Script error (mungkin koneksi putus)"));
+    };
+
+    document.body.appendChild(script);
+
+    function cleanup() {
+      try { delete window[callbackName]; } catch (e) {}
+      document.getElementById(callbackName + "_script")?.remove();
+    }
+  });
+}
+
+function BACKUP_kirimBatchJSONP(csvString) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "cb_import_" + Date.now();
+    const script = document.createElement("script");
+
+    window[callbackName] = function (response) {
       try {
         console.log("Respon server:", response);
         if (!response || response.status !== "success") {
@@ -1166,6 +1233,16 @@ function kirimBatchJSONP(csvString) {
       document.getElementById(callbackName + "_script")?.remove();
     }
   });
+}
+
+// ********************
+// Fungsi Progress Bar
+// ********************
+function updateProgressBar(done, total) {
+  const percent = Math.min(100, Math.round((done / total) * 100));
+  const bar = document.getElementById("importProgressBar");
+  bar.style.width = percent + "%";
+  bar.textContent = percent + "%";
 }
 
 //********************************
