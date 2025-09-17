@@ -334,7 +334,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzPM3f8Ah32IOOTpyQh_h2NBHDE_PG87OhLPnZhR4B13DHBiMUpeJ_L6qs2CfON_iOZyQ/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbydeJOCQ9dVxFykyjITm5Ec8s6kGneODEEjaZWGugpMsOTlBL5RFUAi-kBxYdoUnzYAug/exec';
 // **************************************
 
 // **********************************
@@ -1059,43 +1059,37 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
 
       reader.onload = async function (e) {
-        try {
-          let csvString = "";
-          if (file.name.endsWith(".csv")) {
-            csvString = e.target.result;
-          } else if (file.name.endsWith(".xlsx")) {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: "array" });
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
-          } else {
-            showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
-            return;
-          }
+      try {
+        let csvString = "";
 
-          console.log("Data yang akan diimport:", csvString.substring(0, 500) + "...");
-
-          let rows = csvString.trim().split('\n')
-            .map(r => r.trim())
-            .filter(r => r !== "" && !/^[;]+$/.test(r));
-
-          if (rows.length <= 1) {
-            showPesanModal('warning', ' WARNING : File tidak berisi data yang valid!');
-            return;
-          }
-
-          showLoading(true, 'Produk');
-          document.getElementById('progressContainer').style.display = "block";
-
-          kirimBatch(rows, 50); // batch size 50 baris
-        } catch (err) {
-          console.error("Error Import:", err);
-          showPesan('error', ' ERROR : ' + err.message);
-          showLoading(false, 'Produk');
+        // --- Deteksi format file ---
+        if (file.name.endsWith(".csv")) {
+          csvString = e.target.result;
+        } else if (file.name.endsWith(".xlsx")) {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
+        } else {
+          showPesanModal("error", " ❌ ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
+          return;
         }
-      };
 
+        // --- DEBUG LOG ---
+        console.log("Data yang akan diimport:", csvString);
+        showLoading(true, 'Produk');
+
+        // === PECAH CSV MENJADI ARRAY & KIRIM BATCH ===
+        const rows = csvString.split("\n").filter(r => r.trim() !== ""); // buang baris kosong
+        kirimBatch(rows, 10); // kirim 10 baris per batch
+
+      } catch (err) {
+        console.error("❌ Error Import:", err);
+        showPesan('error', ' ERROR : ' + err.message);
+        showLoading(false, 'Produk');
+      }
+    };
       if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
       else reader.readAsArrayBuffer(file);
     });
@@ -1111,90 +1105,97 @@ function updateProgressBar(done, total) {
   bar.textContent = percent + "%";
 }
 
-async function kirimBatch(rows, batchSize) {
-    let index = 0;
-    const totalBatch = Math.ceil(rows.length / batchSize);
-    const progressBar = document.getElementById('progressBar');
-
-    async function kirimNext() {
-      if (index >= rows.length) {
-        selesaikanImport();
-        return;
-      }
-
-      const batch = rows.slice(index, index + batchSize).filter(r => r.trim() !== "");
-      index += batchSize;
-
-      if (batch.length === 0) {
-        kirimNext();
-        return;
-      }
-
-      const batchCsv = batch.join("\n");
-      const currentBatch = Math.ceil(index / batchSize);
-      console.log(`Kirim batch ${currentBatch}/${totalBatch}: ${batch.length} baris`);
-
-      // Update progress bar
-      const progress = Math.min(100, Math.round((currentBatch / totalBatch) * 100));
-      progressBar.style.width = progress + "%";
-      progressBar.textContent = `${progress}%`;
-
-      await kirimBatchJSONP(batchCsv, kirimNext);
+/**
+ * Kirim batch data ke Google Apps Script via JSONP
+ */
+async function kirimBatchJSONP(batchArray, onSuccess) {
+  try {
+    if (!Array.isArray(batchArray)) {
+      console.error("❌ kirimBatchJSONP menerima data bukan array:", batchArray);
+      showPesan('error', 'ERROR : Data batch tidak valid.');
+      showLoading(false, 'Produk');
+      return;
     }
 
-    kirimNext();
-  }
+    const batchCsv = batchArray.join("\n"); // ✅ Ubah array → CSV string
+    console.log("📤 Kirim batch ke server, jumlah baris:", batchArray.length);
 
-  function selesaikanImport() {
-    console.log("✅ Import selesai!");
+    const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+    return new Promise((resolve, reject) => {
+      window[callbackName] = function (response) {
+        console.log("✅ Respon server:", response);
+
+        if (response && response.status === 'success') {
+          resolve(response);
+          if (onSuccess) onSuccess(); // lanjut ke batch berikut
+        } else {
+          reject(new Error(response?.message || "Import gagal"));
+        }
+
+        try { delete window[callbackName]; } catch (e) {}
+        document.body.removeChild(script);
+      };
+
+      const script = document.createElement('script');
+      script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}`;
+      script.onerror = () => {
+        reject(new Error("Script error (koneksi gagal?)"));
+        try { delete window[callbackName]; } catch (e) {}
+        document.body.removeChild(script);
+      };
+      document.body.appendChild(script);
+    });
+
+  } catch (err) {
+    console.error("❌ Error kirimBatchJSONP:", err);
+    showPesan('error', 'ERROR : ' + err.message);
     showLoading(false, 'Produk');
-    document.getElementById('progressBar').style.width = "100%";
-    document.getElementById('progressBar').textContent = "Selesai";
-    setTimeout(() => {
-      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-      showPesan('success', 'Import selesai! Semua data berhasil disimpan.');
-      document.getElementById('produkTableBody').innerHTML = '';
-      loadProdukTable();
-    }, 500);
+  }
+}
+
+/**
+ * Jalankan batch per batch sampai selesai
+ */
+function kirimBatch(rows, batchSize) {
+  const header = rows.shift(); // hapus header CSV
+  let index = 0;
+
+  // Setup progress bar
+  const total = rows.length;
+  const progress = document.getElementById('importProgress');
+  if (progress) {
+    progress.value = 0;
+    progress.max = total;
   }
 
-function kirimBatchJSONP(batchData, batchIndex, totalBatch, callbackFinal) {
-  const callbackName = 'cb_import_' + Date.now() + '_' + batchIndex;
-
-  window[callbackName] = function(response) {
-    console.log("✅ Respon server:", response);
-
-    // Update progress bar
-    const progress = Math.round(((batchIndex + 1) / totalBatch) * 100);
-    const progressBar = document.getElementById('importProgress');
-    progressBar.style.width = progress + '%';
-    progressBar.innerText = progress + '%';
-
-    // Hapus <script> JSONP setelah dipanggil
-    document.getElementById(callbackName)?.remove();
-    delete window[callbackName];
-
-    // Jika ini batch terakhir → callback final
-    if (batchIndex === totalBatch - 1 && callbackFinal) {
-      callbackFinal(response);
+  async function kirimNext() {
+    if (index >= total) {
+      selesaikanImport();
+      return;
     }
-  };
 
-  const script = document.createElement('script');
-  script.id = callbackName;
-  const params = new URLSearchParams({
-    action: 'importTabelHarga',
-    csv: encodeURIComponent(batchData.join('\n')),
-    callback: callbackName
-  });
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
-  script.onerror = () => {
-    console.error("❌ Gagal kirim batch", batchIndex + 1);
-    document.getElementById(callbackName)?.remove();
-    delete window[callbackName];
-    if (callbackFinal) callbackFinal({ status: "error", message: "Batch gagal" });
-  };
-  document.body.appendChild(script);
+    const batch = rows.slice(index, index + batchSize);
+    index += batchSize;
+
+    if (progress) progress.value = index;
+
+    console.log(`Kirim batch ${Math.ceil(index / batchSize)}: ${batch.length} baris`);
+
+    await kirimBatchJSONP([header, ...batch], kirimNext);
+  }
+
+  kirimNext(); // mulai batch pertama
+}
+
+/**
+ * Cleanup setelah semua batch terkirim
+ */
+function selesaikanImport() {
+  showLoading(false, 'Produk');
+  bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+  loadProdukTable(); // refresh tabel
+  showPesan('success', '✅ Import selesai!');
 }
 
 //********************************
