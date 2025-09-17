@@ -310,12 +310,12 @@ tr:hover .action-icon {
 
       <div class="modal-body">
         <input type="file" id="fileImport" accept=".xlsx,.xls,.csv" class="form-control mb-2">
-        <small class="text-muted">Pilih file Excel (XLSX) atau CSV sesuai format sheet TabelHarga.</small>
+        <small class="text-muted d-block mb-2">Pilih file Excel/CSV yang sesuai format sheet TabelHarga.</small>
 
-        <!-- Progress Bar -->
-        <div class="progress mt-3" style="height: 20px; display: none;" id="progressContainer">
-          <div id="importProgress" class="progress-bar progress-bar-striped progress-bar-animated" 
-            role="progressbar" style="width: 0%">0%
+        <!-- Progress bar -->
+        <div class="progress" style="height: 20px; display:none;" id="progressContainer">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+              role="progressbar" style="width: 0%" id="progressBar">0%
           </div>
         </div>
       </div>
@@ -1038,7 +1038,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnImport = document.getElementById('btnImport');
   if (btnImport) {
     btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = ''; // reset input file
+      document.getElementById('fileImport').value = '';
+      document.getElementById('progressContainer').style.display = "none";
+      document.getElementById('progressBar').style.width = "0%";
+      document.getElementById('progressBar').textContent = "0%";
       new bootstrap.Modal(document.getElementById('modalImport')).show();
     });
   }
@@ -1055,10 +1058,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = fileInput.files[0];
       const reader = new FileReader();
 
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         try {
           let csvString = "";
-
           if (file.name.endsWith(".csv")) {
             csvString = e.target.result;
           } else if (file.name.endsWith(".xlsx")) {
@@ -1072,14 +1074,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
 
-          console.log("Data yang akan diimport:", csvString);
+          console.log("Data yang akan diimport:", csvString.substring(0, 500) + "...");
+
+          let rows = csvString.trim().split('\n')
+            .map(r => r.trim())
+            .filter(r => r !== "" && !/^[;]+$/.test(r));
+
+          if (rows.length <= 1) {
+            showPesanModal('warning', ' WARNING : File tidak berisi data yang valid!');
+            return;
+          }
+
           showLoading(true, 'Produk');
+          document.getElementById('progressContainer').style.display = "block";
 
-          // === GANTI BAGIAN INI DENGAN PEMANGGILAN kirimBatch ===
-          const rows = csvString.trim().split('\n');
-          kirimBatch(rows, 10); // panggil fungsi kirimBatch yang tadi kita buat
-          // ================================================
-
+          kirimBatch(rows, 50); // batch size 50 baris
         } catch (err) {
           console.error("Error Import:", err);
           showPesan('error', ' ERROR : ' + err.message);
@@ -1102,21 +1111,52 @@ function updateProgressBar(done, total) {
   bar.textContent = percent + "%";
 }
 
-function kirimBatch(rows, batchSize = 10) {
-  const totalBatch = Math.ceil(rows.length / batchSize);
-  document.getElementById('progressContainer').style.display = 'block';
+async function kirimBatch(rows, batchSize) {
+    let index = 0;
+    const totalBatch = Math.ceil(rows.length / batchSize);
+    const progressBar = document.getElementById('progressBar');
 
-  rows.forEach((_, i) => {
-    const batchRows = rows.slice(i * batchSize, (i + 1) * batchSize);
-    console.log(`Kirim batch ${i + 1}: ${batchRows.length} baris`);
-
-    kirimBatchJSONP(batchRows, i, totalBatch, (res) => {
-      if (res.status === "success" && i === totalBatch - 1) {
+    async function kirimNext() {
+      if (index >= rows.length) {
         selesaikanImport();
+        return;
       }
-    });
-  });
-}
+
+      const batch = rows.slice(index, index + batchSize).filter(r => r.trim() !== "");
+      index += batchSize;
+
+      if (batch.length === 0) {
+        kirimNext();
+        return;
+      }
+
+      const batchCsv = batch.join("\n");
+      const currentBatch = Math.ceil(index / batchSize);
+      console.log(`Kirim batch ${currentBatch}/${totalBatch}: ${batch.length} baris`);
+
+      // Update progress bar
+      const progress = Math.min(100, Math.round((currentBatch / totalBatch) * 100));
+      progressBar.style.width = progress + "%";
+      progressBar.textContent = `${progress}%`;
+
+      await kirimBatchJSONP(batchCsv, kirimNext);
+    }
+
+    kirimNext();
+  }
+
+  function selesaikanImport() {
+    console.log("✅ Import selesai!");
+    showLoading(false, 'Produk');
+    document.getElementById('progressBar').style.width = "100%";
+    document.getElementById('progressBar').textContent = "Selesai";
+    setTimeout(() => {
+      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+      showPesan('success', 'Import selesai! Semua data berhasil disimpan.');
+      document.getElementById('produkTableBody').innerHTML = '';
+      loadProdukTable();
+    }, 500);
+  }
 
 function kirimBatchJSONP(batchData, batchIndex, totalBatch, callbackFinal) {
   const callbackName = 'cb_import_' + Date.now() + '_' + batchIndex;
@@ -1155,15 +1195,6 @@ function kirimBatchJSONP(batchData, batchIndex, totalBatch, callbackFinal) {
     if (callbackFinal) callbackFinal({ status: "error", message: "Batch gagal" });
   };
   document.body.appendChild(script);
-}
-
-function selesaikanImport() {
-  console.log("✅ Import selesai!");
-  showLoading(false, 'Produk');
-  bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-  document.getElementById('progressContainer').style.display = 'none';
-  showPesan('success', 'Import selesai! Semua data berhasil disimpan.');
-  loadProdukTable(); // refresh tabel setelah import
 }
 
 //********************************
