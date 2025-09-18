@@ -334,7 +334,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwpGHBxGgEKig7LMdnABVzuZQqX1rw_SYFu_4m7yno8thRnI0fOpaAEaWipM7bamE8YJw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwDfiZ1UUfcrfgBmKgtYI_YdDElmrhqKFmkTV6GQ7Fpd3P-u_nY4CYLO1ARstTCYhuELQ/exec';
 // **************************************
 
 // **********************************
@@ -1101,45 +1101,122 @@ function updateProgressBar(done, total) {
   bar.textContent = percent + "%";
 }
 
+// *****************************************************************************************
+// Fungsi ini mengembalikan Promise yang resolve saat server kirim respon lewat postMessage.
+// *****************************************************************************************
+function sendBatchByForm(batchCsv, isFirst) {
+  return new Promise((resolve, reject) => {
+    const iframeName = 'import_iframe_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const iframe = document.createElement('iframe');
+    iframe.name = iframeName;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // timeout safety (mis. 60s)
+    const timeoutMs = 60000;
+    let timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout saat mengirim batch ke server'));
+    }, timeoutMs);
+
+    function cleanup() {
+      window.removeEventListener('message', onMessage);
+      try { iframe.remove(); } catch (e) {}
+      try { form.remove(); } catch (e) {}
+      clearTimeout(timeoutId);
+    }
+
+    function onMessage(event) {
+      // event.data diharapkan berupa objek JSON (dikirim dari server)
+      try {
+        const data = (typeof event.data === 'string') ? JSON.parse(event.data) : event.data;
+        cleanup();
+        resolve(data);
+      } catch (err) {
+        cleanup();
+        reject(new Error('Gagal parse respon server: ' + err.message));
+      }
+    }
+
+    window.addEventListener('message', onMessage, false);
+
+    // build form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = URL_APPS_SCRIPT; // URL_APPS_SCRIPT harus tetap sama
+    form.target = iframeName;
+
+    const addHidden = (name, value) => {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = name;
+      inp.value = value;
+      form.appendChild(inp);
+    };
+
+    addHidden('action', 'importTabelHarga');
+    addHidden('batch', batchCsv);
+    addHidden('isFirst', isFirst ? 'true' : 'false');
+
+    document.body.appendChild(form);
+
+    // submit
+    try {
+      form.submit();
+    } catch (err) {
+      cleanup();
+      reject(err);
+    }
+  });
+}
+
 // ***************************
 // Fungsi Untuk Memulai Import
 // ***************************
 async function startImport(csvString) {
   showLoading(true, 'Produk');
 
-  const rows = csvString.split("\n").filter(r => r.trim() !== "");
-  rows.shift(); // ✅ buang header
+  // split per baris dan buang header (header tidak dikirim)
+  const rows = csvString.split("\n").map(r => r.replace(/\r/g, '')).filter(r => r.trim() !== "");
+  const header = rows.shift(); // buang header
   console.log("📌 Header dibuang, jumlah data:", rows.length);
 
-  const batchSize = 50;
+  const batchSize = 50; // bisa kamu kecilkan ke 20 jika mau safety
   let index = 0;
+  let batchNumber = 0;
 
-  async function kirimNextBatch() {
-    if (index >= rows.length) {
-      console.log("✅ Semua batch terkirim!");
-      showLoading(false, 'Produk');
-      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-      loadProdukTable();
-      return;
+  try {
+    while (index < rows.length) {
+      const batchRows = rows.slice(index, index + batchSize);
+      index += batchSize;
+      batchNumber++;
+
+      console.log(`📤 Kirim batch ${batchNumber} (${batchRows.length} baris) isFirst=${batchNumber === 1}`);
+      const batchCsv = batchRows.join("\n");
+
+      // kirim via form+iframe, tunggu respon
+      const res = await sendBatchByForm(batchCsv, batchNumber === 1);
+
+      console.log("✅ Respon server:", res);
+      if (!res || res.status !== 'success') {
+        throw new Error(res && res.message ? res.message : 'Server mengembalikan status error');
+      }
+
+      // lanjut ke batch berikutnya
     }
 
-    const batch = rows.slice(index, index + batchSize);
-    const isFirst = index === 0;
-    index += batchSize;
-
-    console.log(`📤 Kirim batch (${batch.length} baris) isFirst=${isFirst}`);
-
-    try {
-      await kirimBatchJSONP(batch.join("\n"), isFirst);
-      await kirimNextBatch(); // kirim batch berikutnya
-    } catch (err) {
-      console.error("❌ Gagal kirim batch:", err);
-      showLoading(false, 'Produk');
-    }
+    // semua batch berhasil
+    showLoading(false, 'Produk');
+    showPesan('success', 'Import selesai!');
+    bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+    loadProdukTable();
+  } catch (err) {
+    console.error('❌ Gagal import:', err);
+    showLoading(false, 'Produk');
+    showPesan('error', ' ERROR : ' + (err.message || err));
   }
-
-  await kirimNextBatch();
 }
+
 // ***********************
 // Fungsi Kirim Batch Json
 // ***********************
