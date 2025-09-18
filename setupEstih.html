@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxNCctD5nX9a2J19pNBlJvqLqSHUAhsLL3Ecp1Yhu59RoWQbwqTgh1nu-d64ktdc0Q6Iw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxcwZhCcj_oBfJbJ-7ljXbN9VHKZ4xAFjfK1uE7hKM8hFSAw3orZ-6YKalhs6zGBvdF9w/exec';
 // **************************************
 
 // **********************************
@@ -1068,16 +1068,19 @@ document.addEventListener('DOMContentLoaded', () => {
           // === PECAH CSV MENJADI BATCH ===
           const rows = csvString.split("\n").filter(r => r.trim() !== "");
           const header = rows.shift(); // buang header
-          const batchSize = 50; // lebih kecil untuk menghindari timeout
+          const batchSize = 30; // lebih kecil untuk menghindari timeout
           let index = 0;
           let batchCount = 0;
           let totalProcessed = 0;
+          let hasError = false;
 
           async function processBatch() {
-            if (index >= rows.length) {
-              // semua batch selesai
+            if (hasError || index >= rows.length) {
+              // semua batch selesai atau ada error
               showLoading(false, 'Produk');
-              showPesan('success', `Import selesai! ${totalProcessed} data berhasil diimport.`);
+              if (!hasError) {
+                showPesan('success', `Import selesai! ${totalProcessed} data berhasil diimport.`);
+              }
               bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
               loadProdukTable();
               return;
@@ -1092,14 +1095,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
               const response = await kirimBatchJSONP(batchCsv, batchCount === 1);
-              totalProcessed += batch.length;
-              console.log(`Batch ${batchCount} berhasil: ${batch.length} data`);
-              
-              // Kirim batch berikutnya
-              setTimeout(processBatch, 500); // delay untuk menghindari overload
+              if (response.status === "success") {
+                totalProcessed += batch.length;
+                console.log(`Batch ${batchCount} berhasil: ${batch.length} data`);
+                showPesan('success', `Sedang mengimport... ${totalProcessed}/${rows.length} data`);
+                
+                // Kirim batch berikutnya dengan delay
+                setTimeout(processBatch, 1000);
+              } else {
+                throw new Error(response.message || "Gagal import batch");
+              }
             } catch (err) {
               console.error("Batch gagal:", err);
-              showPesan("error", " ERROR : Batch gagal dikirim: " + err.message);
+              hasError = true;
+              showPesan("error", ` ERROR : Batch ${batchCount} gagal - ${err.message}`);
               showLoading(false, 'Produk');
             }
           }
@@ -1120,6 +1129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
     
 });
 // **** Akhir Script Event DOMContent ****
@@ -1161,7 +1171,7 @@ function kirimBatchJSONP(csvString, isFirstBatch = false) {
 
     window[callbackName] = function (response) {
       try {
-        console.log("Respon server:", response);
+        console.log("Respon server batch:", response);
         if (!response || response.status !== "success") {
           reject(new Error(response?.message || "Gagal simpan batch"));
         } else {
@@ -1179,17 +1189,17 @@ function kirimBatchJSONP(csvString, isFirstBatch = false) {
     script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&first=${isFirstBatch}&callback=${callbackName}`;
     
     script.onerror = () => {
-      reject(new Error("Gagal mengirim request"));
+      reject(new Error("Gagal mengirim request ke server"));
       cleanup();
     };
 
     document.body.appendChild(script);
 
-    // Timeout setelah 30 detik
+    // Timeout setelah 60 detik
     setTimeout(() => {
-      reject(new Error("Timeout - tidak ada respons dari server"));
+      reject(new Error("Timeout - tidak ada respons dari server dalam 60 detik"));
       cleanup();
-    }, 30000);
+    }, 60000);
 
     function cleanup() {
       try { delete window[callbackName]; } catch (e) {}
