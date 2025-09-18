@@ -305,16 +305,26 @@ tr:hover .action-icon {
     <div class="modal-content">
       <div class="modal-header" style="background-color:#003366; color:white;">
         <h6 class="modal-title" id="judulModalImport">Import Tabel Harga</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+
       <div class="modal-body">
-        <input type="file" id="fileImport" accept=".csv,.xlsx,.xls" class="form-control">
-        <small class="text-muted">Pilih file CSV atau XLSX sesuai format Tabel Harga.</small>
+        <input type="file" id="fileImport" accept=".xlsx,.xls,.csv" class="form-control mb-2">
+        <small class="text-muted d-block mb-2">Pilih file Excel/CSV yang sesuai format sheet TabelHarga.</small>
+
+        <!-- Progress bar -->
+        <div class="progress" style="height: 20px; display:none;" id="progressContainer">
+          <div class="progress-bar progress-bar-striped progress-bar-animated bg-success"
+              role="progressbar" style="width: 0%" id="progressBar">0%
+          </div>
+        </div>
       </div>
+
       <div class="modal-footer">
-        <button id="btnProsesImport" class="btn btn-primary"><i class="fas fa-upload"></i> Import</button>
+        <button id="btnProsesImport" class="btn btn-primary">Proses</button>
         <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
       </div>
+
     </div>
   </div>
 </div>
@@ -324,7 +334,11 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
+<<<<<<< HEAD
 const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxiRNRlXt5LpiC8GNUNvDoozGab-aYMGPLjyQxV2-P7NhgYr1AKjKW2wv-adx-odMfgzQ/exec';
+=======
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwDfiZ1UUfcrfgBmKgtYI_YdDElmrhqKFmkTV6GQ7Fpd3P-u_nY4CYLO1ARstTCYhuELQ/exec';
+>>>>>>> 5568b546cc76bcd88faaca2fc484229b68bb440f
 // **************************************
 
 // **********************************
@@ -1028,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnImport = document.getElementById('btnImport');
   if (btnImport) {
     btnImport.addEventListener('click', () => {
-      document.getElementById('fileImport').value = ''; // reset input file
+      document.getElementById('fileImport').value = ''; // reset file input
       new bootstrap.Modal(document.getElementById('modalImport')).show();
     });
   }
@@ -1045,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = fileInput.files[0];
       const reader = new FileReader();
 
-      reader.onload = async function (e) {
+      reader.onload = function (e) {
         try {
           let csvString = "";
 
@@ -1062,34 +1076,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
           }
 
-          console.log("Data yang akan diimport:", csvString.substring(0, 500) + "...");
-          showLoading(true, 'Produk');
-
-          // === PECAH CSV MENJADI BATCH ===
-          const rows = csvString.split("\n").filter(r => r.trim() !== "");
-          const header = rows.shift(); // buang header
-          const batchSize = 100;
-          let index = 0;
-
-          async function kirimBatch() {
-            if (index >= rows.length) {
-              showLoading(false, 'Produk');
-              showPesan('success', 'Import selesai!');
-              bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-              loadProdukTable();
-              return;
-            }
-
-            const batch = rows.slice(index, index + batchSize);
-            index += batchSize;
-
-            const batchCsv = [header, ...batch].join("\n");
-            console.log(`Kirim batch ${index / batchSize}: ${batch.length} baris`);
-
-            await kirimBatchJSONP(batchCsv, kirimBatch);
-          }
-
-          kirimBatch(); // mulai kirim batch pertama
+          console.log("📄 Data yang akan diimport:", csvString);
+          startImport(csvString); // ✅ Panggil fungsi baru untuk proses batch
 
         } catch (err) {
           console.error("Error Import:", err);
@@ -1102,107 +1090,204 @@ document.addEventListener('DOMContentLoaded', () => {
       else reader.readAsArrayBuffer(file);
     });
   }
-    
+
+
 });
 // **** Akhir Script Event DOMContent ****
 
-async function kirimBatch() {
-  if (index >= rows.length) {
-    // semua batch selesai
+// **************************
+// Fungsi Update Progressbar
+// **************************
+function updateProgressBar(done, total) {
+  const percent = Math.min(100, Math.round((done / total) * 100));
+  const bar = document.getElementById("importProgressBar");
+  bar.style.width = percent + "%";
+  bar.textContent = percent + "%";
+}
+
+// *****************************************************************************************
+// Fungsi ini mengembalikan Promise yang resolve saat server kirim respon lewat postMessage.
+// *****************************************************************************************
+function sendBatchByForm(batchCsv, isFirst) {
+  return new Promise((resolve, reject) => {
+    const iframeName = 'import_iframe_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    const iframe = document.createElement('iframe');
+    iframe.name = iframeName;
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    // timeout safety (mis. 60s)
+    const timeoutMs = 60000;
+    let timeoutId = setTimeout(() => {
+      cleanup();
+      reject(new Error('Timeout saat mengirim batch ke server'));
+    }, timeoutMs);
+
+    function cleanup() {
+      window.removeEventListener('message', onMessage);
+      try { iframe.remove(); } catch (e) {}
+      try { form.remove(); } catch (e) {}
+      clearTimeout(timeoutId);
+    }
+
+    function onMessage(event) {
+      // event.data diharapkan berupa objek JSON (dikirim dari server)
+      try {
+        const data = (typeof event.data === 'string') ? JSON.parse(event.data) : event.data;
+        cleanup();
+        resolve(data);
+      } catch (err) {
+        cleanup();
+        reject(new Error('Gagal parse respon server: ' + err.message));
+      }
+    }
+
+    window.addEventListener('message', onMessage, false);
+
+    // build form
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = URL_APPS_SCRIPT; // URL_APPS_SCRIPT harus tetap sama
+    form.target = iframeName;
+
+    const addHidden = (name, value) => {
+      const inp = document.createElement('input');
+      inp.type = 'hidden';
+      inp.name = name;
+      inp.value = value;
+      form.appendChild(inp);
+    };
+
+    addHidden('action', 'importTabelHarga');
+    addHidden('batch', batchCsv);
+    addHidden('isFirst', isFirst ? 'true' : 'false');
+
+    document.body.appendChild(form);
+
+    // submit
+    try {
+      form.submit();
+    } catch (err) {
+      cleanup();
+      reject(err);
+    }
+  });
+}
+
+// ***************************
+// Fungsi Untuk Memulai Import
+// ***************************
+async function startImport(csvString) {
+  showLoading(true, 'Produk');
+
+  // split per baris dan buang header (header tidak dikirim)
+  const rows = csvString.split("\n").map(r => r.replace(/\r/g, '')).filter(r => r.trim() !== "");
+  const header = rows.shift(); // buang header
+  console.log("📌 Header dibuang, jumlah data:", rows.length);
+
+  const batchSize = 50; // bisa kamu kecilkan ke 20 jika mau safety
+  let index = 0;
+  let batchNumber = 0;
+
+  try {
+    while (index < rows.length) {
+      const batchRows = rows.slice(index, index + batchSize);
+      index += batchSize;
+      batchNumber++;
+
+      console.log(`📤 Kirim batch ${batchNumber} (${batchRows.length} baris) isFirst=${batchNumber === 1}`);
+      const batchCsv = batchRows.join("\n");
+
+      // kirim via form+iframe, tunggu respon
+      const res = await sendBatchByForm(batchCsv, batchNumber === 1);
+
+      console.log("✅ Respon server:", res);
+      if (!res || res.status !== 'success') {
+        throw new Error(res && res.message ? res.message : 'Server mengembalikan status error');
+      }
+
+      // lanjut ke batch berikutnya
+    }
+
+    // semua batch berhasil
     showLoading(false, 'Produk');
     showPesan('success', 'Import selesai!');
     bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
     loadProdukTable();
-    return;
-  }
-
-  const batch = rows.slice(index, index + batchSize);
-  index += batchSize;
-
-  const batchCsv = [header, ...batch].join("\n");
-  console.log(`Kirim batch ke-${Math.ceil(index / batchSize)} (${batch.length} baris)`);
-
-  try {
-    await kirimBatchJSONP(batchCsv);  // tunggu respons server
-    // setelah respons diterima, kirim batch berikutnya
-    kirimBatch();
   } catch (err) {
-    console.error("Batch gagal:", err);
-    showPesan("error", " ERROR : Batch gagal dikirim, cek koneksi.");
+    console.error('❌ Gagal import:', err);
     showLoading(false, 'Produk');
+    showPesan('error', ' ERROR : ' + (err.message || err));
   }
 }
 
-//**************************************************
-// Kirim batch data ke Google Apps Script via JSONP
-//**************************************************
-function kirimBatchJSONP(csvString) {
+// ***********************
+// Fungsi Kirim Batch Json
+// ***********************
+function kirimBatchJSONP(batchCsv, isFirst) {
   return new Promise((resolve, reject) => {
-    const callbackName = "cb_import_" + Date.now();
-    const script = document.createElement("script");
+    const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
 
-    window[callbackName] = function (response) {
-      try {
-        console.log("Respon server:", response);
-        if (!response || response.status !== "success") {
-          reject(new Error(response?.message || "Gagal simpan batch"));
-        } else {
-          resolve(response);
-        }
-      } catch (err) {
-        reject(err);
-      } finally {
-        cleanup();
+    window[callbackName] = function (result) {
+      console.log("✅ Respon server:", result);
+      delete window[callbackName];
+      if (result.status === "success") {
+        resolve(result);
+      } else {
+        reject(new Error(result.message || "Gagal import"));
       }
     };
 
-    const encoded = encodeURIComponent(csvString);
-    script.id = callbackName + "_script";
-    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&callback=${callbackName}`;
+    const script = document.createElement("script");
+    // ✅ encodeURIComponent agar karakter khusus tidak bikin error
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}&isFirst=${isFirst}`;
+    script.onerror = () => reject(new Error("Script error (koneksi gagal?)"));
     document.body.appendChild(script);
-
-    function cleanup() {
-      try { delete window[callbackName]; } catch (e) {}
-      document.getElementById(callbackName + "_script")?.remove();
-    }
   });
 }
 
-//********************************
-// Fungsi kirim data baru import
-//********************************
-function kirimDataBaru(csvString) {
-  console.log("Data yang akan diimport:", csvString);
+// ***************************************
+// Jalankan batch per batch sampai selesai
+// ***************************************
+function kirimBatch(rows, batchSize) {
+  const header = rows.shift(); // hapus header CSV
+  let index = 0;
 
-  showLoading(true, 'Produk');
-  const callbackName = 'cb_' + Date.now();
+  // Setup progress bar
+  const total = rows.length;
+  const progress = document.getElementById('importProgress');
+  if (progress) {
+    progress.value = 0;
+    progress.max = total;
+  }
 
-  window[callbackName] = function(response) {
-    console.log("Respon server:", response);
-    showLoading(false, 'Produk');
-
-    if (response.status === 'success') {
-      showPesan('success', response.message);
-      bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
-      loadProdukTable();
-    } else {
-      showPesan('error', "Gagal import: " + (response.message || "Unknown error"));
+  async function kirimNext() {
+    if (index >= total) {
+      selesaikanImport();
+      return;
     }
 
-    try { delete window[callbackName]; } catch(e){}
-    document.getElementById(callbackName + '_script')?.remove();
-  };
+    const batch = rows.slice(index, index + batchSize);
+    index += batchSize;
 
-  const params = new URLSearchParams({
-    action: 'importTabelHarga',
-    csv: encodeURIComponent(csvString),
-    callback: callbackName
-  });
+    if (progress) progress.value = index;
 
-  const script = document.createElement('script');
-  script.id = callbackName + '_script';
-  script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
-  document.body.appendChild(script);
+    console.log(`Kirim batch ${Math.ceil(index / batchSize)}: ${batch.length} baris`);
+
+    await kirimBatchJSONP([header, ...batch], kirimNext);
+  }
+
+  kirimNext(); // mulai batch pertama
+}
+
+// *************************************
+// Cleanup setelah semua batch terkirim
+// *************************************
+function selesaikanImport() {
+  showLoading(false, 'Produk');
+  bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+  loadProdukTable(); // refresh tabel
+  showPesan('success', '✅ Import selesai!');
 }
 
 //***********************************
