@@ -334,7 +334,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxG0LVzY4mUNqzv7TGxer2pZ8xj7t83T0IQ6jYIuGlnaEtKBaJNcwKRVezRGUG4weIBNQ/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwpGHBxGgEKig7LMdnABVzuZQqX1rw_SYFu_4m7yno8thRnI0fOpaAEaWipM7bamE8YJw/exec';
 // **************************************
 
 // **********************************
@@ -1091,6 +1091,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // **** Akhir Script Event DOMContent ****
 
+// **************************
+// Fungsi Update Progressbar
+// **************************
 function updateProgressBar(done, total) {
   const percent = Math.min(100, Math.round((done / total) * 100));
   const bar = document.getElementById("importProgressBar");
@@ -1098,16 +1101,15 @@ function updateProgressBar(done, total) {
   bar.textContent = percent + "%";
 }
 
-// ----------------------------------
-//  Fungsi Untuk memulai import data
-// ----------------------------------
-function startImport(csvString) {
+// ***************************
+// Fungsi Untuk Memulai Import
+// ***************************
+async function startImport(csvString) {
   showLoading(true, 'Produk');
 
-  // Pecah CSV menjadi baris
   const rows = csvString.split("\n").filter(r => r.trim() !== "");
-  const header = rows.shift(); // buang header, jangan dikirim ke server
-  console.log("📌 Header:", header.split(";"));
+  rows.shift(); // ✅ buang header
+  console.log("📌 Header dibuang, jumlah data:", rows.length);
 
   const batchSize = 50;
   let index = 0;
@@ -1122,33 +1124,33 @@ function startImport(csvString) {
     }
 
     const batch = rows.slice(index, index + batchSize);
+    const isFirst = index === 0;
     index += batchSize;
 
-    console.log(`📤 Kirim batch (${batch.length} baris)`);
+    console.log(`📤 Kirim batch (${batch.length} baris) isFirst=${isFirst}`);
 
     try {
-      await kirimBatchJSONP(batch.join("\n"), index <= batchSize, kirimNextBatch);
+      await kirimBatchJSONP(batch.join("\n"), isFirst);
+      await kirimNextBatch(); // kirim batch berikutnya
     } catch (err) {
       console.error("❌ Gagal kirim batch:", err);
       showLoading(false, 'Produk');
     }
   }
 
-  kirimNextBatch();
+  await kirimNextBatch();
 }
-
-// ---------------------------
-// --- kirimBatchJSONP ---
-// ---------------------------
-function kirimBatchJSONP(batchCsv, isFirst, onSuccess) {
+// ***********************
+// Fungsi Kirim Batch Json
+// ***********************
+function kirimBatchJSONP(batchCsv, isFirst) {
   return new Promise((resolve, reject) => {
     const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
     window[callbackName] = function (result) {
       console.log("✅ Respon server:", result);
       delete window[callbackName];
-
       if (result.status === "success") {
-        if (onSuccess) onSuccess();
         resolve(result);
       } else {
         reject(new Error(result.message || "Gagal import"));
@@ -1156,15 +1158,16 @@ function kirimBatchJSONP(batchCsv, isFirst, onSuccess) {
     };
 
     const script = document.createElement("script");
+    // ✅ encodeURIComponent agar karakter khusus tidak bikin error
     script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&callback=${callbackName}&batch=${encodeURIComponent(batchCsv)}&isFirst=${isFirst}`;
     script.onerror = () => reject(new Error("Script error (koneksi gagal?)"));
     document.body.appendChild(script);
   });
 }
 
-/**
- * Jalankan batch per batch sampai selesai
- */
+// ***************************************
+// Jalankan batch per batch sampai selesai
+// ***************************************
 function kirimBatch(rows, batchSize) {
   const header = rows.shift(); // hapus header CSV
   let index = 0;
@@ -1196,9 +1199,9 @@ function kirimBatch(rows, batchSize) {
   kirimNext(); // mulai batch pertama
 }
 
-/**
- * Cleanup setelah semua batch terkirim
- */
+// *************************************
+// Cleanup setelah semua batch terkirim
+// *************************************
 function selesaikanImport() {
   showLoading(false, 'Produk');
   bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
