@@ -965,13 +965,11 @@ function capitalizeWords(str) {
 //  Fungsi Event untuk load Tabel Produk, Kategori, tombol-tombol serta event lainnya
 // **********************************************************************************
 document.addEventListener('DOMContentLoaded', () => {
-  // --- Load tabel produk awal ---
+  // --- Load tabel awal & kategori filter
   loadProdukTable();
-
-  // --- Load kategori filter ---
   loadKategoriFilterDropdown();
 
-  // --- Event filter kategori ---
+  // --- Event tombol Filter
   const kategoriMenu = document.getElementById('kategoriFilterMenu');
   if (kategoriMenu) {
     kategoriMenu.addEventListener('click', (e) => {
@@ -982,7 +980,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Tombol Tambah Produk ---
+  // --- Event tombol Tambah Produk
   const addBtn = document.getElementById('addProdukButton');
   if (addBtn) {
     addBtn.addEventListener('click', () => {
@@ -991,34 +989,30 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('produkForm').reset();
       document.getElementById('noStok').disabled = false;
       document.getElementById('judulModal').textContent = 'Tambah Produk';
-
       loadKategoriDropdownWithCallback(() => {
         new bootstrap.Modal(document.getElementById('modalProduk')).show();
       });
     });
   }
 
-  // --- Tombol Simpan Produk ---
+  // --- Event tombol Simpan Produk
   const btnSimpan = document.getElementById('btnSimpanProduk');
   if (btnSimpan) {
     btnSimpan.addEventListener('click', () => {
       const mode = document.getElementById('modalProduk').getAttribute('data-mode') || 'add';
-      if (mode === 'edit') {
-        editProduk();
-      } else {
-        addProduk();
-      }
+      if (mode === 'edit') editProduk();
+      else addProduk();
     });
   }
 
-  // --- Auto-format angka saat input ---
+  // --- Auto-format angka saat input
   const hargaFields = ['volumePoint','hargaDasar','hargaEceran','member25','sc35','sb42','spv50'];
   hargaFields.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', () => formatInputCurrency(el));
   });
 
-  // --- Auto-format Nama Produk ---
+  // --- Auto-format Nama Produk
   const namaProdukInput = document.getElementById('namaProduk');
   if (namaProdukInput) {
     namaProdukInput.addEventListener('input', () => {
@@ -1028,40 +1022,155 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Event tombol Import → tampilkan modal
-  document.getElementById('btnImport').addEventListener('click', () => {
-    document.getElementById('fileImport').value = ''; // reset input file
-    new bootstrap.Modal(document.getElementById('modalImport')).show();
-  });
+  // ---------------------------
+  // --- Event tombol Import ---
+  // ---------------------------
+  const btnImport = document.getElementById('btnImport');
+  if (btnImport) {
+    btnImport.addEventListener('click', () => {
+      document.getElementById('fileImport').value = ''; // reset input file
+      new bootstrap.Modal(document.getElementById('modalImport')).show();
+    });
+  }
 
-  // Event tombol Proses Import
-  document.addEventListener('DOMContentLoaded', () => {
   const btnProsesImport = document.getElementById('btnProsesImport');
   if (btnProsesImport) {
     btnProsesImport.addEventListener('click', () => {
       const fileInput = document.getElementById('fileImport');
       if (!fileInput.files.length) {
-        showPesanModal('warning', 'Pilih file CSV/XLSX terlebih dahulu!');
+        showPesanModal('warning', ' WARNING : Silakan pilih file terlebih dahulu.');
         return;
       }
 
       const file = fileInput.files[0];
-      const ext = file.name.split('.').pop().toLowerCase();
+      const reader = new FileReader();
 
-      if (ext === 'csv') {
-        prosesFileCSV(file);
-      } else if (ext === 'xlsx' || ext === 'xls') {
-        prosesFileXLSX(file);
-      } else {
-        showPesanModal('error', 'Format file tidak didukung. Gunakan CSV atau XLSX.');
-      }
+      reader.onload = async function (e) {
+        try {
+          let csvString = "";
+
+          if (file.name.endsWith(".csv")) {
+            csvString = e.target.result;
+          } else if (file.name.endsWith(".xlsx")) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            csvString = XLSX.utils.sheet_to_csv(sheet, { FS: ";", strip: true });
+          } else {
+            showPesanModal("error", " ERROR : Format file tidak didukung. Gunakan .xlsx atau .csv");
+            return;
+          }
+
+          console.log("Data yang akan diimport:", csvString.substring(0, 500) + "...");
+          showLoading(true, 'Produk');
+
+          // === PECAH CSV MENJADI BATCH ===
+          const rows = csvString.split("\n").filter(r => r.trim() !== "");
+          const header = rows.shift(); // buang header
+          const batchSize = 100;
+          let index = 0;
+
+          async function kirimBatch() {
+            if (index >= rows.length) {
+              showLoading(false, 'Produk');
+              showPesan('success', 'Import selesai!');
+              bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+              loadProdukTable();
+              return;
+            }
+
+            const batch = rows.slice(index, index + batchSize);
+            index += batchSize;
+
+            const batchCsv = [header, ...batch].join("\n");
+            console.log(`Kirim batch ${index / batchSize}: ${batch.length} baris`);
+
+            await kirimBatchJSONP(batchCsv, kirimBatch);
+          }
+
+          kirimBatch(); // mulai kirim batch pertama
+
+        } catch (err) {
+          console.error("Error Import:", err);
+          showPesan('error', ' ERROR : ' + err.message);
+          showLoading(false, 'Produk');
+        }
+      };
+
+      if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
+      else reader.readAsArrayBuffer(file);
     });
   }
-  });
-  
+    
 });
 // **** Akhir Script Event DOMContent ****
 
+async function kirimBatch() {
+  if (index >= rows.length) {
+    // semua batch selesai
+    showLoading(false, 'Produk');
+    showPesan('success', 'Import selesai!');
+    bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
+    loadProdukTable();
+    return;
+  }
+
+  const batch = rows.slice(index, index + batchSize);
+  index += batchSize;
+
+  const batchCsv = [header, ...batch].join("\n");
+  console.log(`Kirim batch ke-${Math.ceil(index / batchSize)} (${batch.length} baris)`);
+
+  try {
+    await kirimBatchJSONP(batchCsv);  // tunggu respons server
+    // setelah respons diterima, kirim batch berikutnya
+    kirimBatch();
+  } catch (err) {
+    console.error("Batch gagal:", err);
+    showPesan("error", " ERROR : Batch gagal dikirim, cek koneksi.");
+    showLoading(false, 'Produk');
+  }
+}
+
+//**************************************************
+// Kirim batch data ke Google Apps Script via JSONP
+//**************************************************
+function kirimBatchJSONP(csvString) {
+  return new Promise((resolve, reject) => {
+    const callbackName = "cb_import_" + Date.now();
+    const script = document.createElement("script");
+
+    window[callbackName] = function (response) {
+      try {
+        console.log("Respon server:", response);
+        if (!response || response.status !== "success") {
+          reject(new Error(response?.message || "Gagal simpan batch"));
+        } else {
+          resolve(response);
+        }
+      } catch (err) {
+        reject(err);
+      } finally {
+        cleanup();
+      }
+    };
+
+    const encoded = encodeURIComponent(csvString);
+    script.id = callbackName + "_script";
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&callback=${callbackName}`;
+    document.body.appendChild(script);
+
+    function cleanup() {
+      try { delete window[callbackName]; } catch (e) {}
+      document.getElementById(callbackName + "_script")?.remove();
+    }
+  });
+}
+
+//********************************
+// Fungsi kirim data baru import
+//********************************
 function kirimDataBaru(csvString) {
   console.log("Data yang akan diimport:", csvString);
 
@@ -1096,12 +1205,18 @@ function kirimDataBaru(csvString) {
   document.body.appendChild(script);
 }
 
+//***********************************
+// Fungsi Proses kirim file ke server 
+//***********************************
 function prosesFileCSV(file) {
   const reader = new FileReader();
   reader.onload = (e) => kirimDataBaru(e.target.result);
   reader.readAsText(file, 'UTF-8');
 }
 
+//**************************
+// Fungsi Proses file excel 
+//**************************
 function prosesFileXLSX(file) {
   const reader = new FileReader();
   reader.onload = (e) => {
