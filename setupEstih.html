@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxQmaVFbi4619IBCS6_15waPijyk3yl51CAYOkIOMWg3srTot42jU7IZAOt0Ao_2aFPNg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwTbREqDb73o6pgiFxiZ-p-bHdEfbGgfrBAF5hs8-aIuIkom4mzPPysyS9zk15RxsOF4w/exec';
 // **************************************
 
 // **********************************
@@ -1064,60 +1064,59 @@ document.addEventListener('DOMContentLoaded', () => {
           // Convert to JSON dengan range yang spesifik
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
             header: 1,
-            range: 0 // Baca dari awal
+            defval: "" // Default value empty string
           });
           
-          console.log("Data mentah dari Excel:", jsonData.length, "baris");
+          console.log("Data mentah dari Excel:", jsonData);
           
-          // Cari baris yang mengandung header yang benar
+          // Cari baris header yang benar
           let headerRowIndex = -1;
-          let dataStartIndex = -1;
-          
           for (let i = 0; i < jsonData.length; i++) {
             const row = jsonData[i];
-            if (row && row.length > 0) {
-              // Cari baris yang mengandung "NoStok" atau "Stock No." atau "No Stok"
+            if (row && row.length >= 3) {
+              // Cari header yang mengandung "NoStok", "Stock", "No Stok", dll.
               const firstCell = String(row[0] || '').toLowerCase();
-              if (firstCell.includes('nostok') || firstCell.includes('stock') || firstCell.includes('no.stok')) {
+              if (firstCell.includes('nostok') || firstCell.includes('stock') || firstCell.includes('no.stok') || firstCell.includes('no stok')) {
                 headerRowIndex = i;
-                dataStartIndex = i + 1;
                 break;
               }
             }
           }
           
           if (headerRowIndex === -1) {
-            throw new Error("Format file Excel tidak sesuai. Pastikan ada header 'NoStok'");
+            throw new Error("Format file Excel tidak sesuai. Pastikan ada header 'NoStok' di kolom pertama");
           }
 
           // Ambil data mulai dari baris setelah header
-          const dataRows = jsonData.slice(dataStartIndex).filter(row => 
+          const dataRows = jsonData.slice(headerRowIndex + 1).filter(row => 
             row && row.length > 0 && row[0] !== undefined && row[0] !== null && row[0] !== ''
           );
 
           console.log("Data yang akan diimport:", dataRows.length, "baris");
+          console.log("Contoh data:", dataRows.slice(0, 3));
 
           if (dataRows.length === 0) {
             throw new Error("Tidak ada data yang ditemukan setelah header");
           }
 
-          // Proses data untuk dikirim
+          // Proses data untuk dikirim - SESUAIKAN DENGAN STRUKTUR EXCEL ANDA
           const processedData = dataRows.map(row => {
+            // ASUSMSI FORMAT EXCEL: [NoStok, Kategori, NamaProduk, VP, HargaDasar, HargaEceran, Member25, SC35, SB42, SPV50]
             return {
-              noStok: formatExcelValue(row[0]),
-              kategori: formatExcelValue(row[1]),
-              namaProduk: formatExcelValue(row[2]),
-              vp: formatExcelValue(row[3], true),
-              hargaDasar: formatExcelValue(row[4], false),
-              hargaEceran: formatExcelValue(row[5], false),
-              member25: formatExcelValue(row[6], false),
-              sc35: formatExcelValue(row[7], false),
-              sb42: formatExcelValue(row[8], false),
-              spv50: formatExcelValue(row[9], false)
+              noStok: formatExcelValue(row[0]),        // Kolom A: NoStok
+              kategori: formatExcelValue(row[1]),      // Kolom B: Kategori
+              namaProduk: formatExcelValue(row[2]),    // Kolom C: NamaProduk
+              vp: formatExcelNumber(row[3]),           // Kolom D: VP
+              hargaDasar: formatExcelNumber(row[4]),   // Kolom E: HargaDasar
+              hargaEceran: formatExcelNumber(row[5]),  // Kolom F: HargaEceran
+              member25: formatExcelNumber(row[6]),     // Kolom G: Member25
+              sc35: formatExcelNumber(row[7]),         // Kolom H: SC35
+              sb42: formatExcelNumber(row[8]),         // Kolom I: SB42
+              spv50: formatExcelNumber(row[9])         // Kolom J: SPV50
             };
           });
 
-          console.log("Data processed:", processedData.slice(0, 3)); // Log 3 data pertama
+          console.log("Data processed:", processedData.slice(0, 3));
 
           // Kirim data dalam batch kecil
           const batchSize = 10;
@@ -1151,36 +1150,41 @@ document.addEventListener('DOMContentLoaded', () => {
           showLoading(false, 'Produk');
         }
       };
-
+      // Batas dari Reader.onload
       reader.readAsArrayBuffer(file);
     });
   }
-
-    
+  // Batas dari const btnImport
 });
 // **** Akhir Script Event DOMContent ****
 
+// ****************************************
+// Helper function untuk format nilai text
+// ****************************************
+function formatExcelValue(value) {
+  if (value === null || value === undefined || value === '') return '';
+  return String(value).trim();
+}
 
 // ****************************************
-// Helper function untuk format nilai Excel
+// Helper function untuk format nilai number
 // ****************************************
-function formatExcelValue(value, isNumber = false) {
-  if (value === null || value === undefined || value === '') return '';
+function formatExcelNumber(value) {
+  if (value === null || value === undefined || value === '') return 0;
   
-  if (isNumber) {
-    // Untuk angka, konversi ke number
-    if (typeof value === 'number') return value;
-    
-    const strValue = String(value).trim();
-    if (!strValue) return '';
-    
-    // Handle format Indonesia: "20,00" -> 20.00
-    let numericValue = strValue.replace(/\./g, '').replace(',', '.');
-    return parseFloat(numericValue) || 0;
+  if (typeof value === 'number') {
+    return value;
   }
   
-  // Untuk text, kembalikan sebagai string
-  return String(value).trim();
+  const strValue = String(value).trim();
+  if (!strValue) return 0;
+  
+  // Handle format Indonesia: "100,15" -> 100.15, "100.000,00" -> 100000.00
+  let numericValue = strValue
+    .replace(/\./g, '')  // Hapus titik ribuan
+    .replace(',', '.');  // Ganti koma desimal dengan titik
+  
+  return parseFloat(numericValue) || 0;
 }
 
 // ********************************
