@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzS17iXujl4HzCEUpUNyBds0BfSk8MgWuFd5f1n4AvCyQ2Fhq2HUHTHCEVhCyJeBj7vUQ/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxNCctD5nX9a2J19pNBlJvqLqSHUAhsLL3Ecp1Yhu59RoWQbwqTgh1nu-d64ktdc0Q6Iw/exec';
 // **************************************
 
 // **********************************
@@ -1051,7 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           if (file.name.endsWith(".csv")) {
             csvString = e.target.result;
-          } else if (file.name.endsWith(".xlsx")) {
+          } else if (file.name.endsWith(".xlsx") || file.name.endsWith(".xls")) {
             const data = new Uint8Array(e.target.result);
             const workbook = XLSX.read(data, { type: "array" });
             const sheetName = workbook.SheetNames[0];
@@ -1068,13 +1068,16 @@ document.addEventListener('DOMContentLoaded', () => {
           // === PECAH CSV MENJADI BATCH ===
           const rows = csvString.split("\n").filter(r => r.trim() !== "");
           const header = rows.shift(); // buang header
-          const batchSize = 100;
+          const batchSize = 50; // lebih kecil untuk menghindari timeout
           let index = 0;
+          let batchCount = 0;
+          let totalProcessed = 0;
 
-          async function kirimBatch() {
+          async function processBatch() {
             if (index >= rows.length) {
+              // semua batch selesai
               showLoading(false, 'Produk');
-              showPesan('success', 'Import selesai!');
+              showPesan('success', `Import selesai! ${totalProcessed} data berhasil diimport.`);
               bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
               loadProdukTable();
               return;
@@ -1082,14 +1085,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const batch = rows.slice(index, index + batchSize);
             index += batchSize;
+            batchCount++;
 
             const batchCsv = [header, ...batch].join("\n");
-            console.log(`Kirim batch ${index / batchSize}: ${batch.length} baris`);
+            console.log(`Kirim batch ${batchCount}: ${batch.length} baris`);
 
-            await kirimBatchJSONP(batchCsv, kirimBatch);
+            try {
+              const response = await kirimBatchJSONP(batchCsv, batchCount === 1);
+              totalProcessed += batch.length;
+              console.log(`Batch ${batchCount} berhasil: ${batch.length} data`);
+              
+              // Kirim batch berikutnya
+              setTimeout(processBatch, 500); // delay untuk menghindari overload
+            } catch (err) {
+              console.error("Batch gagal:", err);
+              showPesan("error", " ERROR : Batch gagal dikirim: " + err.message);
+              showLoading(false, 'Produk');
+            }
           }
 
-          kirimBatch(); // mulai kirim batch pertama
+          processBatch(); // mulai proses batch
 
         } catch (err) {
           console.error("Error Import:", err);
@@ -1098,8 +1113,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       };
 
-      if (file.name.endsWith(".csv")) reader.readAsText(file, "UTF-8");
-      else reader.readAsArrayBuffer(file);
+      if (file.name.endsWith(".csv")) {
+        reader.readAsText(file, "UTF-8");
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     });
   }
     
@@ -1136,7 +1154,7 @@ async function kirimBatch() {
 //**************************************************
 // Kirim batch data ke Google Apps Script via JSONP
 //**************************************************
-function kirimBatchJSONP(csvString) {
+function kirimBatchJSONP(csvString, isFirstBatch = false) {
   return new Promise((resolve, reject) => {
     const callbackName = "cb_import_" + Date.now();
     const script = document.createElement("script");
@@ -1158,12 +1176,25 @@ function kirimBatchJSONP(csvString) {
 
     const encoded = encodeURIComponent(csvString);
     script.id = callbackName + "_script";
-    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&callback=${callbackName}`;
+    script.src = `${URL_APPS_SCRIPT}?action=importTabelHarga&csv=${encoded}&first=${isFirstBatch}&callback=${callbackName}`;
+    
+    script.onerror = () => {
+      reject(new Error("Gagal mengirim request"));
+      cleanup();
+    };
+
     document.body.appendChild(script);
+
+    // Timeout setelah 30 detik
+    setTimeout(() => {
+      reject(new Error("Timeout - tidak ada respons dari server"));
+      cleanup();
+    }, 30000);
 
     function cleanup() {
       try { delete window[callbackName]; } catch (e) {}
-      document.getElementById(callbackName + "_script")?.remove();
+      const scriptEl = document.getElementById(callbackName + "_script");
+      if (scriptEl) scriptEl.remove();
     }
   });
 }
