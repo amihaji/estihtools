@@ -324,7 +324,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbwTbREqDb73o6pgiFxiZ-p-bHdEfbGgfrBAF5hs8-aIuIkom4mzPPysyS9zk15RxsOF4w/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzHJnJEbzzOYSFoga4OZw60UrxiIvR8ceJzW-LY3cJDcHnHl3LCOlneZyP7MkUHX1RfFg/exec';
 // **************************************
 
 // **********************************
@@ -1099,20 +1099,19 @@ document.addEventListener('DOMContentLoaded', () => {
             throw new Error("Tidak ada data yang ditemukan setelah header");
           }
 
-          // Proses data untuk dikirim - SESUAIKAN DENGAN STRUKTUR EXCEL ANDA
+          // Dalam proses data untuk dikirim, ganti formatNoStok:
           const processedData = dataRows.map(row => {
-            // ASUSMSI FORMAT EXCEL: [NoStok, Kategori, NamaProduk, VP, HargaDasar, HargaEceran, Member25, SC35, SB42, SPV50]
             return {
-              noStok: formatExcelValue(row[0]),        // Kolom A: NoStok
-              kategori: formatExcelValue(row[1]),      // Kolom B: Kategori
-              namaProduk: formatExcelValue(row[2]),    // Kolom C: NamaProduk
-              vp: formatExcelNumber(row[3]),           // Kolom D: VP
-              hargaDasar: formatExcelNumber(row[4]),   // Kolom E: HargaDasar
-              hargaEceran: formatExcelNumber(row[5]),  // Kolom F: HargaEceran
-              member25: formatExcelNumber(row[6]),     // Kolom G: Member25
-              sc35: formatExcelNumber(row[7]),         // Kolom H: SC35
-              sb42: formatExcelNumber(row[8]),         // Kolom I: SB42
-              spv50: formatExcelNumber(row[9])         // Kolom J: SPV50
+              noStok: formatNoStokValue(row[0]),      // Kolom A: NoStok 
+              kategori: formatExcelValue(row[1]),     // Kolom B: Kategori
+              namaProduk: formatExcelValue(row[2]),   // Kolom C: NamaProduk
+              vp: formatExcelNumber(row[3]),          // Kolom D: VP
+              hargaDasar: formatExcelNumber(row[4]),  // Kolom E: HargaDasar
+              hargaEceran: formatExcelNumber(row[5]), // Kolom F: HargaEceran
+              member25: formatExcelNumber(row[6]),    // Kolom G: Member25
+              sc35: formatExcelNumber(row[7]),        // Kolom H: SC35
+              sb42: formatExcelNumber(row[8]),        // Kolom I: SB42
+              spv50: formatExcelNumber(row[9])        // Kolom J: SPV50
             };
           });
 
@@ -1185,6 +1184,27 @@ function formatExcelNumber(value) {
     .replace(',', '.');  // Ganti koma desimal dengan titik
   
   return parseFloat(numericValue) || 0;
+}
+
+// *******************************************
+// Helper function khusus untuk format NoStok
+// *******************************************
+function formatNoStokValue(value) {
+  if (value === null || value === undefined || value === '') return '';
+  let strValue = String(value).trim();
+  
+  // Jika mengandung slash (seperti "03/NA"), biarkan as is
+  if (strValue.includes('/')) {
+    return strValue;
+  }
+  
+  // Jika numerik, format dengan leading zeros
+  if (/^\d+$/.test(strValue)) {
+    return strValue.padStart(4, '0');
+  }
+  
+  // Jika sudah berupa string dengan huruf, biarkan as is
+  return strValue;
 }
 
 // ********************************
