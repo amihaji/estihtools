@@ -665,25 +665,28 @@ document.getElementById('confirmDeleteModal').addEventListener('hidden.bs.modal'
 });
 
 // ********************************
-// Fungsi untuk menghapus ByKirim
+// Fungsi untuk menghapus ByKirim (diubah)
 // ********************************
 function deleteByKirim(rowIndex, jenisPengiriman) {
-  if (!confirm(`Yakin ingin menghapus biaya pengiriman "${jenisPengiriman}"?`)) return;
+  const message = `Apakah Anda yakin ingin menghapus biaya pengiriman "${jenisPengiriman}"?`;
+  
+  showDeleteConfirmation(message, function() {
+    // Eksekusi penghapusan setelah konfirmasi
+    const callback = 'cb_' + Date.now();
+    window[callback] = function(response) {
+      if (response.status === 'success') {
+         showPesan('success', " SUKSES : " + response.message);
+         loadByKirimTable(); // Refresh tabel
+      } else {
+         showPesan('error', " ERROR : " + (response.message || 'Gagal menghapus data'));
+      }
+      delete window[callback];
+    };
 
-  const callback = 'cb_' + Date.now();
-  window[callback] = function(response) {
-    if (response.status === 'success') {
-       showPesan('success', " SUKSES : " + response.message);
-       loadByKirimTable(); // Refresh tabel
-    } else {
-       showPesan('error', " ERROR : " + (response.message || 'Gagal menghapus data'));
-    }
-    delete window[callback];
-  };
-
-  const script = document.createElement('script');
-  script.src = `${URL_APPS_SCRIPT}?action=deleteByKirim&rowIndex=${encodeURIComponent(rowIndex)}&callback=${callback}`;
-  document.body.appendChild(script);
+    const script = document.createElement('script');
+    script.src = `${URL_APPS_SCRIPT}?action=deleteByKirim&rowIndex=${encodeURIComponent(rowIndex)}&callback=${callback}`;
+    document.body.appendChild(script);
+  });
 }
 
 // **********************************************************************************
