@@ -14,6 +14,22 @@ body {
     flex-direction: column;
     /*min-height: 100vh; */
 }
+
+/* Layout utama */
+.main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
 .table-hover tbody tr:hover { 
     background-color: #f2f2f2; 
     cursor: pointer; 
@@ -175,21 +191,6 @@ tr:hover .action-icon {
   min-width: 80px;         /* Lebar minimal tombol Ya */
 }
 
-/* Layout utama */
-.main-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
-}
-
-.content-wrapper {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-
 /****************************/
 /* Tampilan Vertikal Mobile */
 /****************************/
@@ -251,13 +252,13 @@ tr:hover .action-icon {
 <div class="main-container">
 <div class="content-wrapper"> 
 
-<div class="title-box mb-3 d-flex justify-content-between align-items-center" style="max-width: 600px;">
+<div class="title-box mb-3">
     <i class="fas fa-shipping-fast"></i>
     <h6 class="mb-0">SETUP BIAYA PENGIRIMAN</h6>
 </div>
 
 <!-- Tombol Form Setup biaya kirim -->
-<div class="button-box d-flex justify-content-between align-items-center" style="max-width: 600px;">
+<div class="button-box d-flex justify-content-between align-items-center">
     <div>
       <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah</button>
     </div>
