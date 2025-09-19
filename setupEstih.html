@@ -347,7 +347,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz5NSMf0Er0cYpTG73Wi8qSdNxvJlax9kE8kfnwUTFoZtfpKcDsQifcdtVGIY8iooGFeg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzIK4PnUQqTtvcoUuKOP-NWFCY7PVHssJfy5K4F0ZRmSkFleAHjoFVgBzX9xCViGDuqEA/exec';
 // **************************************
 
 // **********************************
@@ -1320,9 +1320,10 @@ function sendExcelBatch(batchData, isFirstBatch) {
   });
 }
 
-// *************************************************
-// Fungsi untuk Export Data ke Excel (Direct - XLSX)
-// *************************************************
+
+// ********************************
+// Fungsi untuk Export Data ke Excel (Direct - XLSX Fixed)
+// ********************************
 function exportToExcel() {
   showLoading(true, 'Produk');
   
@@ -1332,29 +1333,33 @@ function exportToExcel() {
   window[callbackName] = function(response) {
     if (response && response.status === 'success' && response.data) {
       try {
-        // Decode base64 content
-        const binaryData = atob(response.data);
-        const bytes = new Uint8Array(binaryData.length);
-        for (let i = 0; i < binaryData.length; i++) {
-          bytes[i] = binaryData.charCodeAt(i);
+        // Convert base64 to blob
+        const byteCharacters = atob(response.data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
+        const byteArray = new Uint8Array(byteNumbers);
         
-        // Create blob and download
-        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        // Create blob
+        const blob = new Blob([byteArray], { 
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        });
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
         link.href = url;
         link.download = response.filename || 'TabelHarga_Export.xlsx';
-        link.style.display = 'none';
         
+        // Trigger download
         document.body.appendChild(link);
         link.click();
         
         // Clean up
         setTimeout(() => {
           document.body.removeChild(link);
-          URL.revokeObjectURL(url);
+          window.URL.revokeObjectURL(url);
         }, 100);
         
         showPesan('success', 'Export berhasil! File Excel sedang didownload.');
