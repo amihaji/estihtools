@@ -251,13 +251,13 @@ tr:hover .action-icon {
 <div class="main-container">
 <div class="content-wrapper"> 
 
-<div class="title-box mb-3">
+<div class="title-box mb-3 d-flex justify-content-between align-items-center" style="max-width: 600px;">
     <i class="fas fa-shipping-fast"></i>
     <h6 class="mb-0">SETUP BIAYA PENGIRIMAN</h6>
 </div>
 
 <!-- Tombol Form Setup biaya kirim -->
-<div class="button-box d-flex justify-content-between align-items-center">
+<div class="button-box d-flex justify-content-between align-items-center" style="max-width: 600px;">
     <div>
       <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah</button>
     </div>
@@ -272,7 +272,7 @@ tr:hover .action-icon {
 </div>
 
    <!-- Tabel Daftar Biaya Kirim -->
-    <div class="table-box">
+    <div class="table-box align-items-center"  style="max-width: 600px;">
         <!-- Loading Overlay -->
         <div id="loadingOverlayByKirim" class="loading-overlay" style="display: none;">
           <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
@@ -280,7 +280,7 @@ tr:hover .action-icon {
         </div>
         
         <div class="table-wrapper">
-        <table class="table table-hover table-striped table-bordered align-middle" style="max-width: 600px; table-layout:auto; width:auto;">
+        <table class="table table-hover table-striped table-bordered align-middle" style="table-layout:auto; width:auto;">
             <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Biaya Pengiriman</h6>
                 <tr>
                     <th>No</th>
