@@ -10,7 +10,7 @@
 <style>
 body { 
     background-color: #f8f9fa; 
-    max-width: 500px;
+    /* max-width: 500px; */
 }
 .table-hover tbody tr:hover { 
     background-color: #f2f2f2; 
@@ -428,6 +428,7 @@ function formatInputCurrency(input) {
 // ************************************
 // Fungsi untuk memanggil Tabel ByKirim 
 // ************************************
+//      onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')">
 function loadByKirimTable() {
   showLoading(true, 'ByKirim');
   const callbackName = 'cb_' + Date.now();
@@ -460,7 +461,6 @@ function loadByKirimTable() {
             onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
           </i>
           <i class="fas fa-trash-alt action-icon" title="Hapus" 
-            <!-- onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')"> -->
             onclick="showDeleteConfirmation(${escapeHtml(jenisPengiriman)},
             function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })">
           </i>
