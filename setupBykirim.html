@@ -461,8 +461,7 @@ function loadByKirimTable() {
             onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
           </i>
           <i class="fas fa-trash-alt action-icon" title="Hapus" 
-            onclick="showDeleteConfirmation(${escapeHtml(jenisPengiriman)},
-            function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })">
+            onclick="showDeleteConfirmation('Apakah Anda yakin \\'${escapeHtml(jenisPengiriman)}\\'?', function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })">
           </i>
         </td>
       `;
