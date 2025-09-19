@@ -456,10 +456,10 @@ function loadByKirimTable() {
         <td class="text-start">${escapeHtml(jenisPengiriman)}</td>
         <td class="text-end">${formatAngka(biaya)}</td>
         <td class="actions-col text-center">
-          <i class="fas fa-edit action-icon" title="Edit Biaya Pengiriman"
+          <i class="fas fa-edit action-icon" title="Edit"
             onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
           </i>
-          <i class="fas fa-trash-alt action-icon" title="Hapus Biaya Pengiriman" 
+          <i class="fas fa-trash-alt action-icon" title="Hapus" 
             <!-- onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')"> -->
            
             onclick="showDeleteConfirmation('Apakah Anda yakin ingin menghapus biaya pengiriman \\'${escapeHtml(jenisPengiriman)}\\'?', 
