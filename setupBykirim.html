@@ -461,10 +461,7 @@ function loadByKirimTable() {
           </i>
           <i class="fas fa-trash-alt action-icon" title="Hapus" 
             <!-- onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')"> -->
-           
-            onclick="showDeleteConfirmation('Apakah Anda yakin ingin menghapus biaya pengiriman \\'${escapeHtml(jenisPengiriman)}\\'?', 
-            function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })"
-        
+            onclick="showDeleteConfirmation('Apakah Anda yakin ingin menghapus biaya pengiriman \\'${escapeHtml(jenisPengiriman)}\\'?',function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })"
           </i>
         </td>
       `;
