@@ -192,7 +192,6 @@ tr:hover .action-icon {
         <li><a class="dropdown-item" data-value="">-- Semua Kategori --</a></li>
         <!-- kategori lainnya diisi lewat JS -->
       </ul>
-    
       <button class="btn btn-primary btn-sm mb-1" id="addProdukButton"><i class="fas fa-plus-square"></i> Produk</button>
       <button class="btn btn-primary btn-sm mb-1" id="btnImport"><i class="fas fa-file-import"></i> Import </button>
       <button class="btn btn-primary btn-sm mb-1" id="btnExport"><i class="fas fa-file-export"></i> Export </button>
@@ -348,7 +347,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbxVv5ZQLUKSYTu_S79kiSZgbcw6bpYF1-M2BnzcOOlj4AdnQzAISuGOqy-MMFa2UuMLPg/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzG4eHqpb8g8LJ6SWB6WXsD5x7BNH-xETTTJ8RehOrXd_PrqY-h00WO1cj7RhugvCWBdw/exec';
 // **************************************
 
 // **********************************
@@ -1045,10 +1044,14 @@ document.addEventListener('DOMContentLoaded', () => {
       namaProdukInput.setSelectionRange(pos, pos);
     });
   }
+  
+  // --- Event tombol Export
+  const btnExport = document.getElementById('btnExport');
+  if (btnExport) {
+    btnExport.addEventListener('click', exportToExcel);
+  }
 
-  // ---------------------------
   // --- Event tombol Import ---
-  // ---------------------------
   const btnImport = document.getElementById('btnImport');
   if (btnImport) {
     btnImport.addEventListener('click', () => {
@@ -1074,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Tampilkan progress bar, sembunyikan spinner global
+      // Tampilkan progress bar, sembunyikan spinner global 
       const progressDiv = document.getElementById('importProgress');
       const progressBar = document.getElementById('progressBar');
       const progressPercent = document.getElementById('progressPercent');
@@ -1090,9 +1093,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       reader.onload = async function (e) {
         try {
-          // JANGAN tampilkan spinner global di sini
-          // showLoading(true, 'Produk'); // <-- HAPUS INI
-          
           const data = new Uint8Array(e.target.result);
           const workbook = XLSX.read(data, { type: "array" });
           const sheetName = workbook.SheetNames[0];
@@ -1162,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isFirstBatch = (i === 0);
             const currentBatch = Math.floor(i / batchSize) + 1;
             
-            // Update progress
+            // Update progressbar
             const progress = Math.round((i / processedData.length) * 100);
             progressBar.style.width = `${progress}%`;
             progressPercent.textContent = `${progress}%`;
@@ -1181,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await new Promise(resolve => setTimeout(resolve, 500));
           }
 
-          // Selesaikan progress
+          // Selesaikan progressbar
           progressBar.style.width = '100%';
           progressPercent.textContent = '100%';
           progressText.textContent = `Import selesai! ${successCount} data berhasil diimport.`;
@@ -1191,7 +1191,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           bootstrap.Modal.getInstance(document.getElementById('modalImport')).hide();
           
-          // TAMPILKAN SPINNER SAAT UPDATE TABEL
+          // Tampilkan spinner saat update tabel
           showLoading(true, 'Produk');
           loadProdukTable();
 
@@ -1202,8 +1202,7 @@ document.addEventListener('DOMContentLoaded', () => {
           progressText.textContent = `Error: ${err.message}`;
           showPesan('error', ' ERROR : ' + err.message);
         } finally {
-          // JANGAN sembunyikan spinner global di sini
-          // showLoading(false, 'Produk'); // <-- HAPUS INI
+          
         }
       };
 
@@ -1211,7 +1210,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Batas dari const btnImport
 });
 // **** Akhir Script Event DOMContent ****
 
@@ -1236,7 +1234,7 @@ function formatExcelNumber(value) {
   const strValue = String(value).trim();
   if (!strValue) return 0;
   
-  // Handle format Indonesia: "100,15" -> 100.15, "100.000,00" -> 100000.00
+  // --- Handle format Indonesia: "100,15" -> 100.15, "100.000,00" -> 100000.00 ---
   let numericValue = strValue
     .replace(/\./g, '')  // Hapus titik ribuan
     .replace(',', '.');  // Ganti koma desimal dengan titik
@@ -1251,17 +1249,22 @@ function formatNoStokValue(value) {
   if (value === null || value === undefined || value === '') return '';
   let strValue = String(value).trim();
   
-  // Jika mengandung slash (seperti "03/NA"), biarkan as is
+  // --- Jika mengandung slash (seperti "03/NA"), biarkan ---
   if (strValue.includes('/')) {
     return strValue;
   }
   
-  // Jika numerik, format dengan leading zeros
+  // --- Jika mengandung garis (seperti "03-NA"), biarkan ---
+  if (strValue.includes('-')) {
+    return strValue;
+  }
+
+  // --- Jika numerik, format dengan leading zeros ---
   if (/^\d+$/.test(strValue)) {
     return strValue.padStart(4, '0');
   }
   
-  // Jika sudah berupa string dengan huruf, biarkan as is
+  // --- Jika sudah berupa string dengan huruf, biarkan ---
   return strValue;
 }
 
@@ -1303,7 +1306,7 @@ function sendExcelBatch(batchData, isFirstBatch) {
 
     document.body.appendChild(script);
 
-    // Timeout setelah 30 detik
+    // --- Timeout setelah 30 detik ---
     setTimeout(() => {
       reject(new Error("Timeout - tidak ada respons dari server"));
       cleanup();
@@ -1315,6 +1318,50 @@ function sendExcelBatch(batchData, isFirstBatch) {
       if (scriptEl) scriptEl.remove();
     }
   });
+}
+
+// ********************************
+// Fungsi untuk Export Data ke Excel
+// ********************************
+function exportToExcel() {
+  showLoading(true, 'Produk');
+  
+  const callbackName = 'cb_export_' + Date.now();
+  const script = document.createElement('script');
+  
+  window[callbackName] = function(response) {
+    if (response && response.status === 'success' && response.url) {
+      // Download file Excel
+      const link = document.createElement('a');
+      link.href = response.url;
+      link.download = 'TabelHarga_Export.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      showPesan('success', 'Export berhasil! File sedang didownload.');
+    } else {
+      showPesan('error', 'Export gagal: ' + (response?.message || 'Unknown error'));
+    }
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.onerror = function() {
+    showPesan('error', 'Gagal melakukan export!');
+    cleanup();
+    showLoading(false, 'Produk');
+  };
+
+  script.src = `${URL_APPS_SCRIPT}?action=exportTabelHarga&callback=${callbackName}`;
+  document.body.appendChild(script);
+
+  function cleanup() {
+    try { delete window[callbackName]; } catch(e) {}
+    if (script.parentNode) {
+      script.parentNode.removeChild(script);
+    }
+  }
 }
 
 </SCRIPT>
