@@ -347,7 +347,7 @@ tr:hover .action-icon {
 
 <SCRIPT>
 // ********* Deklarasi  Public **********
-const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbzh7AVwMPKVahV8MqslN0gh-1E8yF1XfeMsHL2C_Osld5fbmb9H2CoeFcdpkdOQeMEAAw/exec';
+const URL_APPS_SCRIPT = 'https://script.google.com/macros/s/AKfycbz5NSMf0Er0cYpTG73Wi8qSdNxvJlax9kE8kfnwUTFoZtfpKcDsQifcdtVGIY8iooGFeg/exec';
 // **************************************
 
 // **********************************
@@ -1320,9 +1320,9 @@ function sendExcelBatch(batchData, isFirstBatch) {
   });
 }
 
-// ******************************************
-// Fungsi untuk Export Data ke Excel (Direct)
-// ******************************************
+// *************************************************
+// Fungsi untuk Export Data ke Excel (Direct - XLSX)
+// *************************************************
 function exportToExcel() {
   showLoading(true, 'Produk');
   
@@ -1331,28 +1331,37 @@ function exportToExcel() {
   
   window[callbackName] = function(response) {
     if (response && response.status === 'success' && response.data) {
-      // Decode base64 content
-      const csvContent = atob(response.data);
-      
-      // Create blob and download
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      
-      link.href = url;
-      link.download = response.filename || 'TabelHarga_Export.csv';
-      link.style.display = 'none';
-      
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 100);
-      
-      showPesan('success', 'Export berhasil! File sedang didownload.');
+      try {
+        // Decode base64 content
+        const binaryData = atob(response.data);
+        const bytes = new Uint8Array(binaryData.length);
+        for (let i = 0; i < binaryData.length; i++) {
+          bytes[i] = binaryData.charCodeAt(i);
+        }
+        
+        // Create blob and download
+        const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.href = url;
+        link.download = response.filename || 'TabelHarga_Export.xlsx';
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        }, 100);
+        
+        showPesan('success', 'Export berhasil! File Excel sedang didownload.');
+      } catch (error) {
+        console.error('Error creating Excel file:', error);
+        showPesan('error', 'Error creating Excel file: ' + error.message);
+      }
     } else {
       showPesan('error', 'Export gagal: ' + (response?.message || 'Unknown error'));
     }
@@ -1366,49 +1375,7 @@ function exportToExcel() {
     showLoading(false, 'Produk');
   };
 
-  // Gunakan action export direct
-  script.src = `${URL_APPS_SCRIPT}?action=exportTabelHargaDirect&callback=${callbackName}`;
-  document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch(e) {}
-    if (script.parentNode) {
-      script.parentNode.removeChild(script);
-    }
-  }
-}
-
-function BACKUP_exportToExcel() {
-  showLoading(true, 'Produk');
-  
-  const callbackName = 'cb_export_' + Date.now();
-  const script = document.createElement('script');
-  
-  window[callbackName] = function(response) {
-    if (response && response.status === 'success' && response.url) {
-      // Download file Excel
-      const link = document.createElement('a');
-      link.href = response.url;
-      link.download = 'TabelHarga_Export.xlsx';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      showPesan('success', 'Export berhasil! File sedang didownload.');
-    } else {
-      showPesan('error', 'Export gagal: ' + (response?.message || 'Unknown error'));
-    }
-    cleanup();
-    showLoading(false, 'Produk');
-  };
-
-  script.onerror = function() {
-    showPesan('error', 'Gagal melakukan export!');
-    cleanup();
-    showLoading(false, 'Produk');
-  };
-
-  script.src = `${URL_APPS_SCRIPT}?action=exportTabelHarga&callback=${callbackName}`;
+  script.src = `${URL_APPS_SCRIPT}?action=exportTabelHargaDirectXLSX&callback=${callbackName}`;
   document.body.appendChild(script);
 
   function cleanup() {
