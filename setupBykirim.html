@@ -250,30 +250,30 @@ tr:hover .action-icon {
 
 <body class="p-2 p-sm-3">
 <div class="main-container">
-<div class="content-wrapper"> 
+  <div class="content-wrapper"> 
 
-<div class="title-box mb-3">
-    <i class="fas fa-shipping-fast"></i>
-    <h6 class="mb-0">SETUP BIAYA PENGIRIMAN</h6>
-</div>
-
-<!-- Tombol Form Setup biaya kirim -->
-<div class="button-box d-flex justify-content-between align-items-center">
-    <div>
-      <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah</button>
+    <div class="title-box mb-3">
+        <i class="fas fa-shipping-fast"></i>
+        <h6 class="mb-0">SETUP BIAYA PENGIRIMAN</h6>
     </div>
-    <div>
-       <a href="setupEstih.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
+
+    <!-- Tombol Form Setup biaya kirim -->
+    <div class="button-box d-flex justify-content-between align-items-center">
+        <div>
+          <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah</button>
+        </div>
+        <div>
+          <a href="setupEstih.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
+        </div>
     </div>
-</div>
 
-<!-- Notifikasi Pesan -->
-<div id="pesanNotification" class="notification-message w-100 mb-2" style="display: none;">
-    <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
-</div>
+    <!-- Notifikasi Pesan -->
+    <div id="pesanNotification" class="notification-message w-100 mb-2" style="display: none;">
+        <i id="pesanNotifIcon" class="pesan-notif-icon"></i><span id="pesanNotifText"></span>
+    </div>
 
-   <!-- Tabel Daftar Biaya Kirim -->
-    <div class="table-box align-items-center" style="max-width: 600px;">
+    <!-- Tabel Daftar Biaya Kirim -->
+    <div class="table-box">
         <!-- Loading Overlay -->
         <div id="loadingOverlayByKirim" class="loading-overlay" style="display: none;">
           <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
@@ -296,8 +296,8 @@ tr:hover .action-icon {
         </table>
         </div>
     </div>
-</div>
-</div>
+
+  </div> 
 </div>
 
 <!-- Modal Add/Edit -->
