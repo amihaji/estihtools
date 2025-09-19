@@ -461,7 +461,7 @@ function loadByKirimTable() {
           </i>
           <i class="fas fa-trash-alt action-icon" title="Hapus" 
             <!-- onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')"> -->
-            onclick="showDeleteConfirmation('Apakah Anda yakin ingin menghapus biaya pengiriman \\'${escapeHtml(jenisPengiriman)}\\'?',function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })"
+            onclick="showDeleteConfirmation('\\'${escapeHtml(jenisPengiriman)}\\'?',function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })">
           </i>
         </td>
       `;
@@ -659,16 +659,11 @@ function showDeleteConfirmation(message, callback) {
   };
 }
 
-// Event listener untuk reset callback ketika modal ditutup
-document.getElementById('confirmDeleteModal').addEventListener('hidden.bs.modal', function () {
-  currentDeleteCallback = null;
-});
-
 // ********************************
 // Fungsi untuk menghapus ByKirim (diubah)
 // ********************************
 function deleteByKirim(rowIndex, jenisPengiriman) {
-  const message = `Apakah Anda yakin ingin menghapus biaya pengiriman "${jenisPengiriman}"?`;
+  const message = `Anda yakin ingin menghapus"${jenisPengiriman}"?`;
   
   showDeleteConfirmation(message, function() {
     // Eksekusi penghapusan setelah konfirmasi
@@ -721,6 +716,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Auto-format angka saat input
   const biayaField = document.getElementById('biaya');
   if (biayaField) biayaField.addEventListener('input', () => formatInputCurrency(biayaField));
+
+  // Event listener untuk reset callback ketika modal ditutup
+  document.getElementById('confirmDeleteModal').addEventListener('hidden.bs.modal', function () {
+  currentDeleteCallback = null;
+  });
+
 });
 
 </SCRIPT>
