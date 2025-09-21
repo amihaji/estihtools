@@ -500,9 +500,103 @@ function formatInputCurrency(input) {
 }
 
 // ************************************
-// Fungsi untuk memanggil Tabel ByKirim 
+// Fungsi untuk memanggil Tabel ByKirim
 // ************************************
 function loadByKirimTable() {
+  showLoading(true);
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelByKirim&callback=${callbackName}`;
+
+  window[callbackName] = function (response) {
+    const tbody = document.getElementById('byKirimTableBody');
+    tbody.innerHTML = '';
+    
+    console.log("Response dari server:", response); // Debugging
+
+    // Cek jika response adalah object dengan properti data
+    if (response && typeof response === 'object' && response.data) {
+      const data = response.data;
+      
+      // Cek jika data kosong atau tidak ada
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Tidak ada data biaya pengiriman</td></tr>';
+        showLoading(false);
+        return;
+      }
+
+      // Tampilkan data
+      data.forEach((row, index) => {
+        const [jenisPengiriman, biaya] = row;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-start">${escapeHtml(jenisPengiriman)}</td>
+          <td class="text-end">${formatAngka(biaya)}</td>
+          <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit"
+              onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
+            </i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus" 
+              onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')">
+            </i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } 
+    // Cek jika response adalah array langsung (format lama)
+    else if (Array.isArray(response)) {
+      // Cek jika data kosong atau tidak ada
+      if (response.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Tidak ada data biaya pengiriman</td></tr>';
+        showLoading(false);
+        return;
+      }
+
+      // Tampilkan data
+      response.forEach((row, index) => {
+        const [jenisPengiriman, biaya] = row;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-center">${index + 1}</td>
+          <td class="text-start">${escapeHtml(jenisPengiriman)}</td>
+          <td class="text-end">${formatAngka(biaya)}</td>
+          <td class="actions-col text-center">
+            <i class="fas fa-edit action-icon" title="Edit"
+              onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
+            </i>
+            <i class="fas fa-trash-alt action-icon" title="Hapus" 
+              onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')">
+            </i>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    // Jika response tidak valid
+    else {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-danger">Format data tidak valid</td></tr>';
+      console.error("Format response tidak dikenali:", response);
+    }
+
+    showLoading(false);
+  };
+
+  script.onerror = function () {
+    const tbody = document.getElementById('byKirimTableBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-danger">Gagal memuat data</td></tr>';
+    showPesan('error', 'ERROR: Gagal mengambil data Biaya Pengiriman!');
+    showLoading(false);
+  };
+
+  document.body.appendChild(script);
+}
+
+
+function BACKUP_loadByKirimTable() {
   showLoading(true);
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
