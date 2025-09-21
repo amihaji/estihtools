@@ -503,40 +503,26 @@ function formatInputCurrency(input) {
 // Fungsi untuk memanggil Tabel ByKirim 
 // ************************************
 function loadByKirimTable() {
-  showLoading(true, 'ByKirim');
+  showLoading(true);
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
   script.src = `${URL_APPS_SCRIPT}?action=getTabelByKirim&callback=${callbackName}`;
 
-  window[callbackName] = function (response) {
-    console.log("Response dari server:", response);
-    
+  window[callbackName] = function (data) {
     const tbody = document.getElementById('byKirimTableBody');
     tbody.innerHTML = '';
 
-    // Cek jika response kosong atau error
-    if (!response || response.status === 'error' || !response.data) {
-      showEmptyState('Gagal memuat data. Silakan coba lagi.');
-      showPesan('error', ' ERROR : Gagal mengambil data Biaya Pengiriman!');
-      cleanup(callbackName);
-      showLoading(false, 'ByKirim');
-      return;
-    }
-
-    // Cek jika data kosong
-    if (response.data.length === 0) {
-      showEmptyState('Tidak ada data biaya pengiriman');
-      cleanup(callbackName);
-      showLoading(false, 'ByKirim');
+    // Cek jika data kosong atau tidak ada
+    if (!data || data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3">Tidak ada data biaya pengiriman</td></tr>';
+      showLoading(false);
       return;
     }
 
     // Tampilkan data
-    response.data.forEach((row, index) => {
-      while (row.length < 2) row.push('');
-
+    data.forEach((row, index) => {
       const [jenisPengiriman, biaya] = row;
-
+      
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td class="text-center">${index + 1}</td>
@@ -554,43 +540,19 @@ function loadByKirimTable() {
       tbody.appendChild(tr);
     });
 
-    cleanup(callbackName);
-    showLoading(false, 'ByKirim');
+    showLoading(false);
   };
 
   script.onerror = function () {
-    showEmptyState('Gagal memuat data. Silakan coba lagi.');
-    showPesan('error', ' ERROR : Gagal mengambil data Biaya Pengiriman!');
-    cleanup(callbackName);
-    showLoading(false, 'ByKirim');
+    const tbody = document.getElementById('byKirimTableBody');
+    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-danger">Gagal memuat data</td></tr>';
+    showPesan('error', 'ERROR: Gagal mengambil data Biaya Pengiriman!');
+    showLoading(false);
   };
 
   document.body.appendChild(script);
 }
 
-// ************************************
-// Fungsi untuk menampilkan state kosong
-// ************************************
-function showEmptyState(message) {
-  const tbody = document.getElementById('byKirimTableBody');
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="4" class="text-center py-4">
-        <div class="d-flex flex-column align-items-center">
-          <i class="fas fa-database text-muted mb-2" style="font-size: 2rem;"></i>
-          <p class="text-muted mb-2">${message}</p>
-          
-          <!-- TIDAK DIAKTIFKAN
-          <button class="btn btn-primary btn-sm" onclick="openAddModal()">
-            <i class="fas fa-plus me-1"></i> Tambah Data
-          </button>
-          -->
-
-        </div>
-      </td>
-    </tr>
-  `;
-}
 
 // ************************************
 // Fungsi untuk membuka modal tambah data
