@@ -502,7 +502,88 @@ function formatInputCurrency(input) {
 // ************************************
 // Fungsi untuk memanggil Tabel ByKirim 
 // ************************************
+// ************************************
+// Fungsi untuk memanggil Tabel ByKirim 
+// ************************************
 function loadByKirimTable() {
+  showLoading(true, 'ByKirim');
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  script.src = `${URL_APPS_SCRIPT}?action=getTabelByKirim&callback=${callbackName}`;
+
+  window[callbackName] = function (data) {
+    const tbody = document.getElementById('byKirimTableBody');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center py-4">
+            <div class="d-flex flex-column align-items-center">
+              <i class="fas fa-database text-muted mb-2" style="font-size: 2rem;"></i>
+              <p class="text-muted mb-2">Tidak ada data biaya pengiriman</p>
+              <button class="btn btn-primary btn-sm" onclick="document.getElementById('addByKirimButton').click()">
+                <i class="fas fa-plus me-1"></i> Tambah Data
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+      cleanup(callbackName);
+      showLoading(false, 'ByKirim');
+      return;
+    }
+
+    data.forEach((row, index) => {
+      while (row.length < 2) row.push('');
+
+      const [jenisPengiriman, biaya] = row;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="text-center">${index + 1}</td>
+        <td class="text-start">${escapeHtml(jenisPengiriman)}</td>
+        <td class="text-end">${formatAngka(biaya)}</td>
+        <td class="actions-col text-center">
+          <i class="fas fa-edit action-icon" title="Edit"
+            onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
+          </i>
+          <i class="fas fa-trash-alt action-icon" title="Hapus" 
+            onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')">
+          </i>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    cleanup(callbackName);
+    showLoading(false, 'ByKirim');
+  };
+
+  script.onerror = function () {
+    const tbody = document.getElementById('byKirimTableBody');
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" class="text-center py-4">
+          <div class="d-flex flex-column align-items-center">
+            <i class="fas fa-exclamation-triangle text-danger mb-2" style="font-size: 2rem;"></i>
+            <p class="text-danger mb-2">Gagal memuat data</p>
+            <button class="btn btn-outline-primary btn-sm" onclick="loadByKirimTable()">
+              <i class="fas fa-redo me-1"></i> Coba Lagi
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+    showPesan('error', ' ERROR : Gagal mengambil data Biaya Pengiriman!');
+    cleanup(callbackName);
+    showLoading(false, 'ByKirim');
+  };
+
+  document.body.appendChild(script);
+}
+
+function BACKUP_loadByKirimTable() {
   showLoading(true, 'ByKirim');
   const callbackName = 'cb_' + Date.now();
   const script = document.createElement('script');
