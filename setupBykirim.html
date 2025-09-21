@@ -113,7 +113,6 @@ tr:hover .action-icon {
     padding: 10px;
     margin: 0 auto;
     width: 100%;
-    /* max-width: 100%; */
     max-width: 600px;
 }
 .table-wrapper { 
@@ -515,7 +514,7 @@ function loadByKirimTable() {
 
     if (!data || data.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="text-center">Tidak ada data biaya pengiriman.</td></tr>';
-      cleanup();
+      cleanup(callbackName);
       showLoading(false, 'ByKirim');
       return;
     }
@@ -535,25 +534,25 @@ function loadByKirimTable() {
             onclick="showEditModal(${index}, '${escapeHtml(jenisPengiriman)}', '${biaya}')">
           </i>
           <i class="fas fa-trash-alt action-icon" title="Hapus" 
-            onclick="showDeleteConfirmation('Apa yakin menghapus \\'${escapeHtml(jenisPengiriman)}\\'?', 
-            function() { deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}') })">
+            onclick="deleteByKirim(${index}, '${escapeHtml(jenisPengiriman)}')">
           </i>
         </td>
       `;
       tbody.appendChild(tr);
     });
-
-    cleanup();
+    
+    cleanup(callbackName);
     showLoading(false, 'ByKirim');
   };
 
   script.onerror = function () {
     showPesan('error', ' ERROR : Gagal mengambil data Biaya Pengiriman!');
-    cleanup();
+    cleanup(callbackName);
     showLoading(false, 'ByKirim');
   };
 
-  function cleanup() {
+  
+function cleanup(callbackName) {
     try { delete window[callbackName]; } catch (e) {}
     document.body.removeChild(script);
   }
@@ -629,7 +628,7 @@ function addByKirim() {
     } else {
       showPesanModal("error", " ERROR : " + (response?.message || 'Gagal menambahkan biaya pengiriman'));
     }
-    cleanup();
+    cleanup(callbackName);
   };
 
   const params = new URLSearchParams({
@@ -645,11 +644,6 @@ function addByKirim() {
   script.id    = callbackName + '_script';
   script.src   = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch(e){}
-    document.getElementById(callbackName + '_script')?.remove();
-  }
 }
 
 // *******************************
@@ -680,7 +674,7 @@ function editByKirim() {
     } else {
       showPesanModal("error", " ERROR : " + (response?.message || 'Gagal mengupdate biaya pengiriman'));
     }
-    cleanup();
+    cleanup(callbackName);
   };
 
   const params = new URLSearchParams({
@@ -697,11 +691,6 @@ function editByKirim() {
   script.id = callbackName + '_script';
   script.src = `${URL_APPS_SCRIPT}?${params.toString()}`;
   document.body.appendChild(script);
-
-  function cleanup() {
-    try { delete window[callbackName]; } catch(e){}
-    document.getElementById(callbackName + '_script')?.remove();
-  }
 }
 
 // ************************************
@@ -709,7 +698,7 @@ function editByKirim() {
 // ************************************
 let currentDeleteCallback = null;
 
-// Fungsi untuk menampilkan modal konfirmasi
+// Di fungsi showDeleteConfirmation, tambahkan error handling:
 function showDeleteConfirmation(message, callback) {
   const modalElement = document.getElementById('confirmDeleteModal');
   const messageElement = document.getElementById('confirmDeleteMessage');
@@ -728,33 +717,46 @@ function showDeleteConfirmation(message, callback) {
   // Event listener untuk tombol konfirmasi
   confirmButton.onclick = function() {
     if (typeof currentDeleteCallback === 'function') {
-      currentDeleteCallback();
+      try {
+        currentDeleteCallback();
+      } catch (error) {
+        console.error("Error dalam callback hapus:", error);
+        showPesan('error', " ERROR : Terjadi kesalahan saat menghapus data");
+      }
     }
     modal.hide();
   };
 }
 
 // ********************************
-// Fungsi untuk menghapus ByKirim (diubah)
+// Fungsi untuk menghapus ByKirim 
 // ********************************
 function deleteByKirim(rowIndex, jenisPengiriman) {
-  const message = `Anda yakin ingin menghapus"${jenisPengiriman}"?`;
+  const message = `Anda yakin ingin menghapus "${jenisPengiriman}"?`;
   
   showDeleteConfirmation(message, function() {
     // Eksekusi penghapusan setelah konfirmasi
-    const callback = 'cb_' + Date.now();
-    window[callback] = function(response) {
-      if (response.status === 'success') {
-         showPesan('success', " SUKSES : " + response.message);
-         loadByKirimTable(); // Refresh tabel
+    const callbackName = 'cb_' + Date.now();
+    
+    window[callbackName] = function(response) {
+      console.log("Respon server deleteByKirim:", response);
+      
+      if (response && (response.status === 'success' || response.success === true)) {
+        showPesan('success', " SUKSES : " + (response.message || 'Data berhasil dihapus'));
+        loadByKirimTable(); // Refresh tabel
       } else {
-         showPesan('error', " ERROR : " + (response.message || 'Gagal menghapus data'));
+        showPesan('error', " ERROR : " + (response?.message || 'Gagal menghapus data'));
       }
-      delete window[callback];
+      
+      // Cleanup
+      try { delete window[callbackName]; } catch (e) {}
+      document.getElementById(callbackName + '_script')?.remove();
     };
 
     const script = document.createElement('script');
-    script.src = `${URL_APPS_SCRIPT}?action=deleteByKirim&rowIndex=${encodeURIComponent(rowIndex)}&callback=${callback}`;
+    script.id = callbackName + '_script';
+    script.src = `${URL_APPS_SCRIPT}?action=deleteByKirim&rowIndex=${encodeURIComponent(rowIndex)}&callback=${callbackName}`;
+    
     document.body.appendChild(script);
   });
 }
@@ -798,6 +800,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
+
+function cleanup(callbackName) {
+  try { 
+    delete window[callbackName]; 
+  } catch(e) {}
+  const scriptElement = document.getElementById(callbackName + '_script');
+  if (scriptElement) {
+    scriptElement.remove();
+  }
+}
 
 </SCRIPT>
 </body>
