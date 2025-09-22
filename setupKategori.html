@@ -192,10 +192,8 @@ tr:hover .action-icon {
 /****************************/
 /* Tampilan Vertikal Mobile */
 /****************************/
-/* @media (max-width: 767.98px) {*/
 @media (max-width: 491.98px) {
   .main-container {
-    /*(justify-content: flex-start; */
     flex-direction: column !important;
     justify-content: center;
     padding-top: 1rem;
@@ -223,15 +221,32 @@ tr:hover .action-icon {
   .table th, .table td {
     white-space: nowrap;
   }
+  
+  /* Perbaikan khusus untuk tombol-tombol */
   .btn-group-vertical-responsive {
-     flex-direction: column !important;
-     align-items: stretch !important;
-     gap: 6px;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px;
+    width: 100%;
   }
+  
+  .btn-group-vertical-responsive > div {
+    width: 100% !important;
+  }
+  
   .btn-group-vertical-responsive button,
   .btn-group-vertical-responsive a {
-     width: 100% !important;
-     text-align: left;
+    width: 100% !important;
+    text-align: left;
+    justify-content: flex-start;
+    padding-left: 12px;
+  }
+  
+  .btn-group-vertical-responsive button i,
+  .btn-group-vertical-responsive a i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
   }
   
   /* Modal konfirmasi untuk mobile */
@@ -255,13 +270,13 @@ tr:hover .action-icon {
     </div>
 
     <!-- Tombol Form Setup Kategori -->
-    <div class="button-box .btn-group-vertical-responsive d-flex justify-content-between">
-        <div>
-          <button class="btn btn-primary btn-sm mb-1" id="addKategoriButton"><i class="fas fa-plus-square"></i> Tambah</button>
-        </div>
-        <div>
-          <a href="setupEstih.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
-        </div>
+    <div class="button-box btn-group-vertical-responsive d-flex flex-column gap-2">
+        <button class="btn btn-primary btn-sm" id="addKategoriButton">
+            <i class="fas fa-plus-square me-1"></i> Tambah
+        </button>
+        <a href="setupEstih.html" class="btn btn-secondary btn-sm">
+            <i class="fas fa-sign-out-alt me-1"></i> Kembali
+        </a>
     </div>
 
     <!-- Notifikasi Pesan -->
