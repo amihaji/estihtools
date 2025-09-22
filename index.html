@@ -1208,7 +1208,7 @@ function loadOptions() {
             const option       = document.createElement('option');
             option.value       = shipping.Biaya;
             // option.textContent = shipping.JenisPengiriman;
-            option.textContent = `${shipping.JenisPengiriman} - ${shipping.Biaya}`;
+            option.textContent = `${shipping.JenisPengiriman} By =  ${shipping.Biaya}`;
             shippingSelect.appendChild(option);
         });
     }).catch(err => {
