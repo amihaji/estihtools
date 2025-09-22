@@ -10,22 +10,18 @@
 <style>
 body { 
     background-color: #f8f9fa; 
-    display: flex;
-    flex-direction: column;
-    /*min-height: 100vh; */
 }
 
 /* Layout utama */
 .main-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: 1;
+  flex-direction: row !important;
+  justify-content: center !important;
+  justify-items: center !important;
 }
 
 .content-wrapper {
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
   padding: 0 15px;
 }
@@ -43,7 +39,6 @@ body {
 /************************/
 /* Pengaturan Icon-icon */
 /************************/
-/* Default semua icon (enabled & disabled) tidak terlihat */
 .action-icon {
     display: inline-flex;
     justify-content: center;
@@ -93,7 +88,7 @@ tr:hover .action-icon {
     align-items: center; 
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); 
     margin: 0 auto;
-    max-width: 600px;
+    max-width: 500px;
 }
 .title-box i { margin-right: 10px; }
 .button-box {
@@ -102,7 +97,7 @@ tr:hover .action-icon {
     box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     padding: 10px;
     margin: 15px 0;
-    max-width: 600px;
+    max-width: 500px;
 }
 
 .table-box {
@@ -113,7 +108,7 @@ tr:hover .action-icon {
     padding: 10px;
     margin: 0 auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
 }
 .table-wrapper { 
     max-height: 450px; 
@@ -158,45 +153,40 @@ tr:hover .action-icon {
 /**********************************************/
 /* Styling untuk modal konfirmasi Penghapusan
 /*********************************************/
-#confirmDeleteModal .modal-dialog {
-  max-width: 400px;        /* Lebar maksimal modal */
+#confirmDeleteModal .modal-dialog .modal-title {
+  max-width: 400px;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.5rem;
 }
 #confirmDeleteModal .modal-content {
   border: none;
   border-radius: 8px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
-#confirmDeleteModal .modal-header {
+#confirmDeleteModal .modal-body .modal-header .modal-footer {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  padding: 0.5rem 1rem;     /* Padding header yang lebih kecil */
-}
-#confirmDeleteModal .modal-title {
-  font-size: 1rem;          /* Ukuran font judul yang lebih kecil */
-}
-#confirmDeleteModal .modal-body {
-  padding: 0.75rem;         /* Padding body yang lebih kecil */
-}
-#confirmDeleteModal .modal-footer {
-  padding: 0.5rem;          /* Padding footer yang lebih kecil */
+  padding: 0.5rem 1rem;
 }
 #confirmDeleteModal .btn-close:focus {
   box-shadow: none;
 }
 #confirmDeleteModal .btn {
-  padding: 0.25rem 0.5rem; /* Padding tombol yang lebih kecil */
-  font-size: 0.875rem;     /* Ukuran font tombol yang lebih kecil */
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
 }
 #confirmDeleteButton {
-  min-width: 80px;         /* Lebar minimal tombol Ya */
+  min-width: 80px;
 }
 
 /****************************/
 /* Tampilan Vertikal Mobile */
 /****************************/
-@media (max-width: 767.98px) {
+@media (max-width: 491.98px) {
   .main-container {
-    justify-content: flex-start;
+    flex-direction: column !important;
+    justify-content: center;
     padding-top: 1rem;
   }
   
@@ -223,19 +213,30 @@ tr:hover .action-icon {
     white-space: nowrap;
   }
   .btn-group-vertical-responsive {
-     flex-direction: column !important;
-     align-items: stretch !important;
-     gap: 6px;
-  }
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px;
+    width: 100%;
+   }
   .btn-group-vertical-responsive button,
   .btn-group-vertical-responsive a {
      width: 100% !important;
      text-align: left;
+     justify-content: flex-start;
+     padding-left: 12px;
   }
-  
+  .btn-group-vertical-responsive button i,
+  .btn-group-vertical-responsive a i {
+    margin-right: 8px;
+    width: 16px;
+    text-align: center;
+  }
+
   /* Modal konfirmasi untuk mobile */
   #confirmDeleteModal .modal-dialog {
     margin: 0.5rem;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -258,13 +259,12 @@ tr:hover .action-icon {
     </div>
 
     <!-- Tombol Form Setup biaya kirim -->
-    <div class="button-box d-flex justify-content-between align-items-center">
-        <div>
-          <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah</button>
-        </div>
-        <div>
-          <a href="setupEstih.html" class="btn btn-secondary btn-sm mb-1"><i class="fas fa-sign-out-alt"></i> Kembali</a>
-        </div>
+    <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
+          <button class="btn btn-primary btn-sm mb-1" id="addByKirimButton"><i class="fas fa-plus-square"></i> Tambah
+          </button>
+          <a href="setupEstih.html" class="btn btn-secondary btn-sm mb-1">
+            <i class="fas fa-sign-out-alt"></i> Kembali
+          </a>
     </div>
 
     <!-- Notifikasi Pesan -->
@@ -281,7 +281,7 @@ tr:hover .action-icon {
         </div>
         
         <div class="table-wrapper">
-        <table class="table table-hover table-striped table-bordered align-middle" style="table-layout:auto; width:auto;">
+        <table class="table table-hover table-striped table-bordered align-middle">
             <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Biaya Pengiriman</h6>
                 <tr>
                     <th>No</th>

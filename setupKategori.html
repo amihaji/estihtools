@@ -107,7 +107,7 @@ tr:hover .action-icon {
     padding: 10px;
     margin: 0 auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
 }
 .table-wrapper { 
     max-height: 450px; 
@@ -211,18 +211,19 @@ tr:hover .action-icon {
     white-space: nowrap;
   }
   
-  /* Perbaikan khusus untuk tombol-tombol */
   .btn-group-vertical-responsive {
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 6px;
     width: 100%;
   }
-  
+  /*
+
   .btn-group-vertical-responsive > div {
     width: 100% !important;
   }
-  
+  */
+
   .btn-group-vertical-responsive button,
   .btn-group-vertical-responsive a {
     width: 100% !important;
@@ -230,7 +231,6 @@ tr:hover .action-icon {
     justify-content: flex-start;
     padding-left: 12px;
   }
-  
   .btn-group-vertical-responsive button i,
   .btn-group-vertical-responsive a i {
     margin-right: 8px;
@@ -259,9 +259,6 @@ tr:hover .action-icon {
     </div>
 
     <!-- Tombol Form Setup Kategori -->
-    <!--
-    <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive"></div>
-  -->
     <div class="button-box d-flex justify-content-between align-items-center btn-group-vertical-responsive">
         <button class="btn btn-primary btn-sm" id="addKategoriButton">
             <i class="fas fa-plus-square me-1"></i> Tambah
@@ -285,9 +282,6 @@ tr:hover .action-icon {
         </div>
         
         <div class="table-wrapper">
-        <!--
-        <table class="table table-hover table-striped table-bordered align-middle" style="table-layout:auto; width:auto;">
-        -->
         <table class="table table-hover table-striped table-bordered align-middle">
           <thead class="sticky-header text-center"><h6 class="mb-2">Daftar Kategori Produk</h6>
                 <tr>
