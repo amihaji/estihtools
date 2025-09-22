@@ -11,13 +11,13 @@
 body { 
     background-color: #f8f9fa; 
     justify-content: center;
-    flex-direction: row;  
+    flex-direction: row !important;  
 }
 
 /* Layout utama */
 .main-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: row !important;
   justify-content: center;
   flex: 1;
 }
@@ -154,30 +154,37 @@ tr:hover .action-icon {
 /**********************************************/
 /* Styling untuk modal konfirmasi Penghapusan
 /*********************************************/
-#confirmDeleteModal .modal-dialog {
+#confirmDeleteModal .modal-dialog .modal-title {
   max-width: 400px;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
 }
 #confirmDeleteModal .modal-content {
   border: none;
   border-radius: 8px;
   box-shadow: 0 5px 20px rgba(0,0,0,0.15);
 }
-#confirmDeleteModal .modal-header {
+#confirmDeleteModal .modal-body .modal-header .modal-footer {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   padding: 0.5rem 1rem;
 }
+/*
 #confirmDeleteModal .modal-title {
   font-size: 1rem;
 }
+*/  
+/*
 #confirmDeleteModal .modal-body {
   padding: 0.75rem;
 }
+*/  
+/*
 #confirmDeleteModal .modal-footer {
   padding: 0.5rem;
 }
+*/  
 #confirmDeleteModal .btn-close:focus {
   box-shadow: none;
 }
