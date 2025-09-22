@@ -193,10 +193,10 @@ tr:hover .action-icon {
 /* Tampilan Vertikal Mobile */
 /****************************/
 /* @media (max-width: 767.98px) {*/
-@media (min-width: 491.98px) {
+@media (max-width: 491.98px) {
   .main-container {
     /*(justify-content: flex-start; */
-    flex-direction: column;
+    flex-direction: column !important;
     justify-content: center;
     padding-top: 1rem;
   }
@@ -237,15 +237,11 @@ tr:hover .action-icon {
   /* Modal konfirmasi untuk mobile */
   #confirmDeleteModal .modal-dialog {
     margin: 0.5rem;
+    align-items: center;
+    justify-content: center;
   }
 }
-/*
-@media (max-width: 991.98px) {
-  .content-wrapper {
-    max-width: 100%;
-  }
-}
-  */
+
 </style>
 </head>
 
