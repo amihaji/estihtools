@@ -1207,7 +1207,8 @@ function loadOptions() {
         mShippingOptions.forEach(shipping => {
             const option       = document.createElement('option');
             option.value       = shipping.Biaya;
-            option.textContent = shipping.JenisPengiriman;
+            // option.textContent = shipping.JenisPengiriman;
+            option.textContent = `${shipping.JenisPengiriman} - ${shipping.Biaya}`;
             shippingSelect.appendChild(option);
         });
     }).catch(err => {

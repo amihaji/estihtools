@@ -806,7 +806,7 @@ function addProduk() {
   // Cek duplikasi NoStok pada tabel saat ini
   const rows = document.querySelectorAll('#produkTableBody tr');
   for (let row of rows) {
-    const cellNoStok = row.children[0]?.textContent?.trim().toLowerCase();
+    const cellNoStok = row.children[0]?.textContent?.trim();
     if (cellNoStok === noStok) {
       showPesanModal("warning", " WARNING : No Stok sudah digunakan.");
       return;
@@ -1319,7 +1319,6 @@ function sendExcelBatch(batchData, isFirstBatch) {
     }
   });
 }
-
 
 // ********************************
 // Fungsi untuk Export Data ke Excel (Direct - XLSX Fixed)
