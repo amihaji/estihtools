@@ -10,7 +10,8 @@
 <style>
 body { 
     background-color: #f8f9fa; 
-    justify-content: center;
+    justify-content: center !important;
+    justify-items: center !important;
     flex-direction: row !important;  
 }
 
@@ -18,7 +19,8 @@ body {
 .main-container {
   display: flex;
   flex-direction: row !important;
-  justify-content: center;
+  justify-content: center !important;
+  justify-items: center !important;
   flex: 1;
 }
 
@@ -158,7 +160,7 @@ tr:hover .action-icon {
   max-width: 400px;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.5rem;
 }
 #confirmDeleteModal .modal-content {
   border: none;
@@ -170,21 +172,6 @@ tr:hover .action-icon {
   border-top-right-radius: 8px;
   padding: 0.5rem 1rem;
 }
-/*
-#confirmDeleteModal .modal-title {
-  font-size: 1rem;
-}
-*/  
-/*
-#confirmDeleteModal .modal-body {
-  padding: 0.75rem;
-}
-*/  
-/*
-#confirmDeleteModal .modal-footer {
-  padding: 0.5rem;
-}
-*/  
 #confirmDeleteModal .btn-close:focus {
   box-shadow: none;
 }
@@ -278,10 +265,10 @@ tr:hover .action-icon {
 
     <!-- Tombol Form Setup Kategori -->
     <div class="button-box btn-group-vertical-responsive d-flex gap-2">
-        <button class="btn btn-primary btn-sm d-flex flex-start" id="addKategoriButton">
+        <button class="btn btn-primary btn-sm" id="addKategoriButton">
             <i class="fas fa-plus-square me-1"></i> Tambah
         </button>
-        <a href="setupEstih.html" class="btn btn-secondary btn-sm d-flex flex-end">
+        <a href="setupEstih.html" class="btn btn-secondary btn-sm">
             <i class="fas fa-sign-out-alt me-1"></i> Kembali
         </a>
     </div>
